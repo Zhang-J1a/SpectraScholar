@@ -18,6 +18,8 @@ _TEST_WORKSPACE = Path(__file__).resolve().parent.parent / ".test-workspace"
 shutil.rmtree(_TEST_WORKSPACE, ignore_errors=True)
 _TEST_WORKSPACE.mkdir(parents=True, exist_ok=True)
 os.environ["WORKSPACE_DIR"] = str(_TEST_WORKSPACE)
+# Never load the developer's real .env / API keys into the test process.
+os.environ["SPECTRASCHOLAR_SKIP_DOTENV"] = "1"
 os.environ.update(
     {
         "RESEARCH_BACKEND": "demo",

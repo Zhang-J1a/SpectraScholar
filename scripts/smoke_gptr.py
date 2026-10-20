@@ -32,8 +32,9 @@ async def run(args: argparse.Namespace) -> int:
         language=args.language,
     )
     backend = GPTResearcherBackend()
+    settings.ensure_directories()
 
-    async def on_event(level: str, step: str, message: str, duration_ms: int | None) -> None:
+    async def on_event(level: str, step: str, message: str, duration_ms: int | None = None) -> None:
         print(f"[{level}] {step}: {message}")
 
     try:

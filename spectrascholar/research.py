@@ -192,6 +192,7 @@ class GPTResearcherBackend:
             config["STRATEGIC_LLM"] = settings.gptr_strategic_llm
         if settings.gptr_embedding:
             config["EMBEDDING"] = settings.gptr_embedding
+        settings.config_dir.mkdir(parents=True, exist_ok=True)
         path = settings.config_dir / f"{job_id}.json"
         path.write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
         return path
