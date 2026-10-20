@@ -1,0 +1,448 @@
+# SpectraScholar 开发日志
+
+> 记录真实执行过程、遇到的 Bug、处理方案、测试结果与未完成事项。
+> 环境：Windows 11，PowerShell 7，Python 3.12.8，日期 2026-10-20。
+> 所有“通过”都对应本机实际命令；标为“未验证”的没有真实运行证据。
+
+---
+
+## 0. 初始工程审查（修改前）
+
+### 已经真实存在的能力
+
+- FastAPI 基础接口：研究任务提交、状态查询、报告下载、PDF 上传、文献列表、`/compare`。
+- SQLite 任务与文档记录（`store.py`）。
+- `DemoBackend`：明确标注演示，不调用搜索/LLM。
+- `GPTResearcherBackend`：已有 `conduct_research()` / `write_report()` 调用骨架。
+- PDF 读取（pypdf）、规则数据集匹配、页码 + 原文片段核验原语。
+- 极简单页 Web UI。
+- 5 个 pytest 离线测试。
+- Dockerfile / compose / 环境变量模板。
+
+### 仅有入口、未完成集成或未验证
+
+| 项目 | 问题 |
+|---|---|
+| GPT Researcher 真实调用 | 未在真实 Key/网络下验证；本地模式配置不完整 |
+| 任务状态可靠性 | 无执行日志、无尝试次数、无超时/重试分类、无 Trace |
+| 结构化抽取 | 仅少量数据集字面匹配；没有方法/模型/实验条件/图构建 |
+| 多论文对比 | 只有 JSON 拼接；没有可比性规则、不可比标记、Markdown 导出 |
+| 引用核验 | 只有字段级函数；没有报告级审计、缺引用结论检测 |
+| RAG | 未实现 |
+| 工作流 | 未实现 |
+| 测试 | 只覆盖 happy path；缺失败路径、Mock 集成、状态转换 |
+| 工程化 | 无鉴权/限流/统一错误/Trace；`BackgroundTasks` 仅适合演示 |
+| Docker | 未构建验证（本机无 Docker） |
+
+### 审查时发现的具体 Bug / 风险
+
+1. **本地模式配置错误**：只设置 `DOC_PATH`，没有让 GPT Researcher 的 `Config` 设置 `doc_path`。上游 `Config` 仅在 `REPORT_SOURCE != web` 时设置 `doc_path`；本地模式可能直接 `AttributeError`。
+2. **SQLite 连接未关闭**：`with sqlite3.connect(...)` 只提交/回滚，不关闭连接。Windows 下导致测试工作区删除失败（WinError 32）。
+3. **任务失败没有类型**：所有异常压成字符串，无法区分可重试与不可重试。
+4. **列表接口返回完整报告**：任务多时响应过大。
+5. **PDF 读取保持文件句柄**：pypdf 直接接收路径，可能延迟释放，影响 Windows 删除。
+6. **测试隔离不足**：直接使用项目 `workspace`，会污染真实数据。
+7. **旧测试只验证结果包含“演示模式”**，没有验证状态转换/日志/失败。
+
+### 基线测试结果（修改前）
+
+```powershell
+cd SpectraScholar-Starter
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+```text
+.....                                                                    [100%]
+5 passed, 2 warnings in 1.74s
+```
+
+> 说明：venv 的 `ensurepip` 在该环境失败，最终使用全局 `uv`（`python -m uv`）创建环境并安装依赖。
+
+---
+
+## 1. P0：真实调研链路与任务状态机
+
+### 实现
+
+- `research.py` 重写：
+  - `ResearchOutcome` 明确 `backend/is_demo/metadata`；
+  - `GPTResearcherBackend` 每任务写入隔离 JSON 配置，包含 `REPORT_SOURCE`、`DOC_PATH`、`LANGUAGE`、`RETRIEVER`、`FAST_LLM`/`SMART_LLM`/`STRATEGIC_LLM`；
+  - 阶段超时 + 任务总超时；
+  - `ResearchError(code, retryable)`；
+  - 空上下文/空报告失败；
+  - 缺 `OPENAI_API_KEY` / `TAVILY_API_KEY` / 依赖 → 明确错误；
+  - Demo 与真实报告头显式区分。
+- `store.py`：
+  - `jobs` 增加 `language/backend/is_demo/error_type/citation_audit/trace_id/attempts/started_at/elapsed_ms`；
+  - 新增 `job_events`；
+  - `_ClosingConnection` 显式关闭连接；
+  - 轻量迁移（`PRAGMA table_info` + `ALTER TABLE`）。
+- `api/research.py`：提交、列表、详情、事件、下载、重试；并发上限。
+- 引用审计：完成后自动生成 `CitationAudit` 并附到报告。
+
+### 关键 Bug 与修复
+
+#### Bug 1：本地模式配置不生效
+
+**现象**：本地模式只设置 `DOC_PATH` 环境变量，但上游 `Config` 在 `REPORT_SOURCE=web` 时不读取 `DOC_PATH`，`cfg.doc_path` 可能不存在。
+
+**修复**：为每次任务生成 `workspace/gptr_configs/<job_id>.json`：
+
+```json
+{
+  "REPORT_SOURCE": "local",
+  "DOC_PATH": ".../workspace/papers",
+  "LANGUAGE": "chinese",
+  "RETRIEVER": "tavily",
+  "FAST_LLM": "openai:gpt-4o-mini",
+  "SMART_LLM": "openai:gpt-4o",
+  "STRATEGIC_LLM": "openai:gpt-4o"
+}
+```
+
+把 `config_path` 传给 `GPTResearcher`。同时文档明确：不要再在 `.env` 设 `REPORT_SOURCE`，因为环境变量优先级高于配置文件。
+
+**验证**：Mock 测试断言 `config_data["REPORT_SOURCE"] == "local"` 且 `DOC_PATH` 以 `papers` 结尾。
+
+#### Bug 2：Windows 下 SQLite 文件锁
+
+**现象**：pytest 第二个用例开始出现 `PermissionError: [WinError 32] ... sqlite3` / 工作区目录无法删除。
+
+**原因**：`with sqlite3.connect(...)` 的上下文管理器只负责事务，不关闭连接；连接对象被 GC 前一直持有文件句柄。
+
+**修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
+
+**验证**：56 个测试连续运行，工作区每个用例可重建。
+
+#### Bug 3：PDF 文件句柄影响删除
+
+**修复**：`read_pdf_pages` / `pdf_page_count` 先 `path.read_bytes()`，再用 `BytesIO` 交给 pypdf；文件立即关闭。
+
+#### Bug 4：任务列表返回完整报告
+
+**修复**：新增 `JobSummary`；`recent_jobs` 只 SELECT 摘要字段；详情接口仍返回 `JobDetails`（含报告/审计）。
+
+### Mock 集成测试覆盖
+
+- 成功：`conduct_research()` / `write_report()` 被调用；`backend=gptr`、`is_demo=false`；
+- 本地模式配置写入正确；
+- 空报告 → `failed / empty_report`；
+- 缺 Key → `failed / missing_api_key`；
+- 超时 → 重试 2 次后 `failed / timeout`，存在 `retry` 事件；
+- 失败任务可重试。
+
+### 真实 API 状态
+
+- 已阅读并核对 `gpt-researcher==0.16.1` 源码：
+  - `GPTResearcher.__init__(query, report_type, report_source, report_format, config_path, ...)`
+  - `async conduct_research()`
+  - `async write_report()`
+- **未完成真实联调**：环境无 API Key，且外网直连失败。
+- 尝试安装完整 live 依赖时，`sgmllib3k` sdist 构建在 Windows 沙箱内因临时目录 `chmod` 被拒绝而失败；没有把这次失败包装成成功。
+- 提供 `scripts/check_gptr_api.py` 与 `scripts/smoke_gptr.py`，在具备网络/Key 的环境可真实执行并明确输出失败。
+
+---
+
+## 2. P1-A：结构化抽取
+
+### 实现
+
+- `schemas.py` 新增：
+  - `EvidenceRef`、`ExtractedField`、`PaperMetadata`、`MethodRecord`、`DatasetRecord`、`GraphConstructionRecord`、`ExperimentCondition`、`MetricRecord`、`ExtractionStats`、`RejectionRecord`。
+- `extraction/heuristic.py`：
+  - 标题/作者/年份/会议（版面推断，低置信度）；
+  - 模型词表：HybridSN、SSRN、SpectralFormer、GCN、GAT、GraphSAGE、GIN、3D/2D-CNN、Transformer、ViT 等；
+  - 模型家族映射；
+  - 数据集词表：Indian Pines、Pavia、Salinas、Houston、Berlin、Botswana、Trento、MUUFL 等；
+  - 图构建：KNN、RBF、dynamic、static、superpixel；
+  - 指标：OA/AA/Kappa 正 + 反模式；
+  - 训练比例、补丁尺寸、划分协议；
+  - 所有 evidence 通过 `make_evidence_ref`。
+- `extraction/llm.py`：
+  - 严格 JSON Prompt；
+  - 代码围栏/尾逗号修复；
+  - Pydantic 风格逐字段校验；
+  - 失败候选写入 `rejections`；
+  - 缺 Key / 非 JSON / Provider 错误明确分类。
+- `extraction/service.py`：模式解析、统一错误、证据计数。
+
+### 关键 Bug 与修复
+
+#### Bug 5：LLM 字段名不一致
+
+Prompt 里方法是 `name`、数据集是 `name`、图构建是 `kind`，但校验函数只读 `value`，导致所有方法/数据集候选被静默当作“缺失”，且没有 rejection。
+
+**修复**：`_field_from_candidate` 依次接受 `value` / `name` / `kind`；补充测试“有效候选通过”和“幻觉引文被拒绝”。
+
+#### Bug 6：指标窗口过窄
+
+最初 `_sentence_window` 遇到换行就截断，PDF 中“数据集 + 训练比例”常在上一行，导致指标无法关联条件。
+
+**修复**：改为围绕匹配位置的连续字符窗口（260 字符），仍然是原文子串，可被核验；并在 note 中说明“文本窗口关联，不是表格解析”。
+
+### 测试结果
+
+- 规则抽取：标题/作者/年份/会议、GCN、HybridSN、Indian Pines、KNN/dynamic/RBF/static、OA/AA/Kappa、10%、9x9、random split 全部命中。
+- 空白 PDF：所有字段 `null`，`missing_fields` 包含 `metadata.title`/`metrics`，提示需要 OCR。
+- 幻觉：把 OA 值改成 `99.9%` 或伪造 quote，候选被丢弃并记录原因。
+- 非法 JSON、缺 Key 均有明确错误。
+
+---
+
+## 3. P1-B：多论文对比
+
+### 实现
+
+- `compare.py`：
+  - 方法行、数据集矩阵、指标行；
+  - 可比组 `dataset|metric|train_ratio|patch_size|protocol`；
+  - 至少 2 篇文档才排名；
+  - 缺失条件 → `comparable=false` + 原因；
+  - 单篇论文独有的指标不排名；
+  - 单篇画像：优势/局限/适用场景（规则生成，明确标注）；
+  - Markdown：概览、方法、数据集、指标、不可比项、画像、人工复核清单、证据附录。
+- `/api/v1/compare` 持久化；`/compare/{id}.md` 下载。
+
+### 测试结果
+
+- Indian Pines + 10% + 9x9 + random split 的两条 OA 进入同组，排名 1/2；
+- Kappa 只有一篇 → `comparable=false`，无排名；
+- 缺训练比例 → `train_ratio_missing`，两条 OA 均不可比；
+- 重复文档 ID → 422；不存在文档 → 404；
+- LLM 模式无 Key → 503。
+
+---
+
+## 4. P1-C：引用核验
+
+### 实现
+
+- 本地引用语法 `[[doc:<id> p.<n> "quote"]]`；
+- `audit_report`：
+  - 文档/页码/原文/值；
+  - 外部链接 `external_unchecked`；
+  - 非法语法 `malformed`；
+  - 数值性结论无引用 → `unsupported_claims`；
+- 报告自动追加“引用核验报告”；
+- 单条 `/api/v1/evidence/verify`；
+- 页面点击引用 → 打开 PDF 页文本并高亮片段。
+
+### 测试结果
+
+- 通过 1 条、失败 3 条、外部 1 条、malformed 1 条、缺引用 1 条的单测；
+- `verified_page_only` 与 `verified_quote` 明确区分；
+- 表格行/标题不误报缺引用；
+- 审计节幂等，不重复追加。
+
+---
+
+## 5. P2：混合 RAG
+
+### 实现
+
+- 页级 chunk（保留页码/字符偏移），不跨页；
+- BM25（英文 token + 中文单字/二元组）；
+- `HashEmbedder`（离线、词法哈希、明确非语义）；
+- `OpenAIEmbedder`（真实 embedding，批次 + 重试）；
+- 内存索引 + JSON 持久化（向量 base64 float32）；
+- RRF + 加权融合 + 词法覆盖率重排；
+- 空结果/低分拒答；
+- 抽取式回答 / LLM 回答（无有效引用自动降级）；
+- 引用审计复用 `citations.py`。
+
+### 关键 Bug 与修复
+
+#### Bug 7：`len(int)`
+
+`index_documents` 里写成 `len(index.stats()["total_chunks"])`，`total_chunks` 是 int，工作流 `retrieve` 节点直接 `TypeError`。
+
+**修复**：改为 `int(index.stats()["total_chunks"])`。
+
+#### Bug 8：索引兼容状态
+
+索引由不同 embedding 构建时 `compatible=false`；重建后没有恢复。**修复**：`save()` 时重置 `manifest_embedding` 与 `compatible=true`。
+
+### 测试结果
+
+- 2 篇 PDF、4 个 chunks 索引成功；
+- 查询 `dynamic graph KNN Indian Pines` 首位命中正确；
+- 回答 `grounded=true`，3 条引用全部通过；
+- 空知识库拒答；
+- 删除文献后 chunks 减少；
+- OpenAI embedding 缺 Key → 503；
+- 合成夹具 Recall@1/3、MRR = 1.0（仅流水线，不代表真实语义检索）。
+
+---
+
+## 6. P3：工作流与工程化
+
+### 实现
+
+- 7 节点 DAG：`plan → screen → retrieve → extract → verify → compare → report`；
+- `WorkflowState` 保存文档、页文本、抽取结果、检索片段、对比、审计；
+- `workflow_steps` 持久化节点状态/尝试/耗时/错误；
+- 节点超时 + 有界重试；
+- 幂等键；
+- 统一 API 错误、Trace ID、限流、安全头、可选 API Key；
+- 任务列表瘦身、PDF 去重、索引删除联动。
+
+### 关键 Bug 与修复
+
+#### Bug 9：工作流 `retrieve` 失败
+
+由 Bug 7 引起；修复后 7/7 节点完成。
+
+#### Bug 10：测试临时目录被沙箱拒绝
+
+首次把测试工作区放到系统 `Temp`，Windows 沙箱对子目录 `mkdir` 返回 `WinError 5`。
+
+**修复**：测试工作区改为项目内 `.test-workspace/`（Git 忽略），并在每个用例前带重试地清理。**没有跳过测试**。
+
+#### Bug 11：SQLite / PDF 文件锁（见 P0 Bug 2/3）
+
+修复后测试稳定。
+
+---
+
+## 7. 前端
+
+- 单页、无构建步骤，保持 `web/index.html`；
+- 五个页签：研究、文献库、对比、知识库、任务与工作流；
+- 自写安全 Markdown 渲染（先转义再解析，支持表格/引用/代码块）；
+- 本地引用变为可点击页码，打开 PDF 页文本并高亮片段；
+- 研究任务轮询事件、状态、报告、引用审计；
+- 文献上传/删除/查看/多选；
+- 对比表、可比性徽章、不可比原因、Markdown 下载；
+- KB 索引/检索/问答/拒答；
+- 工作流节点时间线与报告；
+- 任务历史。
+
+### 未完成的视觉验证
+
+尝试用 Chrome headless 截图：
+
+```powershell
+chrome --headless=new --screenshot=... http://127.0.0.1:8010/
+```
+
+失败原因：Windows 沙箱禁止 Chrome 的 Mojo 命名管道（`platform_channel.cc: Permission denied`），单进程模式也一样。
+
+**已完成的替代验证**：
+
+- `GET /` 返回 200，页面约 50 KB；
+- 抽取内联 JS，`node --check` 通过；
+- 所有 API 通过真实 Uvicorn + HTTP 冒烟。
+
+**未完成**：浏览器视觉截图/交互自动化；README 使用结构示意图并明确标注，不伪造运行截图。
+
+---
+
+## 8. 真实运行记录
+
+### 8.1 测试
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+```text
+........................................................                 [100%]
+56 passed, 1 warning in 7.20s
+```
+
+### 8.2 Lint
+
+```powershell
+.\.venv\Scripts\ruff.exe check spectrascholar tests scripts
+```
+
+```text
+All checks passed!
+```
+
+### 8.3 覆盖率
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest --cov=spectrascholar --cov-report=term
+```
+
+```text
+TOTAL  3208 statements  428 missed  87%
+```
+
+### 8.4 合成夹具评测
+
+```powershell
+.\.venv\Scripts\python.exe scripts\evaluate_pipeline.py
+```
+
+```text
+Extraction field accuracy: 14/14 (1.0)
+Evidence acceptance: 14/14 (1.0)
+Recall@1: 1.0; Recall@3: 1.0; MRR: 1.0
+Citation validity: 1.0 (3 checks)
+Workflow: completed 7/7 steps
+Latency: compare 35ms, index 17ms, search median 3ms, answer 16ms, workflow 353ms
+```
+
+> 这些数字只来自合成两页 PDF + hash 嵌入；真实论文与真实 embedding 未验证。
+
+### 8.5 HTTP 冒烟
+
+启动：
+
+```powershell
+$env:WORKSPACE_DIR="$PWD\.smoke-workspace"
+.\.venv\Scripts\python.exe -m uvicorn spectrascholar.main:app --host 127.0.0.1 --port 8010
+```
+
+实际结果：
+
+- 上传 2 篇 PDF：201；
+- Demo 研究：202 → completed，报告 623 字符，引用审计 0 条；
+- 对比：200，OA 98.4% / 97.1% 可比，排名 1/2；Kappa 单篇不可比；
+- 索引：200，4 chunks；
+- 检索：命中 dynamic_gnn p.1；
+- 问答：grounded=true，refusal=false，引用通过；
+- 工作流：202 → completed，7/7 节点；
+- 报告下载 / OpenAPI：200。
+
+### 8.6 未验证事项
+
+| 事项 | 原因 | 影响 |
+|---|---|---|
+| GPT Researcher 真实 API | 无 Key + 外网阻断 | 只完成 Mock 集成与源码签名核对 |
+| 真实 LLM 抽取 | 无 Key | 只完成假模型测试 |
+| 真实论文评测 | 无法下载 PDF | 只有合成夹具 |
+| Docker 构建 | 无 Docker CLI | Dockerfile/compose 仅静态审查 |
+| 浏览器截图 | Chrome IPC 被沙箱阻断 | UI 只做 HTTP/JS 语法验证 |
+| 语义检索质量 | 默认 hash 嵌入 | 明确标注非语义，未宣称效果 |
+
+---
+
+## 9. 设计决策记录（ADR 摘要）
+
+| 决策 | 选择 | 理由 | 代价 |
+|---|---|---|---|
+| 研究引擎 | 复用 GPT Researcher | 上游搜索/抓取/报告成熟；避免重造 | 版本兼容/外部依赖 |
+| 数据模型 | 所有字段带 EvidenceRef | 可信性优先 | 代码更啰嗦 |
+| 抽取默认 | heuristic | 离线可跑、无幻觉 | 表格/语义能力弱 |
+| 对比 | 条件一致才排名 | 防止错误 SOTA 结论 | 很多数值显示“不可比” |
+| RAG | 内存索引 + JSON | 单机、可解释、测试快 | 不适合大规模 |
+| 工作流 | 自建状态机 | 固定 DAG、契约清晰 | 无 LangGraph 生态 |
+| 任务执行 | BackgroundTasks | 本地演示简单 | 不适合生产并发 |
+| 存储 | SQLite | 零运维、易复现 | 多用户/并发弱 |
+| 前端 | 原生 HTML/JS | 不引入构建链 | 复杂交互需手写 |
+
+---
+
+## 10. 下一步
+
+1. 有网络/Key 的环境：跑 10 个真实任务，记录成功率、错误码、耗时、cost。
+2. 下载合法 PDF，完成真实标注，重跑抽取/引用/Recall@K。
+3. OpenAI embedding 对照 hash，做 ablation。
+4. 表格解析/OCR 插件化。
+5. Redis/RQ 队列与取消/预算。
+6. 多用户与 PostgreSQL/pgvector。
+7. 生成真实界面截图与 3 分钟演示视频。

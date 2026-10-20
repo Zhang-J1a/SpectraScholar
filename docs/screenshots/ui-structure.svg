@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">SpectraScholar 界面结构示意</title>
+  <desc id="desc">深色科研 Agent 界面：顶部品牌与运行模式徽章，五个页签，左侧研究任务表单与执行状态，右侧报告预览。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#080d16"/>
+      <stop offset="0.55" stop-color="#0b1422"/>
+      <stop offset="1" stop-color="#0e1c2a"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#67e8c9" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#8bd3ff" stop-opacity="0"/>
+    </linearGradient>
+    <style>
+      .bg { fill: url(#bg); }
+      .panel { fill: #101b2c; stroke: #23344c; stroke-width: 1.2; }
+      .panel2 { fill: #0b1422; stroke: #1d3149; stroke-width: 1; }
+      .accent { fill: #67e8c9; }
+      .blue { fill: #8bd3ff; }
+      .text { fill: #edf4ff; font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+      .muted { fill: #9db0c7; font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+      .faint { fill: #6f849e; font-family: "Consolas", monospace; }
+      .badge { fill: #0d2233; stroke: #2f5877; }
+      .badge-warn { fill: #2a2112; stroke: #6b5330; }
+      .badge-ok { fill: #0e2a24; stroke: #2d6b59; }
+      .chip { fill: #0c1a2a; stroke: #2c4664; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="800"/>
+  <rect x="0" y="0" width="1200" height="180" fill="url(#glow)"/>
+
+  <!-- header -->
+  <text x="64" y="64" class="accent" font-size="13" font-family="Consolas, monospace" letter-spacing="4">SPECTRASCHOLAR / RESEARCH INTELLIGENCE</text>
+  <text x="64" y="112" class="text" font-size="34" font-weight="700">让文献调研变成可复查的证据链</text>
+  <text x="64" y="146" class="muted" font-size="14">研究任务 · 论文管理 · 结构化抽取 · 多论文对比 · 混合检索 · 引用核验</text>
+
+  <!-- badges -->
+  <g transform="translate(878,58)">
+    <rect class="badge-warn" x="0" y="0" width="128" height="28" rx="14"/>
+    <text x="14" y="19" fill="#ffe2b5" font-size="12" font-family="Segoe UI, Microsoft YaHei, sans-serif">研究引擎 demo</text>
+    <rect class="badge" x="138" y="0" width="116" height="28" rx="14"/>
+    <text x="152" y="19" fill="#c7e9ff" font-size="12" font-family="Segoe UI, Microsoft YaHei, sans-serif">规则抽取</text>
+    <rect class="badge-warn" x="264" y="0" width="106" height="28" rx="14"/>
+    <text x="278" y="19" fill="#ffe2b5" font-size="12" font-family="Segoe UI, Microsoft YaHei, sans-serif">hash 嵌入</text>
+    <rect class="badge-ok" x="0" y="38" width="148" height="28" rx="14"/>
+    <text x="14" y="57" fill="#bdf7df" font-size="12" font-family="Segoe UI, Microsoft YaHei, sans-serif">56 tests · 87%</text>
+    <rect class="badge" x="158" y="38" width="122" height="28" rx="14"/>
+    <text x="172" y="57" fill="#c7e9ff" font-size="12" font-family="Segoe UI, Microsoft YaHei, sans-serif">文献 2 篇</text>
+  </g>
+
+  <!-- tabs -->
+  <g transform="translate(64,186)">
+    <rect class="accent" x="0" y="0" width="116" height="34" rx="8"/>
+    <text x="20" y="22" fill="#052b24" font-size="13" font-weight="700" font-family="Segoe UI, Microsoft YaHei, sans-serif">01 研究任务</text>
+    <text x="146" y="22" class="muted" font-size="13" font-family="Segoe UI, Microsoft YaHei, sans-serif">02 文献库</text>
+    <text x="238" y="22" class="muted" font-size="13" font-family="Segoe UI, Microsoft YaHei, sans-serif">03 论文对比</text>
+    <text x="348" y="22" class="muted" font-size="13" font-family="Segoe UI, Microsoft YaHei, sans-serif">04 知识库</text>
+    <text x="442" y="22" class="muted" font-size="13" font-family="Segoe UI, Microsoft YaHei, sans-serif">05 任务与工作流</text>
+    <line x1="0" y1="46" x2="1072" y2="46" stroke="#23344c" stroke-width="1"/>
+  </g>
+
+  <!-- left card -->
+  <g transform="translate(64,262)">
+    <rect class="panel" x="0" y="0" width="604" height="452" rx="16"/>
+    <text x="24" y="36" class="text" font-size="16" font-weight="700">创建研究任务</text>
+    <text x="24" y="60" class="muted" font-size="12">Demo 不调用搜索或 LLM；真实模式缺 Key 会明确失败。</text>
+
+    <text x="24" y="92" class="muted" font-size="12">研究问题</text>
+    <rect class="panel2" x="24" y="102" width="556" height="80" rx="9"/>
+    <text x="38" y="128" fill="#c8d8e8" font-size="12" font-family="Segoe UI, Microsoft YaHei, sans-serif">比较 2024 年以来图神经网络在高光谱分类中的</text>
+    <text x="38" y="149" fill="#c8d8e8" font-size="12" font-family="Segoe UI, Microsoft YaHei, sans-serif">应用，重点分析动态图构建、训练比例与评估。</text>
+
+    <text x="24" y="208" class="muted" font-size="12">领域</text>
+    <rect class="panel2" x="24" y="218" width="172" height="38" rx="8"/>
+    <text x="38" y="242" fill="#dbe9f8" font-size="12" font-family="Segoe UI, Microsoft YaHei, sans-serif">高光谱分类</text>
+    <text x="224" y="208" class="muted" font-size="12">资料来源</text>
+    <rect class="panel2" x="224" y="218" width="172" height="38" rx="8"/>
+    <text x="238" y="242" fill="#dbe9f8" font-size="12" font-family="Segoe UI, Microsoft YaHei, sans-serif">网页检索</text>
+    <text x="424" y="208" class="muted" font-size="12">语言</text>
+    <rect class="panel2" x="424" y="218" width="156" height="38" rx="8"/>
+    <text x="438" y="242" fill="#dbe9f8" font-size="12" font-family="Segoe UI, Microsoft YaHei, sans-serif">中文</text>
+
+    <rect class="accent" x="24" y="276" width="118" height="38" rx="8"/>
+    <text x="48" y="300" fill="#052b24" font-size="13" font-weight="700" font-family="Segoe UI, Microsoft YaHei, sans-serif">开始研究</text>
+    <text x="156" y="300" class="faint" font-size="11">后台执行 · 自动轮询状态与事件</text>
+
+    <line x1="24" y1="336" x2="580" y2="336" stroke="#1d3149" stroke-width="1"/>
+    <text x="24" y="364" class="text" font-size="13" font-weight="700">执行状态：completed</text>
+    <text x="24" y="386" class="muted" font-size="11">Trace 3fb827ee… · 后端 demo · 用时 128 ms</text>
+    <g transform="translate(24,404)">
+      <circle cx="5" cy="5" r="4" fill="#67e8c9"/>
+      <text x="18" y="9" class="muted" font-size="11">queued → running → completed</text>
+      <circle cx="5" cy="28" r="4" fill="#8bd3ff"/>
+      <text x="18" y="32" class="muted" font-size="11">audit · 本地引用 0 条 · 外部链接 0 条</text>
+      <circle cx="5" cy="51" r="4" fill="#f6c177"/>
+      <text x="18" y="55" class="muted" font-size="11">演示模式：报告不是调研结果</text>
+    </g>
+  </g>
+
+  <!-- right card -->
+  <g transform="translate(690,262)">
+    <rect class="panel" x="0" y="0" width="446" height="452" rx="16"/>
+    <text x="24" y="36" class="text" font-size="16" font-weight="700">研究报告预览</text>
+    <rect x="24" y="54" width="120" height="26" rx="13" fill="#0e2a24" stroke="#2d6b59"/>
+    <text x="38" y="72" fill="#bdf7df" font-size="11" font-family="Segoe UI, Microsoft YaHei, sans-serif">引用核验报告</text>
+    <line x1="24" y1="98" x2="422" y2="98" stroke="#1d3149" stroke-width="1"/>
+
+    <text x="24" y="128" class="text" font-size="14" font-weight="700">多论文结构化对比</text>
+    <text x="24" y="152" class="muted" font-size="11">只有实验条件一致才进入同一可比组。</text>
+
+    <rect class="panel2" x="24" y="170" width="398" height="128" rx="9"/>
+    <text x="38" y="194" fill="#8bd3ff" font-size="11" font-family="Consolas, monospace">dataset        metric   train   comparable</text>
+    <text x="38" y="216" fill="#c8d8e8" font-size="11" font-family="Consolas, monospace">Indian Pines   OA       10%     yes  #1</text>
+    <text x="38" y="238" fill="#c8d8e8" font-size="11" font-family="Consolas, monospace">Indian Pines   OA       10%     yes  #2</text>
+    <text x="38" y="260" fill="#f6c177" font-size="11" font-family="Consolas, monospace">Indian Pines   Kappa    10%     no   —</text>
+    <text x="38" y="282" fill="#6f849e" font-size="10" font-family="Segoe UI, Microsoft YaHei, sans-serif">缺协议/补丁 → 不可比，不排名</text>
+
+    <rect class="panel2" x="24" y="316" width="398" height="104" rx="9"/>
+    <text x="38" y="340" fill="#edf4ff" font-size="12" font-weight="700">证据附录</text>
+    <text x="38" y="362" fill="#9db0c7" font-size="10" font-family="Consolas, monospace">[[doc:bd159e43 p.2 "the overall accuracy (OA) is 98.4%"]]</text>
+    <text x="38" y="382" fill="#9db0c7" font-size="10" font-family="Consolas, monospace">status=verified_quote · semantic_checked=false</text>
+    <text x="38" y="402" fill="#6f849e" font-size="10" font-family="Segoe UI, Microsoft YaHei, sans-serif">点击页码 → 打开 PDF 原页并高亮片段</text>
+  </g>
+
+  <text x="64" y="748" fill="#6f849e" font-size="11" font-family="Segoe UI, Microsoft YaHei, sans-serif">界面结构示意（非运行截图）· 实际页面由 web/index.html 提供 · 通用研究能力来自 Apache-2.0 GPT Researcher</text>
+</svg>
