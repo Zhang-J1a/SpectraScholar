@@ -15,6 +15,17 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
+# If the operator supplies only a DeepSeek key, prefer DeepSeek chat models by
+# default. If OpenAI is also configured, keep OpenAI defaults for embeddings and
+# backwards compatibility. Explicit GPTR_* / EXTRACTION_MODEL / ANSWER_MODEL
+# environment variables always win.
+_DEEPSEEK_ONLY = bool(os.getenv("DEEPSEEK_API_KEY", "").strip()) and not bool(
+    os.getenv("OPENAI_API_KEY", "").strip()
+)
+_DEFAULT_FAST_LLM = "deepseek:deepseek-chat" if _DEEPSEEK_ONLY else "openai:gpt-4o-mini"
+_DEFAULT_SMART_LLM = "deepseek:deepseek-chat" if _DEEPSEEK_ONLY else "openai:gpt-4o"
+_DEFAULT_EXTRACTION_MODEL = "deepseek-chat" if _DEEPSEEK_ONLY else "gpt-4o-mini"
+
 
 def _env_bool(name: str, default: bool = False) -> bool:
     value = os.getenv(name)
@@ -76,15 +87,15 @@ class Settings:
     # GPT Researcher 0.16.x defaults to gpt-5.x; these explicit defaults keep the
     # adapter usable with widely available OpenAI-compatible keys. Override them
     # for other providers (e.g. "ollama:qwen2.5").
-    gptr_fast_llm: str = os.getenv("GPTR_FAST_LLM", "openai:gpt-4o-mini")
-    gptr_smart_llm: str = os.getenv("GPTR_SMART_LLM", "openai:gpt-4o")
-    gptr_strategic_llm: str = os.getenv("GPTR_STRATEGIC_LLM", "openai:gpt-4o")
+    gptr_fast_llm: str = os.getenv("GPTR_FAST_LLM", _DEFAULT_FAST_LLM)
+    gptr_smart_llm: str = os.getenv("GPTR_SMART_LLM", _DEFAULT_SMART_LLM)
+    gptr_strategic_llm: str = os.getenv("GPTR_STRATEGIC_LLM", _DEFAULT_SMART_LLM)
     gptr_embedding: str = os.getenv("GPTR_EMBEDDING", "")
     gptr_allow_missing_key: bool = _env_bool("GPTR_ALLOW_MISSING_KEY", False)
 
     # -- extraction (P1) -----------------------------------------------------
     extractor_backend: str = os.getenv("EXTRACTOR_BACKEND", "heuristic").lower()
-    extraction_model: str = os.getenv("EXTRACTION_MODEL", "gpt-4o-mini")
+    extraction_model: str = os.getenv("EXTRACTION_MODEL", _DEFAULT_EXTRACTION_MODEL)
     extraction_timeout_seconds: int = _env_int("EXTRACTION_TIMEOUT_SECONDS", 90, 5)
     extraction_max_attempts: int = _env_int("EXTRACTION_MAX_ATTEMPTS", 2, 1)
     extraction_max_candidates: int = _env_int("EXTRACTION_MAX_CANDIDATES", 40, 5)
@@ -108,7 +119,7 @@ class Settings:
     rag_min_score: float = _env_float("RAG_MIN_SCORE", 0.0)
     rerank_backend: str = os.getenv("RERANK_BACKEND", "lexical").lower()
     answer_backend: str = os.getenv("ANSWER_BACKEND", "extractive").lower()
-    answer_model: str = os.getenv("ANSWER_MODEL", "gpt-4o-mini")
+    answer_model: str = os.getenv("ANSWER_MODEL", _DEFAULT_EXTRACTION_MODEL)
     answer_timeout_seconds: int = _env_int("ANSWER_TIMEOUT_SECONDS", 90, 5)
 
     # -- workflow (P3) -------------------------------------------------------

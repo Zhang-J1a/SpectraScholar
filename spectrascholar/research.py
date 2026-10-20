@@ -128,15 +128,33 @@ class GPTResearcherBackend:
                 retryable=False,
             ) from exc
 
-        provider = (settings.gptr_fast_llm or settings.gptr_smart_llm or "openai").split(":", 1)[0]
-        if (
-            provider in {"openai", "azure_openai", "openai_like"}
-            and not os.getenv("OPENAI_API_KEY")
-            and not settings.gptr_allow_missing_key
-        ):
+        providers = {
+            spec.split(":", 1)[0]
+            for spec in (
+                settings.gptr_fast_llm,
+                settings.gptr_smart_llm,
+                settings.gptr_strategic_llm,
+            )
+            if spec
+        }
+        required_keys = {
+            "openai": "OPENAI_API_KEY",
+            "azure_openai": "OPENAI_API_KEY",
+            "deepseek": "DEEPSEEK_API_KEY",
+        }
+        missing_keys = sorted(
+            {
+                required_keys[provider]
+                for provider in providers
+                if provider in required_keys and not os.getenv(required_keys[provider])
+            }
+        )
+        if missing_keys and not settings.gptr_allow_missing_key:
             raise ResearchError(
                 "missing_api_key",
-                "缺少 OPENAI_API_KEY。请在 .env 配置真实密钥，或使用 RESEARCH_BACKEND=demo。",
+                f"缺少模型 API 密钥: {', '.join(missing_keys)}。请在 .env 配置，"
+                "或使用 RESEARCH_BACKEND=demo。DeepSeek 可使用 provider:model 形式，"
+                "例如 deepseek:deepseek-chat，并设置 DEEPSEEK_API_KEY。",
                 retryable=False,
             )
         if req.source == "web" and "tavily" in settings.gptr_retriever and not os.getenv("TAVILY_API_KEY"):
@@ -157,6 +175,15 @@ class GPTResearcherBackend:
             "MAX_ITERATIONS": settings.gptr_max_iterations,
             "RETRIEVER": settings.gptr_retriever,
         }
+        # DeepSeek has no embedding API. If only a DeepSeek key is configured,
+        # keep the upstream context filter lexical so research does not try to
+        # call OpenAI embeddings implicitly.
+        if (
+            any(spec.startswith("deepseek:") for spec in (settings.gptr_fast_llm, settings.gptr_smart_llm))
+            and not os.getenv("OPENAI_API_KEY")
+            and not settings.gptr_embedding
+        ):
+            config["CONTEXT_FILTER"] = "keyword"
         if settings.gptr_fast_llm:
             config["FAST_LLM"] = settings.gptr_fast_llm
         if settings.gptr_smart_llm:

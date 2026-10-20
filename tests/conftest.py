@@ -38,7 +38,7 @@ os.environ.update(
         "LOG_LEVEL": "WARNING",
     }
 )
-for key in ("OPENAI_API_KEY", "TAVILY_API_KEY", "OPENAI_BASE_URL"):
+for key in ("OPENAI_API_KEY", "DEEPSEEK_API_KEY", "TAVILY_API_KEY", "OPENAI_BASE_URL"):
     os.environ.pop(key, None)
 
 from fastapi.testclient import TestClient

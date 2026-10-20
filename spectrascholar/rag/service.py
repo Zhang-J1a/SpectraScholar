@@ -1,12 +1,12 @@
 """Knowledge-base ingestion, hybrid retrieval and grounded answering."""
 from __future__ import annotations
 
-import os
 import time
 from pathlib import Path
 
 from ..citations import audit_report
 from ..evidence import PDFExtractionError, read_pdf_pages
+from ..llm_config import LLMConfigurationError, resolve_llm_credentials
 from ..schemas import (
     AnswerRequest,
     AnswerResponse,
@@ -297,14 +297,16 @@ def _extractive_answer(hits: list[SearchHit]) -> str:
 
 
 async def _llm_answer(query: str, hits: list[SearchHit]) -> tuple[str, str]:
-    api_key = os.getenv("OPENAI_API_KEY", "").strip()
-    if not api_key:
-        raise RAGError("missing_api_key", "缺少 OPENAI_API_KEY", retryable=False)
+    try:
+        credentials = resolve_llm_credentials()
+    except LLMConfigurationError as exc:
+        raise RAGError("missing_api_key", str(exc), retryable=False) from exc
+    assert credentials is not None
     from openai import AsyncOpenAI
 
     client = AsyncOpenAI(
-        api_key=api_key,
-        base_url=os.getenv("OPENAI_BASE_URL") or None,
+        api_key=credentials.api_key,
+        base_url=credentials.base_url,
         timeout=settings.answer_timeout_seconds,
     )
     context = "\n\n".join(

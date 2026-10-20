@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
 import re
 import time
 from typing import Any
@@ -17,6 +16,7 @@ from typing import Any
 from openai import AsyncOpenAI
 
 from ..evidence import make_evidence_ref, normalized
+from ..llm_config import LLMConfigurationError, resolve_llm_credentials
 from ..schemas import (
     DatasetRecord,
     ExperimentCondition,
@@ -131,14 +131,16 @@ def parse_json_object(raw: str) -> dict[str, Any]:
 
 
 async def _call_model(prompt: str) -> str:
-    api_key = os.getenv("OPENAI_API_KEY", "").strip()
-    if not api_key:
-        raise LLMExtractionError(
-            "missing_api_key",
-            "LLM 抽取需要 OPENAI_API_KEY；请配置密钥或改用 EXTRACTOR_BACKEND=heuristic",
-        )
-    base_url = os.getenv("OPENAI_BASE_URL") or None
-    client = AsyncOpenAI(api_key=api_key, base_url=base_url, timeout=settings.extraction_timeout_seconds)
+    try:
+        credentials = resolve_llm_credentials()
+    except LLMConfigurationError as exc:
+        raise LLMExtractionError("missing_api_key", str(exc)) from exc
+    assert credentials is not None
+    client = AsyncOpenAI(
+        api_key=credentials.api_key,
+        base_url=credentials.base_url,
+        timeout=settings.extraction_timeout_seconds,
+    )
     last_error: Exception | None = None
     for attempt in range(1, settings.extraction_max_attempts + 1):
         try:
@@ -161,7 +163,9 @@ async def _call_model(prompt: str) -> str:
             name = type(exc).__name__.lower()
             message = str(exc)
             if "authentication" in name or "401" in message:
-                raise LLMExtractionError("auth_error", "模型 API 鉴权失败，请检查 OPENAI_API_KEY") from exc
+                raise LLMExtractionError(
+                    "auth_error", "模型 API 鉴权失败，请检查 OPENAI_API_KEY / DEEPSEEK_API_KEY"
+                ) from exc
             if "ratelimit" in name or "429" in message or "timeout" in name or "connection" in name:
                 retryable = True
             else:

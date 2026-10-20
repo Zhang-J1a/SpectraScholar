@@ -103,6 +103,28 @@ def test_gptr_local_mode_writes_config_with_doc_path(client, monkeypatch):
     assert call.kwargs["report_source"] == "local"
 
 
+def test_deepseek_provider_is_supported(client, monkeypatch):
+    install_fake_gptr(monkeypatch, report="# DeepSeek mock report\n\nok")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "deepseek-test-key")
+    _enable_gptr(
+        monkeypatch,
+        gptr_fast_llm="deepseek:deepseek-chat",
+        gptr_smart_llm="deepseek:deepseek-chat",
+        gptr_strategic_llm="deepseek:deepseek-chat",
+    )
+    response = client.post("/api/v1/research", json={"topic": "DeepSeek 适配器测试主题"})
+    job = _wait(client, response.json()["job_id"])
+    assert job["status"] == "completed", job
+
+    from tests.conftest import FakeGPTResearcher
+
+    call = FakeGPTResearcher.instances[-1]
+    assert call.config_data["FAST_LLM"] == "deepseek:deepseek-chat"
+    assert call.config_data["SMART_LLM"] == "deepseek:deepseek-chat"
+    assert call.config_data["CONTEXT_FILTER"] == "keyword"
+
+
 def test_gptr_empty_report_fails_without_fake_success(client, monkeypatch):
     install_fake_gptr(monkeypatch, report="   ", context="some context")
     _enable_gptr(monkeypatch)
