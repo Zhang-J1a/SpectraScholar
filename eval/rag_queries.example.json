@@ -1,0 +1,12 @@
+{
+  "queries": [
+    {
+      "id": "q1",
+      "query": "dynamic graph construction KNN",
+      "relevant": [
+        {"filename": "replace-with-your-paper.pdf", "page": 3}
+      ],
+      "notes": "页码以 PDF 实际页序为准，从 1 开始。"
+    }
+  ]
+}

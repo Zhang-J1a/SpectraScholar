@@ -1,20 +1,38 @@
-"""Usage: python scripts/evaluate_evidence.py comparison.json
+"""Summarize a saved comparison JSON without over-claiming semantic accuracy.
 
-Reports evidence-acceptance rate, NOT semantic accuracy or retrieval recall.
+Usage:
+    python scripts/evaluate_evidence.py comparison.json
 """
 from __future__ import annotations
+
+import argparse
 import json
-import sys
 from pathlib import Path
 
 
-def main(path: Path):
-    result=json.loads(path.read_text(encoding='utf-8'))
-    items=[item for paper in result['papers'] for field in ('method','datasets','metrics') for item in paper.get(field,[])]
-    verified=sum(bool(item.get('verified')) for item in items)
-    print(f'保留的有原文匹配证据字段: {verified}/{len(items)}')
-    print('注意：这一指标不衡量模型拒绝前候选量、检索召回率、科学正确性或指标可比性。')
+def main(path: Path) -> int:
+    result = json.loads(path.read_text(encoding="utf-8"))
+    papers = result.get("papers", [])
+    evidence = []
+    for paper in papers:
+        for method in paper.get("methods", []):
+            evidence.extend(method.get("evidence", []))
+        for dataset in paper.get("datasets", []):
+            evidence.extend(dataset.get("evidence", []))
+        for graph in paper.get("graph_constructions", []):
+            evidence.extend(graph.get("evidence", []))
+        for metric in paper.get("metrics", []):
+            evidence.extend(metric.get("evidence", []))
+    verified = sum(1 for item in evidence if item.get("status") == "verified_quote")
+    comparable = sum(1 for row in result.get("metric_rows", []) if row.get("comparable"))
+    metrics = len(result.get("metric_rows", []))
+    print(f"PDF 原文证据通过: {verified}/{len(evidence)}")
+    print(f"可比较指标: {comparable}/{metrics}（仅条件完全一致时才可排名）")
+    print("注意：本指标不衡量模型召回率、语义正确性、检索质量或科学结论正确性。")
+    return 0
 
-if __name__=='__main__':
-    if len(sys.argv)!=2: raise SystemExit('传入一个 comparison.json 文件路径')
-    main(Path(sys.argv[1]))
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("comparison", type=Path)
+    raise SystemExit(main(parser.parse_args().comparison))

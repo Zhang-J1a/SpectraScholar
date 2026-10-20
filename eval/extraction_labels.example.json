@@ -1,0 +1,26 @@
+{
+  "document_filename": "replace-with-your-paper.pdf",
+  "annotator": "",
+  "annotated_at": "",
+  "semantic_verification": "human_required",
+  "expected": {
+    "title": null,
+    "authors": null,
+    "year": null,
+    "methods": [],
+    "datasets": [],
+    "graph_construction": [],
+    "metrics": [
+      {
+        "dataset": "Indian Pines",
+        "metric": "OA",
+        "value": null,
+        "train_ratio": null,
+        "patch_size": null,
+        "page": null,
+        "quote": null
+      }
+    ]
+  },
+  "notes": "只填写能回到原文页码确认的内容；无法确认的字段保持 null。"
+}

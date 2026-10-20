@@ -1,0 +1,41 @@
+{
+  "corpus_status": "not_downloaded",
+  "reason": "开发环境外网阻断（arXiv/IEEE 直连失败），未获取 PDF；不得声称完成真实论文评测。",
+  "verified": false,
+  "papers": [
+    {
+      "id": "hybridsn",
+      "title": "HybridSN: Exploring 3-D-2-D CNN Feature Hierarchy for Hyperspectral Image Classification",
+      "venue": "IEEE Geoscience and Remote Sensing Letters",
+      "year": 2020,
+      "doi": "10.1109/LGRS.2019.2918719",
+      "url": "https://doi.org/10.1109/LGRS.2019.2918719",
+      "expected_datasets": ["Indian Pines", "Pavia University", "Salinas"],
+      "status": "not_downloaded",
+      "note": "元数据来自公开检索结果，未下载全文。"
+    },
+    {
+      "id": "ssrn",
+      "title": "Spectral-Spatial Residual Network for Hyperspectral Image Classification: A 3-D Deep Learning Framework",
+      "venue": "IEEE Transactions on Geoscience and Remote Sensing",
+      "year": 2018,
+      "doi": "10.1109/TGRS.2017.2755542",
+      "url": "https://doi.org/10.1109/TGRS.2017.2755542",
+      "expected_datasets": ["Indian Pines", "Pavia University", "Salinas"],
+      "status": "not_downloaded",
+      "note": "元数据来自 OpenAlex 检索结果，未下载全文。"
+    },
+    {
+      "id": "gcn-hsi",
+      "title": "Graph Convolutional Networks for Hyperspectral Image Classification",
+      "venue": "IEEE Transactions on Geoscience and Remote Sensing",
+      "year": 2021,
+      "doi": "10.1109/TGRS.2020.3015157",
+      "arxiv": "2008.02457",
+      "url": "https://arxiv.org/abs/2008.02457",
+      "expected_datasets": ["Indian Pines", "Pavia University", "Salinas", "Houston"],
+      "status": "not_downloaded",
+      "note": "元数据来自 arXiv/公开检索结果，未下载全文。"
+    }
+  ]
+}
