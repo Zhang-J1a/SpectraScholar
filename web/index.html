@@ -1,135 +1,928 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SpectraScholar — Research Agent</title>
-  <style>
-    :root { color-scheme: dark; --bg:#0b1220; --panel:#111c2e; --border:#263954; --text:#ecf3ff; --muted:#a4b7cc; --accent:#67c8b9; }
-    * { box-sizing:border-box; }
-    body { margin:0; background:radial-gradient(circle at 80% 0%,#183b48,transparent 45%),var(--bg); color:var(--text); font:15px/1.65 system-ui,'Microsoft YaHei',sans-serif; }
-    header { max-width:1100px; margin:auto; padding:38px 24px 20px; }
-    .brand { letter-spacing:.18em; font-size:11px; font-weight:700; color:var(--accent); }
-    h1 { font-size:38px; line-height:1.2; margin:10px 0; }
-    h2 { font-size:18px; margin:0 0 16px; }
-    p { color:var(--muted); margin:6px 0 12px; }
-    .tag { background:#21433e; padding:5px 9px; border-radius:7px; color:#bff8e9; display:inline-block; font-size:12px; margin-top:12px; }
-    main { display:grid; grid-template-columns:1.12fr 1fr; gap:18px; max-width:1100px; padding:14px 24px 45px; margin:auto; }
-    section { padding:24px; border:1px solid var(--border); border-radius:16px; background:var(--panel); min-width:0; }
-    .wide { grid-column:1 / -1; }
-    label { display:block; margin:10px 0 5px; font-size:13px; color:#c4d6e9; }
-    textarea,select,input[type=file] { background:#0a1626; color:var(--text); width:100%; border:1px solid #37516d; border-radius:8px; font:inherit; padding:10px 12px; }
-    textarea { min-height:110px; resize:vertical; }
-    .controls { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    button { background:var(--accent); border:0; border-radius:8px; color:#062923; font:inherit; font-weight:700; padding:10px 17px; cursor:pointer; margin-top:14px; }
-    button:disabled { opacity:.5; cursor:not-allowed; }
-    .secondary { background:#263e54; color:#e4f1ff; }
-    pre { overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; background:#081321; color:#c9dae9; padding:18px; border-radius:10px; max-height:490px; }
-    .status { font-size:12px; color:var(--accent); margin:12px 0; min-height:16px; }
-    .paper { display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid #24374b; }
-    .paper span { overflow-wrap:anywhere; }
-    a { color:#8fd8fc; }
-    small { color:var(--muted); }
-    @media(max-width:750px){main{grid-template-columns:1fr}.wide{grid-column:auto} h1{font-size:30px}}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SpectraScholar · 科研文献调研 Agent</title>
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#080d16; --bg2:#0d1523; --panel:#101b2c; --panel2:#0b1422;
+    --border:#23344c; --border2:#2f4766;
+    --text:#edf4ff; --muted:#9db0c7; --faint:#6f849e;
+    --accent:#67e8c9; --accent2:#8bd3ff; --warn:#f6c177; --bad:#ff8b8b; --ok:#7ee2a8;
+    --mono:ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    background:
+      radial-gradient(900px 420px at 85% -10%,rgba(41,120,130,.32),transparent 60%),
+      radial-gradient(700px 380px at 5% 10%,rgba(52,86,160,.18),transparent 60%),
+      var(--bg);
+    color:var(--text);font:15px/1.7 "Segoe UI",system-ui,"Microsoft YaHei",sans-serif;
+  }
+  a{color:var(--accent2)}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 22px}
+  header{padding:34px 0 12px}
+  .topline{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;flex-wrap:wrap}
+  .brand{letter-spacing:.2em;font-size:11px;font-weight:800;color:var(--accent)}
+  h1{font-size:clamp(26px,4vw,42px);line-height:1.15;margin:10px 0 8px;letter-spacing:-.02em}
+  h1 span{color:var(--accent)}
+  .sub{color:var(--muted);max-width:720px;margin:0}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .badge{font-size:12px;padding:4px 9px;border-radius:999px;border:1px solid var(--border2);background:#0b1727;color:var(--muted);white-space:nowrap}
+  .badge.ok{color:#bdf7df;border-color:#2d6b59;background:#0e2a24}
+  .badge.warn{color:#ffe2b5;border-color:#6b5330;background:#2a2112}
+  .badge.bad{color:#ffd0d0;border-color:#6b3333;background:#2a1414}
+  .badge.info{color:#c7e9ff;border-color:#2f5877;background:#0d2233}
+  nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:22px 0 18px;border-bottom:1px solid var(--border);padding-bottom:10px}
+  .tab{background:transparent;border:1px solid transparent;color:var(--muted);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit;font-size:14px}
+  .tab:hover{color:var(--text);background:#0e1a2a}
+  .tab.active{color:#052b24;background:var(--accent);font-weight:800}
+  main{padding-bottom:60px}
+  .panel{display:none}
+  .panel.active{display:block}
+  .grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:18px;align-items:start}
+  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .card{background:linear-gradient(180deg,rgba(18,31,50,.96),rgba(13,23,38,.96));border:1px solid var(--border);border-radius:16px;padding:20px;min-width:0}
+  .card h2{font-size:16px;margin:0 0 6px;letter-spacing:.01em}
+  .card h3{font-size:14px;margin:18px 0 8px;color:#d7e6f8}
+  .hint{color:var(--muted);font-size:13px;margin:4px 0 14px}
+  .tiny{color:var(--faint);font-size:12px}
+  label{display:block;font-size:12px;color:#c4d6e9;margin:10px 0 5px;font-weight:600}
+  input,textarea,select{
+    width:100%;background:#08111d;color:var(--text);border:1px solid #34506f;border-radius:9px;
+    padding:10px 12px;font:inherit;font-size:14px;
+  }
+  input:focus,textarea:focus,select:focus{outline:2px solid rgba(103,232,201,.28);border-color:var(--accent)}
+  textarea{min-height:112px;resize:vertical}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+  button{
+    background:var(--accent);color:#052b24;border:0;border-radius:9px;padding:10px 16px;
+    font:inherit;font-weight:800;cursor:pointer;transition:.15s transform,.15s opacity;
+  }
+  button:hover{transform:translateY(-1px)}
+  button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  button.secondary{background:#20364f;color:#e7f2ff}
+  button.ghost{background:transparent;border:1px solid var(--border2);color:var(--text);font-weight:600}
+  button.danger{background:#4a2028;color:#ffdada}
+  button.small{padding:6px 10px;font-size:12px;border-radius:7px}
+  .status{margin-top:12px;font-size:13px;color:var(--muted);min-height:20px}
+  .status.ok{color:var(--ok)} .status.warn{color:var(--warn)} .status.bad{color:var(--bad)}
+  .timeline{list-style:none;margin:14px 0 0;padding:0;max-height:260px;overflow:auto}
+  .timeline li{display:grid;grid-template-columns:72px 1fr;gap:10px;padding:7px 0;border-bottom:1px dashed #1d2d43;font-size:12px}
+  .timeline .t{color:var(--faint);font-family:var(--mono)}
+  .timeline .lvl-error{color:var(--bad)} .timeline .lvl-warning{color:var(--warn)}
+  .statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+  .stat{background:#091423;border:1px solid #1e3149;border-radius:10px;padding:10px}
+  .stat b{display:block;font-size:19px;color:var(--accent)}
+  .stat span{font-size:11px;color:var(--faint)}
+  .auditbox{border:1px solid #2a405d;background:#091321;border-radius:12px;padding:14px;margin-top:14px}
+  .auditbox.bad{border-color:#6b3333}
+  .auditbox.ok{border-color:#2d6b59}
+  .auditbox ul{margin:8px 0 0;padding-left:18px}
+  .tablewrap{overflow:auto;border:1px solid var(--border);border-radius:12px;margin-top:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:620px}
+  th,td{padding:10px 11px;text-align:left;border-bottom:1px solid #1f3148;vertical-align:top}
+  th{position:sticky;top:0;background:#0d1a2b;color:#c9dbf0;font-size:12px;letter-spacing:.02em;z-index:1}
+  tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:rgba(103,232,201,.04)}
+  .doclist{max-height:390px;overflow:auto;margin-top:8px}
+  .doc{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 2px;border-bottom:1px solid #1d2d43}
+  .doc .name{overflow-wrap:anywhere;font-size:13px}
+  .doc .meta{color:var(--faint);font-size:11px}
+  .doc .ops{display:flex;gap:6px}
+  input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent)}
+  pre,code{font-family:var(--mono)}
+  pre.raw{white-space:pre-wrap;overflow-wrap:anywhere;background:#07101b;border:1px solid #1d3149;border-radius:10px;padding:14px;max-height:520px;overflow:auto;font-size:12.5px;color:#c6d7e8}
+  .report{background:#081320;border:1px solid #1d3149;border-radius:12px;padding:20px;max-height:640px;overflow:auto;margin-top:12px}
+  .report h1{font-size:24px;margin:6px 0 14px}
+  .report h2{font-size:18px;margin:22px 0 10px;border-bottom:1px solid #1d3149;padding-bottom:6px}
+  .report h3{font-size:15px;margin:16px 0 8px;color:#d9ecff}
+  .report p{margin:8px 0;color:#c9d8e9}
+  .report ul,.report ol{margin:8px 0 8px 20px;color:#c9d8e9}
+  .report li{margin:4px 0}
+  .report blockquote{margin:10px 0;padding:8px 12px;border-left:3px solid var(--accent);background:#0a1a24;color:#b9d1e2}
+  .report table{min-width:520px}
+  .report code{background:#132338;padding:1px 5px;border-radius:4px;font-size:12px}
+  .report pre{background:#050c15;padding:12px;border-radius:8px;overflow:auto}
+  .report a{color:var(--accent2)}
+  .cite{display:inline-flex;align-items:center;gap:2px;background:#12352f;color:#a9f3dd;border:1px solid #2d6b59;border-radius:6px;padding:0 5px;font:11px var(--mono);cursor:pointer;margin:0 2px;vertical-align:baseline}
+  .cite:hover{background:#175046}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}
+  .papercard{background:#0a1524;border:1px solid #223750;border-radius:12px;padding:14px}
+  .papercard h4{margin:0 0 6px;font-size:14px;color:#eaf5ff;overflow-wrap:anywhere}
+  .papercard p{margin:4px 0;font-size:12.5px;color:var(--muted)}
+  .papercard ul{margin:6px 0 0 16px;padding:0;font-size:12.5px;color:#bfd2e5}
+  .papercard li{margin:3px 0}
+  .tagline{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .tag{font-size:11px;border:1px solid #2c4664;border-radius:999px;padding:2px 7px;color:#a9c4de;background:#0c1a2a}
+  .hit{border:1px solid #20364f;border-radius:11px;padding:12px;margin-top:10px;background:#0a1524}
+  .hit .head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--faint)}
+  .hit p{margin:6px 0 0;color:#c8d8e8;font-size:12.5px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:150px;overflow:auto}
+  .score{font-family:var(--mono);font-size:11px;color:var(--accent)}
+  .answer{border:1px solid #2d6b59;background:#081c19;border-radius:12px;padding:14px;margin-top:14px}
+  .answer.refusal{border-color:#6b5330;background:#1b170d}
+  .empty{padding:26px 10px;text-align:center;color:var(--faint);font-size:13px}
+  .divider{height:1px;background:var(--border);margin:18px 0}
+  .modal{position:fixed;inset:0;background:rgba(2,6,12,.78);display:none;align-items:center;justify-content:center;padding:24px;z-index:50}
+  .modal.open{display:flex}
+  .modalcard{background:#0b1727;border:1px solid #2b4564;border-radius:14px;max-width:900px;width:100%;max-height:86vh;display:flex;flex-direction:column;overflow:hidden}
+  .modalhead{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid #223750}
+  .modalhead h3{margin:0;font-size:14px;overflow-wrap:anywhere}
+  .modalbody{padding:16px 18px;overflow:auto}
+  .modalbody pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12.5px;color:#c7d8e9}
+  mark{background:#4a3a12;color:#ffe8ad;padding:0 2px;border-radius:3px}
+  .spinner{display:inline-block;width:14px;height:14px;border:2px solid #2f4766;border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .footer{margin-top:26px;color:var(--faint);font-size:12px;border-top:1px solid var(--border);padding-top:16px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}.row3{grid-template-columns:1fr}.statgrid{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.row{grid-template-columns:1fr}.wrap{padding:0 14px}.card{padding:16px}}
+</style>
 </head>
 <body>
+<div class="wrap">
   <header>
-    <div class="brand">SPECTRASCHOLAR / RESEARCH INTELLIGENCE</div>
-    <h1>让文献研究变成<br>可复查的工作流</h1>
-    <p>研究任务 · 论文知识库 · 原文证据验证 · 跨论文比较</p>
-    <div id="mode" class="tag">正在读取运行模式</div>
-  </header>
-  <main>
-    <section>
-      <h2>01 / 创建研究任务</h2>
-      <label for="topic">研究问题</label>
-      <textarea id="topic">比较 2024 年以来图神经网络在高光谱图像分类中的应用，重点分析动态图构建与实验评估。</textarea>
-      <div class="controls">
-        <div><label for="domain">领域</label><select id="domain"><option value="hyperspectral">高光谱分类</option><option value="general">通用科研</option></select></div>
-        <div><label for="source">资料来源</label><select id="source"><option value="web">网络研究</option><option value="local">本地论文</option></select></div>
+    <div class="topline">
+      <div>
+        <div class="brand">SPECTRASCHOLAR / RESEARCH INTELLIGENCE</div>
+        <h1>让文献调研变成<br><span>可复查的证据链</span></h1>
+        <p class="sub">科研任务规划 · 论文管理 · 结构化抽取 · 多论文对比 · 混合检索 · 引用核验。通用网页研究由 GPT Researcher 提供，本地证据流水线为个人扩展模块。</p>
       </div>
-      <button id="run">开始研究</button>
-      <div id="researchStatus" class="status"></div>
-      <div id="reportLink"></div>
+      <div style="min-width:250px">
+        <div class="badges" id="modeBadges"><span class="badge">正在读取运行模式…</span></div>
+      </div>
+    </div>
+    <nav class="tabs" aria-label="主导航">
+      <button class="tab active" data-tab="research">01 研究任务</button>
+      <button class="tab" data-tab="library">02 文献库</button>
+      <button class="tab" data-tab="compare">03 论文对比</button>
+      <button class="tab" data-tab="knowledge">04 知识库</button>
+      <button class="tab" data-tab="tasks">05 任务与工作流</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ================= RESEARCH ================= -->
+    <section class="panel active" id="panel-research">
+      <div class="grid">
+        <div class="card">
+          <h2>创建研究任务</h2>
+          <p class="hint">使用网页研究时由 GPT Researcher 执行真实检索；没有 API Key 会明确失败，不会冒充完成。演示模式会标注“非调研结果”。</p>
+          <form id="researchForm">
+            <label for="topic">研究问题</label>
+            <textarea id="topic">比较 2024 年以来图神经网络在高光谱图像分类中的应用，重点分析动态图构建、训练样本比例与实验评估。</textarea>
+            <div class="row3">
+              <div><label for="domain">领域</label><select id="domain"><option value="hyperspectral">高光谱分类</option><option value="general">通用科研</option></select></div>
+              <div><label for="source">资料来源</label><select id="source"><option value="web">网页检索</option><option value="local">本地 PDF</option></select></div>
+              <div><label for="language">报告语言</label><select id="language"><option value="zh">中文</option><option value="en">English</option></select></div>
+            </div>
+            <div class="actions">
+              <button type="submit" id="runBtn">开始研究</button>
+              <span class="tiny">任务在后台执行，页面自动轮询状态与执行日志。</span>
+            </div>
+          </form>
+          <div id="researchStatus" class="status" aria-live="polite"></div>
+          <ul id="jobTimeline" class="timeline"></ul>
+          <div id="jobAudit"></div>
+        </div>
+        <div class="card">
+          <h2>研究报告</h2>
+          <p class="hint">报告会附带“引用核验报告”：区分原文片段匹配、仅页码匹配、失败引用和缺少引用的数值结论。</p>
+          <div id="reportActions" class="actions" style="margin-top:0"></div>
+          <div id="reportView" class="report"><div class="empty">提交任务后，这里显示 Markdown 报告预览。</div></div>
+        </div>
+      </div>
     </section>
-    <section>
-      <h2>02 / 论文资料管理</h2>
-      <p>上传 PDF 后可以选择两篇以上文献进行结构化证据比较。不同来源的指标不应直接混为同一实验条件。</p>
-      <label for="pdf">添加论文 PDF</label>
-      <input id="pdf" type="file" accept=".pdf,application/pdf" multiple />
-      <button id="upload" class="secondary">上传论文</button>
-      <div id="uploadStatus" class="status"></div>
-      <div id="papers"></div>
-      <button id="compare" class="secondary">比较选中论文</button>
-      <div id="compareStatus" class="status"></div>
+
+    <!-- ================= LIBRARY ================= -->
+    <section class="panel" id="panel-library">
+      <div class="grid">
+        <div class="card">
+          <h2>论文 PDF 管理</h2>
+          <p class="hint">上传文件会做扩展名、PDF 头、大小和 SHA-256 去重检查；只保存在本机 workspace，不提交 Git。扫描件需先 OCR。</p>
+          <label for="pdfInput">添加论文 PDF（可多选）</label>
+          <input id="pdfInput" type="file" accept=".pdf,application/pdf" multiple />
+          <div class="actions">
+            <button id="uploadBtn" class="secondary">上传论文</button>
+            <span id="uploadStatus" class="tiny" aria-live="polite"></span>
+          </div>
+          <div class="divider"></div>
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+            <h3 style="margin:0">已上传文献</h3>
+            <span class="tiny" id="selectedCount">已选 0 篇</span>
+          </div>
+          <div id="docList" class="doclist"><div class="empty">尚无论文。上传 2～5 篇后可对比或运行工作流。</div></div>
+          <div class="actions">
+            <button id="compareBtn" class="secondary">比较选中论文</button>
+            <button id="workflowBtn">运行本地工作流</button>
+            <button id="refreshDocsBtn" class="ghost small">刷新</button>
+          </div>
+          <div id="libraryStatus" class="status" aria-live="polite"></div>
+        </div>
+        <div class="card">
+          <h2>本地文献工作流</h2>
+          <p class="hint">固定 DAG：规划 → 文本筛查 → 混合检索 → 结构化抽取 → 证据核验 → 对比 → 报告。每个节点持久化状态、耗时、重试次数与失败原因。</p>
+          <label for="workflowTopic">工作流研究问题</label>
+          <textarea id="workflowTopic" style="min-height:82px">比较选中论文的方法、数据集、训练样本比例与 OA/AA/Kappa，并标出不可比项。</textarea>
+          <div class="actions">
+            <button id="startWorkflowBtn">提交工作流</button>
+            <span class="tiny">需要先在左侧选中 2～5 篇论文</span>
+          </div>
+          <div id="workflowStatus" class="status" aria-live="polite"></div>
+          <div id="workflowSteps"></div>
+          <div id="workflowReport"></div>
+        </div>
+      </div>
     </section>
-    <section class="wide">
-      <h2>03 / 研究结果与证据</h2>
-      <p>研究报告与论文比较结果会显示在此。离线演示模式不会伪造在线检索结果。</p>
-      <pre id="output">尚未开始研究。</pre>
-      <small>提示：这是可独立修改的个人项目模板。真实部署应补充用户权限、任务队列与质量评测。</small>
+
+    <!-- ================= COMPARE ================= -->
+    <section class="panel" id="panel-compare">
+      <div class="card">
+        <h2>多论文结构化对比</h2>
+        <p class="hint">只有数据集、指标、训练比例、补丁尺寸和协议全部一致的数值才会进入同一可比组并排名；缺失条件会显示“不可比”，不会静默排名。</p>
+        <div id="compareStatus" class="status" aria-live="polite"></div>
+        <div id="compareView"><div class="empty">在“文献库”选择 2～5 篇论文并点击“比较选中论文”。</div></div>
+      </div>
+    </section>
+
+    <!-- ================= KNOWLEDGE ================= -->
+    <section class="panel" id="panel-knowledge">
+      <div class="grid">
+        <div class="card">
+          <h2>混合检索知识库</h2>
+          <p class="hint">PDF → 页级 chunk → embedding + BM25 → RRF/词法重排 → 带页码引用回答。默认 hash 嵌入是词法哈希，不是语义模型。</p>
+          <div class="actions" style="margin-top:0">
+            <button id="indexBtn" class="secondary">索引全部文献</button>
+            <button id="refreshKbBtn" class="ghost small">刷新状态</button>
+          </div>
+          <div id="kbStatus" class="status" aria-live="polite"></div>
+          <div class="divider"></div>
+          <label for="kbQuery">检索 / 提问</label>
+          <textarea id="kbQuery" style="min-height:84px">动态图 GNN 在 Indian Pines 上使用了什么图构建方式和训练比例？</textarea>
+          <div class="row">
+            <div><label for="kbMode">检索模式</label><select id="kbMode"><option value="hybrid">混合（向量 + BM25）</option><option value="bm25">BM25</option><option value="vector">向量</option></select></div>
+            <div><label for="kbTopK">Top-K</label><input id="kbTopK" type="number" min="1" max="20" value="6" /></div>
+          </div>
+          <div class="actions">
+            <button id="searchBtn" class="secondary">仅检索</button>
+            <button id="answerBtn">基于证据回答</button>
+          </div>
+          <div id="kbNote" class="tiny" style="margin-top:10px"></div>
+        </div>
+        <div class="card">
+          <h2>检索结果</h2>
+          <div id="answerView"></div>
+          <div id="hitsView"><div class="empty">索引后检索，这里显示页级命中片段与引用。</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TASKS ================= -->
+    <section class="panel" id="panel-tasks">
+      <div class="grid">
+        <div class="card">
+          <h2>研究任务记录</h2>
+          <div class="actions" style="margin-top:0"><button id="refreshTasksBtn" class="ghost small">刷新</button></div>
+          <div id="jobsTable"><div class="empty">暂无任务。</div></div>
+        </div>
+        <div class="card">
+          <h2>工作流与对比记录</h2>
+          <div id="workflowHistory"><div class="empty">暂无工作流。</div></div>
+          <div class="divider"></div>
+          <div id="comparisonHistory"><div class="empty">暂无对比。</div></div>
+        </div>
+      </div>
     </section>
   </main>
-  <script>
-    const $ = id => document.getElementById(id);
-    const sleep = ms => new Promise(resolve => setTimeout(resolve,ms));
-    async function api(url,options={}) {
-      const response=await fetch(url,options);
-      const body=await response.json().catch(()=>({detail:'请求失败'}));
-      if(!response.ok) throw new Error(typeof body.detail==='string'?body.detail:JSON.stringify(body.detail));
-      return body;
+
+  <div class="footer">
+    SpectraScholar 是个人二次开发项目。通用研究/检索/报告能力来自 Apache-2.0 的
+    <a href="https://github.com/assafelovic/gpt-researcher" target="_blank" rel="noopener noreferrer">GPT Researcher</a>；
+    本地 PDF 抽取、证据核验、可比性分析、混合 RAG 与工作流为本项目扩展。页面不展示未经真实运行验证的指标。
+  </div>
+</div>
+
+<div class="modal" id="pageModal" aria-hidden="true">
+  <div class="modalcard">
+    <div class="modalhead">
+      <h3 id="pageModalTitle">PDF 页面</h3>
+      <button class="ghost small" id="closeModal">关闭</button>
+    </div>
+    <div class="modalbody"><pre id="pageModalText"></pre></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const state = {
+  docs: [], selected: new Set(), job: null, comparison: null, workflow: null,
+  health: null, pollTimer: null, workflowPoll: null
+};
+const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[ch]));
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const fmtBytes = (n) => n >= 1048576 ? (n/1048576).toFixed(1)+" MB" : Math.ceil(n/1024)+" KB";
+const fmtTime = (iso) => { if(!iso) return "—"; try { return new Date(iso).toLocaleString("zh-CN",{hour12:false}); } catch { return iso; } };
+const badge = (text, kind="") => `<span class="badge ${kind}">${esc(text)}</span>`;
+
+async function api(path, options = {}) {
+  const opts = { ...options };
+  opts.headers = { ...(options.headers || {}) };
+  if (opts.body && !(opts.body instanceof FormData)) {
+    opts.headers["Content-Type"] = "application/json";
+    if (typeof opts.body !== "string") opts.body = JSON.stringify(opts.body);
+  }
+  const response = await fetch(path, opts);
+  const type = response.headers.get("content-type") || "";
+  let body;
+  if (type.includes("application/json")) body = await response.json();
+  else body = await response.text();
+  if (!response.ok) {
+    const detail = body && typeof body === "object" ? body.detail : body;
+    const message = typeof detail === "string" ? detail : JSON.stringify(detail);
+    const trace = body && typeof body === "object" && body.trace_id ? ` [trace ${body.trace_id}]` : "";
+    throw new Error((message || ("HTTP " + response.status)) + trace);
+  }
+  return body;
+}
+
+function showTab(name) {
+  document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === name));
+  document.querySelectorAll(".panel").forEach((panel) => panel.classList.toggle("active", panel.id === "panel-" + name));
+  if (name === "tasks") refreshTasks();
+  if (name === "knowledge") refreshKbStatus();
+}
+
+/* ---------- minimal, escaped Markdown renderer ---------- */
+function inlineMarkdown(text) {
+  let out = esc(text);
+  // Protect citation markers before inline formatting so a quote containing
+  // markdown characters is never turned into tags inside a data attribute.
+  const citations = [];
+  out = out.replace(/\[\[doc:([A-Za-z0-9_-]+)\s+p\.?\s*(\d+)(?:\s+&quot;(.*?)&quot;)?\]\]/g,
+    (_, doc, page, quote) => {
+      citations.push({ doc, page, quote: quote || "" });
+      return `@@SPECTRA_CITE_${citations.length - 1}@@`;
+    });
+  out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
+  out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  out = out.replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>");
+  out = out.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/g, (_, label, url) => {
+    if (!/^(https?:\/\/|\/)/.test(url)) return label;
+    const external = /^https?:/.test(url);
+    return `<a href="${url}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""}>${label}</a>`;
+  });
+  out = out.replace(/@@SPECTRA_CITE_(\d+)@@/g, (_, index) => {
+    const citation = citations[Number(index)];
+    return `<button class="cite" data-doc="${citation.doc}" data-page="${citation.page}" data-quote="${citation.quote}" title="查看 PDF 页码">p.${citation.page}</button>`;
+  });
+  return out;
+}
+
+function renderMarkdown(markdown) {
+  if (!markdown) return '<div class="empty">暂无内容。</div>';
+  const codeBlocks = [];
+  let source = String(markdown).replace(/```([\s\S]*?)```/g, (_, code) => {
+    codeBlocks.push(code.replace(/^\w*\n/, ""));
+    return `\n@@CODEBLOCK${codeBlocks.length - 1}@@\n`;
+  });
+  const lines = source.split(/\r?\n/);
+  const html = [];
+  let paragraph = [];
+  let listMode = null;
+  let inQuote = false;
+  const flushParagraph = () => {
+    if (paragraph.length) { html.push(`<p>${inlineMarkdown(paragraph.join(" "))}</p>`); paragraph = []; }
+  };
+  const closeList = () => { if (listMode) { html.push(`</${listMode}>`); listMode = null; } };
+  const closeQuote = () => { if (inQuote) { html.push("</blockquote>"); inQuote = false; } };
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (!trimmed) { flushParagraph(); closeList(); closeQuote(); continue; }
+    const codeMatch = trimmed.match(/^@@CODEBLOCK(\d+)@@$/);
+    if (codeMatch) { flushParagraph(); closeList(); closeQuote(); html.push(`<pre><code>${esc(codeBlocks[Number(codeMatch[1])])}</code></pre>`); continue; }
+    const heading = trimmed.match(/^(#{1,6})\s+(.*)$/);
+    if (heading) { flushParagraph(); closeList(); closeQuote(); const level = Math.min(heading[1].length, 3); html.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`); continue; }
+    if (/^---+$/.test(trimmed)) { flushParagraph(); closeList(); closeQuote(); html.push("<hr>"); continue; }
+    if (trimmed.startsWith("> ")) {
+      flushParagraph(); closeList();
+      if (!inQuote) { html.push("<blockquote>"); inQuote = true; }
+      html.push(`<p>${inlineMarkdown(trimmed.slice(2))}</p>`); continue;
     }
-    async function refreshStatus(){
-      try { const h=await api('/api/v1/health'); $('mode').textContent=`研究引擎：${h.research_backend} / 抽取模式：${h.extractor_backend}`; }
-      catch(e){$('mode').textContent='服务未连接：'+e.message;}
-    }
-    async function refreshDocs(){
-      const docs=await api('/api/v1/documents'); const root=$('papers');root.replaceChildren();
-      if(!docs.length){const p=document.createElement('p');p.textContent='暂无论文';root.append(p);return;}
-      for(const d of docs){const row=document.createElement('label');row.className='paper';const ck=document.createElement('input');ck.type='checkbox';ck.value=d.document_id; const span=document.createElement('span');span.textContent=`${d.filename} (${Math.ceil(d.size/1024)} KB)`;row.append(ck,span);root.append(row);}
-    }
-    $('run').onclick=async()=>{
-      $('run').disabled=true;$('researchStatus').textContent='提交中...';$('reportLink').replaceChildren();
-      try{
-        const req={topic:$('topic').value,source:$('source').value,domain:$('domain').value,language:'zh'};
-        const job=await api('/api/v1/research',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(req)});
-        $('researchStatus').textContent='任务已提交：'+job.job_id;
-        let done=false;
-        for(let i=0;i<120;i++){
-          await sleep(1500);const info=await api('/api/v1/research/'+job.job_id);
-          $('researchStatus').textContent='状态：'+info.status;
-          if(info.status==='completed'){
-            $('output').textContent=info.report;
-            const link=document.createElement('a');link.href='/api/v1/reports/'+job.job_id+'.md';link.textContent='下载 Markdown 报告';$('reportLink').append(link);done=true;break;
-          }
-          if(info.status==='failed')throw new Error(info.error || '任务执行失败');
+    closeQuote();
+    if (/^\|.*\|$/.test(trimmed) && i + 1 < lines.length && /^\|[-: |]+\|$/.test(lines[i+1].trim())) {
+      flushParagraph(); closeList();
+      const parseRow = (row) => {
+        // Split on unescaped pipes so evidence quotes may contain "\|".
+        const inner = row.trim().replace(/^\|/, "").replace(/\|$/, "");
+        const cells = [];
+        let current = "";
+        for (let c = 0; c < inner.length; c++) {
+          if (inner[c] === "\\" && inner[c + 1] === "|") { current += "|"; c += 1; }
+          else if (inner[c] === "|") { cells.push(current.trim()); current = ""; }
+          else current += inner[c];
         }
-        if(!done) $('researchStatus').textContent='仍在执行，可通过任务 ID 查询状态：'+job.job_id;
-      }catch(e){$('researchStatus').textContent='研究失败：'+e.message}
-      finally{$('run').disabled=false;}
-    };
-    $('upload').onclick=async()=>{
-      $('upload').disabled=true; $('uploadStatus').textContent='上传中...';
-      try{
-        const files=$('pdf').files;if(!files.length)throw new Error('请选择 PDF 文件');
-        for(const f of files){const form=new FormData();form.append('file',f);await api('/api/v1/documents',{method:'POST',body:form});}
-        $('uploadStatus').textContent=`成功上传 ${files.length} 个文件`;await refreshDocs();
-      }catch(e){$('uploadStatus').textContent='上传失败：'+e.message}
-      finally{$('upload').disabled=false;}
-    };
-    $('compare').onclick=async()=>{
-      $('compare').disabled=true;$('compareStatus').textContent='正在抽取并核对原文证据...';
-      try{
-        const ids=[...document.querySelectorAll('#papers input:checked')].map(el=>el.value);
-        if(ids.length<2||ids.length>5)throw new Error('请选择 2～5 篇论文');
-        const result=await api('/api/v1/compare',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({document_ids:ids})});
-        $('output').textContent=JSON.stringify(result,null,2);
-        $('compareStatus').textContent='已生成有出处的结构化对比数据';
-      }catch(e){$('compareStatus').textContent='比较失败：'+e.message}
-      finally{$('compare').disabled=false;}
-    };
-    refreshStatus();refreshDocs().catch(e=>{$('uploadStatus').textContent=e.message});
-  </script>
+        cells.push(current.trim());
+        return cells;
+      };
+      const headers = parseRow(trimmed);
+      i += 1;
+      html.push("<table><thead><tr>" + headers.map((h) => `<th>${inlineMarkdown(h)}</th>`).join("") + "</tr></thead><tbody>");
+      while (i + 1 < lines.length && /^\|.*\|$/.test(lines[i+1].trim())) {
+        i += 1;
+        const cells = parseRow(lines[i]);
+        html.push("<tr>" + cells.map((c) => `<td>${inlineMarkdown(c)}</td>`).join("") + "</tr>");
+      }
+      html.push("</tbody></table>"); continue;
+    }
+    const ordered = trimmed.match(/^\d+\.\s+(.*)$/);
+    const unordered = trimmed.match(/^[-*]\s+(.*)$/);
+    if (ordered || unordered) {
+      flushParagraph();
+      const mode = ordered ? "ol" : "ul";
+      if (listMode !== mode) { closeList(); html.push(`<${mode}>`); listMode = mode; }
+      html.push(`<li>${inlineMarkdown((ordered || unordered)[1])}</li>`); continue;
+    }
+    closeList();
+    paragraph.push(trimmed);
+  }
+  flushParagraph(); closeList(); closeQuote();
+  return html.join("\n");
+}
+
+/* ---------- health / docs ---------- */
+async function refreshHealth() {
+  try {
+    const health = await api("/api/v1/health");
+    state.health = health;
+    const engine = health.research_backend === "demo"
+      ? badge("研究引擎：demo（非真实检索）", "warn")
+      : badge("研究引擎：GPT Researcher", "ok");
+    const extractor = health.extractor_backend === "llm"
+      ? badge("抽取：LLM + 原文核验", "info")
+      : badge("抽取：规则 + 原文核验", "info");
+    const embedding = health.embedding_backend === "hash"
+      ? badge("嵌入：hash 词法（非语义）", "warn")
+      : badge(`嵌入：${health.embedding_backend}`, "ok");
+    const auth = health.auth_enabled ? badge("API Key 鉴权：开", "ok") : badge("API Key 鉴权：关", "info");
+    $("modeBadges").innerHTML = [engine, extractor, embedding, auth,
+      badge(`文献 ${health.documents} 篇`), badge(`索引 chunk ${health.knowledge_chunks}`)].join("");
+  } catch (error) {
+    $("modeBadges").innerHTML = badge("服务未连接：" + error.message, "bad");
+  }
+}
+
+function renderDocs() {
+  const root = $("docList");
+  if (!state.docs.length) { root.innerHTML = '<div class="empty">尚无论文。上传 2～5 篇后可对比或运行工作流。</div>'; return; }
+  root.innerHTML = state.docs.map((doc) => `
+    <div class="doc">
+      <input type="checkbox" data-doc-select="${doc.document_id}" ${state.selected.has(doc.document_id) ? "checked" : ""} aria-label="选择 ${esc(doc.filename)}">
+      <div>
+        <div class="name">${esc(doc.filename)}</div>
+        <div class="meta">${doc.page_count ?? "?"} 页 · ${fmtBytes(doc.size)} · ${esc((doc.sha256 || "").slice(0, 10))} · ${esc(doc.title || "标题未识别")}</div>
+      </div>
+      <div class="ops">
+        <button class="ghost small" data-view-doc="${doc.document_id}" data-page="1">查看</button>
+        <button class="danger small" data-delete-doc="${doc.document_id}">删除</button>
+      </div>
+    </div>`).join("");
+  root.querySelectorAll("[data-doc-select]").forEach((box) => box.addEventListener("change", () => {
+    if (box.checked) state.selected.add(box.dataset.docSelect); else state.selected.delete(box.dataset.docSelect);
+    $("selectedCount").textContent = `已选 ${state.selected.size} 篇`;
+  }));
+  root.querySelectorAll("[data-view-doc]").forEach((button) => button.addEventListener("click", () => openPage(button.dataset.viewDoc, Number(button.dataset.page))));
+  root.querySelectorAll("[data-delete-doc]").forEach((button) => button.addEventListener("click", () => deleteDoc(button.dataset.deleteDoc)));
+  $("selectedCount").textContent = `已选 ${state.selected.size} 篇`;
+}
+
+async function refreshDocs() {
+  try {
+    state.docs = await api("/api/v1/documents");
+    const ids = new Set(state.docs.map((doc) => doc.document_id));
+    [...state.selected].forEach((id) => { if (!ids.has(id)) state.selected.delete(id); });
+    renderDocs();
+    $("libraryStatus").textContent = `文献库共 ${state.docs.length} 篇。`;
+    $("libraryStatus").className = "status";
+  } catch (error) {
+    $("libraryStatus").textContent = "读取文献失败：" + error.message;
+    $("libraryStatus").className = "status bad";
+  }
+}
+
+async function deleteDoc(id) {
+  if (!confirm("确认删除该论文及其索引？此操作不可恢复。")) return;
+  try {
+    await api("/api/v1/documents/" + encodeURIComponent(id), { method: "DELETE" });
+    state.selected.delete(id);
+    await refreshDocs(); await refreshHealth(); await refreshKbStatus();
+    $("libraryStatus").textContent = "已删除文献及其索引。";
+    $("libraryStatus").className = "status ok";
+  } catch (error) {
+    $("libraryStatus").textContent = "删除失败：" + error.message;
+    $("libraryStatus").className = "status bad";
+  }
+}
+
+/* ---------- page modal ---------- */
+async function openPage(docId, page, quote = "") {
+  $("pageModal").classList.add("open");
+  $("pageModal").setAttribute("aria-hidden", "false");
+  $("pageModalTitle").textContent = `文档 ${docId.slice(0, 8)}… · 第 ${page} 页`;
+  $("pageModalText").textContent = "加载中…";
+  try {
+    const data = await api(`/api/v1/documents/${encodeURIComponent(docId)}/pages/${page}`);
+    $("pageModalTitle").textContent = `${data ? docId.slice(0, 8) + "…" : ""} · 第 ${page} 页（${data.char_count} 字符）`;
+    renderPageText(data.text, quote);
+  } catch (error) {
+    $("pageModalText").textContent = "加载失败：" + error.message;
+  }
+}
+function renderPageText(text, quote) {
+  const pre = $("pageModalText");
+  pre.replaceChildren();
+  if (!quote) { pre.textContent = text; return; }
+  const escapedParts = quote.trim().split(/\s+/).map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  let match = null;
+  try { match = new RegExp(escapedParts.join("\\s+"), "i").exec(text); } catch { match = null; }
+  if (!match) { pre.textContent = text; return; }
+  pre.append(document.createTextNode(text.slice(0, match.index)));
+  const mark = document.createElement("mark");
+  mark.textContent = text.slice(match.index, match.index + match[0].length);
+  pre.append(mark, document.createTextNode(text.slice(match.index + match[0].length)));
+}
+$("closeModal").addEventListener("click", () => { $("pageModal").classList.remove("open"); $("pageModal").setAttribute("aria-hidden", "true"); });
+$("pageModal").addEventListener("click", (event) => { if (event.target === $("pageModal")) $("closeModal").click(); });
+document.addEventListener("keydown", (event) => { if (event.key === "Escape") $("closeModal").click(); });
+document.addEventListener("click", (event) => {
+  const cite = event.target.closest(".cite");
+  if (cite) openPage(cite.dataset.doc, Number(cite.dataset.page), cite.dataset.quote || "");
+});
+
+/* ---------- research job ---------- */
+function auditSummary(audit) {
+  if (!audit) return "";
+  const ok = audit.failed_local === 0 && audit.unsupported_claims.length === 0;
+  return `<div class="auditbox ${ok ? "ok" : "bad"}">
+    <strong>引用核验</strong>
+    <div class="statgrid">
+      <div class="stat"><b>${audit.verified_local}</b><span>原文片段通过</span></div>
+      <div class="stat"><b>${audit.page_only_local}</b><span>仅页码通过</span></div>
+      <div class="stat"><b>${audit.failed_local}</b><span>本地引用失败</span></div>
+      <div class="stat"><b>${audit.unsupported_claims.length}</b><span>缺引用数值结论</span></div>
+    </div>
+    <p class="tiny" style="margin:8px 0 0">${esc(audit.scope_note || "")}</p>
+    ${audit.unsupported_claims.length ? `<ul>${audit.unsupported_claims.slice(0, 5).map((claim) => `<li>${esc(claim.sentence)}</li>`).join("")}</ul>` : ""}
+  </div>`;
+}
+function renderJob(job) {
+  state.job = job;
+  $("researchStatus").className = "status " + (job.status === "completed" ? "ok" : job.status === "failed" ? "bad" : "warn");
+  $("researchStatus").innerHTML = job.status === "running" || job.status === "queued"
+    ? `<span class="spinner"></span>状态：${esc(job.status)} · 后端 ${esc(job.backend)} · ${job.elapsed_ms ? job.elapsed_ms + " ms" : "执行中"}`
+    : `状态：<strong>${esc(job.status)}</strong> · 后端 ${esc(job.backend)} · 尝试 ${job.attempts} 次 · 用时 ${job.elapsed_ms ?? "—"} ms ${job.is_demo ? badge("演示模式，非真实研究", "warn") : ""}`;
+  $("jobAudit").innerHTML = auditSummary(job.citation_audit);
+  if (job.report) {
+    $("reportView").innerHTML = renderMarkdown(job.report);
+    $("reportActions").innerHTML = `<a class="badge info" href="/api/v1/research/${job.job_id}.md">下载 Markdown 报告</a>` +
+      `<span class="tiny">Trace：${esc(job.trace_id || "—")}</span>`;
+  } else if (job.status === "failed") {
+    $("reportView").innerHTML = `<div class="empty">任务失败：${esc(job.error || "未知错误")}</div>`;
+    $("reportActions").innerHTML = `<button class="secondary small" id="retryJob">重试任务</button>`;
+    const retry = $("retryJob");
+    if (retry) retry.addEventListener("click", () => retryJob(job.job_id));
+  }
+}
+async function pollJob(jobId) {
+  if (state.pollTimer) clearInterval(state.pollTimer);
+  const tick = async () => {
+    try {
+      const [job, events] = await Promise.all([
+        api("/api/v1/research/" + encodeURIComponent(jobId)),
+        api(`/api/v1/research/${encodeURIComponent(jobId)}/events`)
+      ]);
+      renderJob(job);
+      $("jobTimeline").innerHTML = events.slice(-14).map((event) => `
+        <li><span class="t">${esc((event.created_at || "").slice(11,19))}</span>
+        <span class="lvl-${esc(event.level)}">${esc(event.step)} · ${esc(event.message)}${event.duration_ms != null ? ` (${event.duration_ms}ms)` : ""}</span></li>`).join("");
+      if (["completed", "failed", "cancelled"].includes(job.status)) {
+        clearInterval(state.pollTimer); state.pollTimer = null;
+        await refreshHealth();
+      }
+    } catch (error) {
+      $("researchStatus").textContent = "轮询失败：" + error.message;
+    }
+  };
+  await tick();
+  state.pollTimer = setInterval(tick, 1600);
+}
+async function retryJob(jobId) {
+  try {
+    const submitted = await api(`/api/v1/research/${encodeURIComponent(jobId)}/retry`, { method: "POST" });
+    await pollJob(submitted.job_id);
+  } catch (error) {
+    $("researchStatus").textContent = "重试失败：" + error.message;
+    $("researchStatus").className = "status bad";
+  }
+}
+$("researchForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  $("runBtn").disabled = true;
+  $("reportView").innerHTML = '<div class="empty"><span class="spinner"></span>任务执行中…</div>';
+  $("reportActions").replaceChildren();
+  try {
+    const submitted = await api("/api/v1/research", {
+      method: "POST",
+      body: { topic: $("topic").value, domain: $("domain").value, source: $("source").value, language: $("language").value }
+    });
+    $("researchStatus").textContent = `已提交：${submitted.job_id}（trace ${submitted.trace_id}）`;
+    await pollJob(submitted.job_id);
+  } catch (error) {
+    $("researchStatus").textContent = "提交失败：" + error.message;
+    $("researchStatus").className = "status bad";
+    $("reportView").innerHTML = `<div class="empty">${esc(error.message)}</div>`;
+  } finally {
+    $("runBtn").disabled = false;
+  }
+});
+
+/* ---------- compare ---------- */
+function metricBadge(row) {
+  return row.comparable ? badge(`可比 #${row.rank_in_group || "-"}`, "ok") : badge("不可比", "warn");
+}
+function renderComparison(result) {
+  state.comparison = result;
+  const profiles = result.profiles || [];
+  const methods = result.method_rows || [];
+  const datasets = result.dataset_matrix || [];
+  const metrics = result.metric_rows || [];
+  const issues = result.comparability_issues || [];
+  let html = `<div class="actions" style="margin-top:0">
+    <a class="badge info" href="/api/v1/compare/${result.comparison_id}.md">下载对比 Markdown</a>
+    ${badge("抽取模式：" + result.extraction_mode, "info")}
+    ${badge("生成：" + fmtTime(result.generated_at), "")}
+  </div>`;
+  html += `<div class="cards">` + profiles.map((profile) => `
+    <div class="papercard">
+      <h4>${esc(profile.filename)}</h4>
+      <p><strong>${esc(profile.title || "标题未抽取")}</strong></p>
+      <p>${esc(profile.authors || "作者未抽取")} ${profile.year ? "· " + esc(profile.year) : ""}</p>
+      <div class="tagline">${(profile.methods || []).map((m) => `<span class="tag">${esc(m)}</span>`).join("")}${(profile.datasets || []).map((d) => `<span class="tag">${esc(d)}</span>`).join("")}</div>
+      <p style="margin-top:8px"><strong>优势：</strong>${esc((profile.strengths || []).join("；") || "无")}</p>
+      <p><strong>局限：</strong>${esc((profile.limitations || []).join("；") || "无")}</p>
+      <p><strong>适用：</strong>${esc((profile.applicable_scenarios || []).join("；"))}</p>
+    </div>`).join("") + `</div>`;
+
+  html += `<h3>研究方法对比</h3>`;
+  html += methods.length ? `<div class="tablewrap"><table><thead><tr><th>论文</th><th>方法/模型</th><th>家族</th><th>图构建</th><th>证据</th></tr></thead><tbody>` +
+    methods.map((row) => `<tr><td>${esc(row.filename)}</td><td>${esc(row.method)}</td><td>${esc(row.family || "未判定")}</td><td>${esc((row.graph_construction || []).join("、") || "未描述")}</td><td>${esc(row.evidence_status)}</td></tr>`).join("") +
+    `</tbody></table></div>` : `<div class="empty">未抽取到方法名称，系统没有补全。</div>`;
+
+  html += `<h3>数据集使用矩阵</h3>`;
+  html += datasets.length ? `<div class="tablewrap"><table><thead><tr><th>数据集</th>${result.papers.map((p) => `<th>${esc(p.filename)}</th>`).join("")}</tr></thead><tbody>` +
+    datasets.map((row) => `<tr><td>${esc(row.dataset)}</td>${row.cells.map((cell) => `<td>${cell.present ? "✓ p." + cell.pages.join(",") : "—"}</td>`).join("")}</tr>`).join("") +
+    `</tbody></table></div>` : `<div class="empty">未抽取到数据集名称。</div>`;
+
+  html += `<h3>实验指标与可比性</h3>`;
+  html += metrics.length ? `<div class="tablewrap"><table><thead><tr><th>论文</th><th>数据集</th><th>指标</th><th>数值</th><th>训练比例</th><th>补丁</th><th>证据</th><th>可比性</th><th>说明</th></tr></thead><tbody>` +
+    metrics.map((row) => `<tr><td>${esc(row.filename)}</td><td>${esc(row.dataset || "未注明")}</td><td>${esc(row.metric)}</td><td><strong>${esc(row.value)}</strong></td><td>${esc(row.train_ratio || "未注明")}</td><td>${esc(row.patch_size || "未注明")}</td><td>${esc(row.evidence_status)}</td><td>${metricBadge(row)}</td><td>${esc(row.reason || "")}</td></tr>`).join("") +
+    `</tbody></table></div>` : `<div class="empty">未抽取到可核验的 OA/AA/Kappa。</div>`;
+
+  html += `<h3>不可比项与风险提示</h3>`;
+  html += issues.length ? `<ul>${issues.map((issue) => `<li><strong>${esc(issue.code)}</strong>：${esc(issue.message)}</li>`).join("")}</ul>` : `<p class="tiny">未发现条件冲突；仍需人工核对实验协议。</p>`;
+  html += `<div class="auditbox"><strong>可比性边界</strong><p class="tiny">${esc(result.disclaimer || "")}</p></div>`;
+  $("compareView").innerHTML = html;
+}
+
+async function runCompare() {
+  const ids = [...state.selected];
+  if (ids.length < 2 || ids.length > 5) {
+    $("libraryStatus").textContent = "请选择 2～5 篇论文后再比较。";
+    $("libraryStatus").className = "status warn";
+    return;
+  }
+  showTab("compare");
+  $("compareStatus").className = "status warn";
+  $("compareStatus").innerHTML = '<span class="spinner"></span>正在抽取并核验原文证据…';
+  $("compareView").innerHTML = '<div class="empty">处理中……</div>';
+  try {
+    const result = await api("/api/v1/compare", { method: "POST", body: { document_ids: ids, mode: "auto" } });
+    renderComparison(result);
+    $("compareStatus").textContent = "对比完成。数值只在完全一致的实验条件下进入同一可比组。";
+    $("compareStatus").className = "status ok";
+  } catch (error) {
+    $("compareStatus").textContent = "对比失败：" + error.message;
+    $("compareStatus").className = "status bad";
+    $("compareView").innerHTML = `<div class="empty">${esc(error.message)}</div>`;
+  }
+}
+
+/* ---------- knowledge base ---------- */
+async function refreshKbStatus() {
+  try {
+    const status = await api("/api/v1/kb/status");
+    $("kbStatus").innerHTML = [
+      badge(`chunks ${status.total_chunks}`, "info"),
+      badge(`文档 ${status.documents}`, ""),
+      badge(status.embedding, status.embedding.startsWith("hash") ? "warn" : "ok"),
+      status.compatible === false ? badge("索引 embedding 不兼容，请重建", "bad") : ""
+    ].join(" ");
+    $("kbStatus").className = "status";
+  } catch (error) {
+    $("kbStatus").textContent = "读取知识库状态失败：" + error.message;
+    $("kbStatus").className = "status bad";
+  }
+}
+async function indexKb() {
+  $("indexBtn").disabled = true;
+  $("kbStatus").innerHTML = '<span class="spinner"></span>正在解析、切块、生成向量…';
+  try {
+    const result = await api("/api/v1/kb/index", { method: "POST", body: {} });
+    $("kbStatus").textContent = `索引完成：${result.indexed_documents.length} 篇 / ${result.total_chunks} chunks；跳过 ${result.skipped.length} 篇。`;
+    $("kbStatus").className = "status ok";
+    await refreshKbStatus(); await refreshHealth();
+  } catch (error) {
+    $("kbStatus").textContent = "索引失败：" + error.message;
+    $("kbStatus").className = "status bad";
+  } finally { $("indexBtn").disabled = false; }
+}
+function renderHits(hits) {
+  if (!hits || !hits.length) { $("hitsView").innerHTML = '<div class="empty">没有检索到相关片段。</div>'; return; }
+  $("hitsView").innerHTML = `<h3 style="margin-top:0">页级命中（${hits.length}）</h3>` + hits.map((hit) => `
+    <div class="hit">
+      <div class="head"><span>${esc(hit.filename)} · p.${hit.page}</span><span class="score">score ${hit.score.toFixed(3)} · vector ${hit.vector_score.toFixed(3)} · bm25 ${hit.bm25_score.toFixed(2)}</span></div>
+      <p>${esc(hit.text)}</p>
+      <div class="actions" style="margin-top:6px"><button class="ghost small cite" data-doc="${hit.document_id}" data-page="${hit.page}" data-quote="">查看原文页</button></div>
+    </div>`).join("");
+}
+function renderAnswer(result) {
+  const cls = result.refusal ? "answer refusal" : "answer";
+  $("answerView").innerHTML = `<div class="${cls}">
+    <div class="actions" style="margin-top:0">${badge(result.refusal ? "拒答" : (result.grounded ? "有引用支撑" : "引用不足"), result.refusal ? "warn" : result.grounded ? "ok" : "bad")}${badge("回答模式：" + result.answer_mode, "info")}</div>
+    <div class="report" style="max-height:none;margin-top:10px">${renderMarkdown(result.answer)}</div>
+    ${result.citations && result.citations.length ? `<p class="tiny">引用检查：通过 ${result.citations.filter((c) => c.status === "verified_quote").length}，仅页码 ${result.citations.filter((c) => c.status === "verified_page_only").length}，失败 ${result.citations.filter((c) => c.status.startsWith("quote") || c.status === "page_missing" || c.status === "document_missing").length}</p>` : ""}
+    <p class="tiny">${esc(result.note || "")}</p>
+  </div>`;
+  renderHits(result.hits);
+}
+async function kbAction(mode) {
+  const query = $("kbQuery").value.trim();
+  if (query.length < 2) { $("kbNote").textContent = "问题至少 2 个字符。"; return; }
+  const body = { query, top_k: Number($("kbTopK").value) || 6, mode: $("kbMode").value };
+  $("kbNote").textContent = "检索中…";
+  try {
+    if (mode === "answer") {
+      const result = await api("/api/v1/kb/answer", { method: "POST", body });
+      renderAnswer(result);
+      $("kbNote").textContent = `${result.elapsed_ms} ms · ${result.embedding_backend}`;
+    } else {
+      const result = await api("/api/v1/kb/search", { method: "POST", body });
+      $("answerView").replaceChildren();
+      renderHits(result.hits);
+      $("kbNote").textContent = `${result.elapsed_ms} ms · ${result.note}`;
+    }
+  } catch (error) {
+    $("kbNote").textContent = "失败：" + error.message;
+    $("hitsView").innerHTML = `<div class="empty">${esc(error.message)}</div>`;
+  }
+}
+$("indexBtn").addEventListener("click", indexKb);
+$("refreshKbBtn").addEventListener("click", refreshKbStatus);
+$("searchBtn").addEventListener("click", () => kbAction("search"));
+$("answerBtn").addEventListener("click", () => kbAction("answer"));
+
+/* ---------- workflow ---------- */
+function renderWorkflow(workflow) {
+  state.workflow = workflow;
+  $("workflowStatus").className = "status " + (workflow.status === "completed" ? "ok" : workflow.status === "failed" ? "bad" : "warn");
+  $("workflowStatus").textContent = `状态：${workflow.status} · 当前节点：${workflow.current_step || "—"} · ${workflow.elapsed_ms ?? "—"} ms`;
+  $("workflowSteps").innerHTML = `<div class="tablewrap"><table><thead><tr><th>节点</th><th>状态</th><th>尝试</th><th>耗时</th><th>输出/错误</th></tr></thead><tbody>` +
+    (workflow.steps || []).map((step) => `<tr><td>${esc(step.name)}</td><td>${badge(step.status, step.status === "completed" ? "ok" : step.status === "failed" ? "bad" : "warn")}</td><td>${step.attempt}</td><td>${step.duration_ms ?? "—"} ms</td><td>${esc(step.error || step.output_summary || "")}</td></tr>`).join("") +
+    `</tbody></table></div>`;
+  if (workflow.report) {
+    $("workflowReport").innerHTML = `<div class="actions">${badge("工作流报告", "ok")}<a class="badge info" href="/api/v1/workflows/${workflow.workflow_id}.md">下载 Markdown</a></div><div class="report">${renderMarkdown(workflow.report)}</div>`;
+  } else if (workflow.status === "failed") {
+    $("workflowReport").innerHTML = `<div class="auditbox bad"><strong>工作流失败</strong><p class="tiny">${esc(workflow.error || "")}</p></div>`;
+  } else {
+    $("workflowReport").innerHTML = "";
+  }
+}
+async function pollWorkflow(id) {
+  if (state.workflowPoll) clearInterval(state.workflowPoll);
+  const tick = async () => {
+    try {
+      const workflow = await api("/api/v1/workflows/" + encodeURIComponent(id));
+      renderWorkflow(workflow);
+      if (["completed", "failed", "cancelled"].includes(workflow.status)) {
+        clearInterval(state.workflowPoll); state.workflowPoll = null;
+        await refreshTasks();
+      }
+    } catch (error) {
+      $("workflowStatus").textContent = "轮询失败：" + error.message;
+    }
+  };
+  await tick();
+  state.workflowPoll = setInterval(tick, 1800);
+}
+async function startWorkflow() {
+  const ids = [...state.selected];
+  if (ids.length < 2 || ids.length > 5) {
+    $("workflowStatus").textContent = "请先在文献库选择 2～5 篇论文。";
+    $("workflowStatus").className = "status warn";
+    return;
+  }
+  $("startWorkflowBtn").disabled = true;
+  $("workflowStatus").innerHTML = '<span class="spinner"></span>提交工作流…';
+  try {
+    const submitted = await api("/api/v1/workflows", {
+      method: "POST",
+      body: {
+        topic: $("workflowTopic").value.trim(),
+        document_ids: ids,
+        extraction_mode: "auto",
+        idempotency_key: "web-" + Date.now()
+      }
+    });
+    await pollWorkflow(submitted.workflow_id);
+  } catch (error) {
+    $("workflowStatus").textContent = "提交失败：" + error.message;
+    $("workflowStatus").className = "status bad";
+  } finally { $("startWorkflowBtn").disabled = false; }
+}
+
+/* ---------- task history ---------- */
+function statusBadge(status) {
+  const kind = status === "completed" ? "ok" : status === "failed" ? "bad" : status === "running" ? "warn" : "";
+  return badge(status, kind);
+}
+async function refreshTasks() {
+  try {
+    const [jobs, workflows, comparisons] = await Promise.all([
+      api("/api/v1/research?limit=20"),
+      api("/api/v1/workflows?limit=20"),
+      api("/api/v1/compare?limit=20")
+    ]);
+    $("jobsTable").innerHTML = jobs.length ? `<div class="tablewrap"><table><thead><tr><th>研究问题</th><th>状态</th><th>后端</th><th>时间</th><th>操作</th></tr></thead><tbody>` +
+      jobs.map((job) => `<tr><td>${esc(job.topic)}</td><td>${statusBadge(job.status)}</td><td>${esc(job.backend)}${job.is_demo ? "（演示）" : ""}</td><td>${esc(fmtTime(job.created_at))}</td><td><button class="ghost small" data-open-job="${job.job_id}">查看</button></td></tr>`).join("") +
+      `</tbody></table></div>` : '<div class="empty">暂无任务。</div>';
+    $("workflowHistory").innerHTML = workflows.length ? `<h3 style="margin-top:0">工作流</h3><div class="tablewrap"><table><thead><tr><th>主题</th><th>状态</th><th>当前节点</th><th>操作</th></tr></thead><tbody>` +
+      workflows.map((wf) => `<tr><td>${esc(wf.topic)}</td><td>${statusBadge(wf.status)}</td><td>${esc(wf.current_step || "—")}</td><td><button class="ghost small" data-open-workflow="${wf.workflow_id}">查看</button></td></tr>`).join("") +
+      `</tbody></table></div>` : '<div class="empty">暂无工作流。</div>';
+    $("comparisonHistory").innerHTML = comparisons.length ? `<h3>对比记录</h3><div class="tablewrap"><table><thead><tr><th>对比 ID</th><th>抽取模式</th><th>时间</th><th>操作</th></tr></thead><tbody>` +
+      comparisons.map((item) => `<tr><td class="tiny">${esc(item.comparison_id.slice(0, 8))}…</td><td>${esc(item.extraction_mode)}</td><td>${esc(fmtTime(item.created_at))}</td><td><button class="ghost small" data-open-comparison="${item.comparison_id}">查看</button></td></tr>`).join("") +
+      `</tbody></table></div>` : '<div class="empty">暂无对比。</div>';
+    document.querySelectorAll("[data-open-job]").forEach((button) => button.addEventListener("click", async () => {
+      showTab("research"); await pollJob(button.dataset.openJob);
+    }));
+    document.querySelectorAll("[data-open-workflow]").forEach((button) => button.addEventListener("click", async () => {
+      showTab("tasks"); const workflow = await api("/api/v1/workflows/" + encodeURIComponent(button.dataset.openWorkflow)); renderWorkflow(workflow);
+    }));
+    document.querySelectorAll("[data-open-comparison]").forEach((button) => button.addEventListener("click", async () => {
+      showTab("compare"); const result = await api("/api/v1/compare/" + encodeURIComponent(button.dataset.openComparison)); renderComparison(result);
+    }));
+  } catch (error) {
+    $("jobsTable").innerHTML = `<div class="empty">读取任务失败：${esc(error.message)}</div>`;
+  }
+}
+
+/* ---------- upload / events ---------- */
+$("uploadBtn").addEventListener("click", async () => {
+  const files = $("pdfInput").files;
+  if (!files.length) { $("uploadStatus").textContent = "请选择 PDF 文件。"; return; }
+  $("uploadBtn").disabled = true;
+  let success = 0;
+  const failures = [];
+  for (const file of files) {
+    const form = new FormData();
+    form.append("file", file);
+    try { await api("/api/v1/documents", { method: "POST", body: form }); success += 1; }
+    catch (error) { failures.push(`${file.name}: ${error.message}`); }
+  }
+  $("uploadStatus").textContent = `成功 ${success} 个${failures.length ? "；失败：" + failures.join("；") : ""}`;
+  $("uploadStatus").className = failures.length ? "status warn" : "status ok";
+  $("uploadBtn").disabled = false;
+  await refreshDocs(); await refreshHealth(); await refreshKbStatus();
+});
+$("refreshDocsBtn").addEventListener("click", refreshDocs);
+$("compareBtn").addEventListener("click", runCompare);
+$("startWorkflowBtn").addEventListener("click", startWorkflow);
+$("refreshTasksBtn").addEventListener("click", refreshTasks);
+document.querySelectorAll(".tab").forEach((tab) => tab.addEventListener("click", () => showTab(tab.dataset.tab)));
+
+/* ---------- boot ---------- */
+(async function boot() {
+  await refreshHealth();
+  await refreshDocs();
+  await refreshKbStatus();
+  await refreshTasks();
+})();
+</script>
 </body>
 </html>
