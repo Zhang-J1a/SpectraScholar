@@ -62,6 +62,7 @@ class Settings:
     api_key: str = os.getenv("API_KEY", "")
     rate_limit_per_minute: int = _env_int("RATE_LIMIT_PER_MINUTE", 60)
     cors_origins: list[str] = field(default_factory=lambda: _env_list("CORS_ORIGINS"))
+    max_concurrent_jobs: int = _env_int("MAX_CONCURRENT_JOBS", 2, 1)
 
     # -- research (P0) -------------------------------------------------------
     research_backend: str = os.getenv("RESEARCH_BACKEND", "demo").lower()
@@ -72,9 +73,12 @@ class Settings:
     gptr_report_type: str = os.getenv("GPTR_REPORT_TYPE", "research_report")
     gptr_retriever: str = os.getenv("GPTR_RETRIEVER", "tavily")
     gptr_max_iterations: int = _env_int("GPTR_MAX_ITERATIONS", 3, 1)
-    gptr_fast_llm: str = os.getenv("GPTR_FAST_LLM", "")
-    gptr_smart_llm: str = os.getenv("GPTR_SMART_LLM", "")
-    gptr_strategic_llm: str = os.getenv("GPTR_STRATEGIC_LLM", "")
+    # GPT Researcher 0.16.x defaults to gpt-5.x; these explicit defaults keep the
+    # adapter usable with widely available OpenAI-compatible keys. Override them
+    # for other providers (e.g. "ollama:qwen2.5").
+    gptr_fast_llm: str = os.getenv("GPTR_FAST_LLM", "openai:gpt-4o-mini")
+    gptr_smart_llm: str = os.getenv("GPTR_SMART_LLM", "openai:gpt-4o")
+    gptr_strategic_llm: str = os.getenv("GPTR_STRATEGIC_LLM", "openai:gpt-4o")
     gptr_embedding: str = os.getenv("GPTR_EMBEDDING", "")
     gptr_allow_missing_key: bool = _env_bool("GPTR_ALLOW_MISSING_KEY", False)
 
@@ -87,8 +91,8 @@ class Settings:
 
     # -- uploads / PDF -------------------------------------------------------
     max_upload_mb: int = _env_int("MAX_UPLOAD_MB", 20, 1)
-    max_pdf_pages: int = _env_int("MAX_PDF_PAGES", 12, 1)
-    max_extract_chars: int = _env_int("MAX_EXTRACT_CHARS", 36000, 1000)
+    max_pdf_pages: int = _env_int("MAX_PDF_PAGES", 30, 1)
+    max_extract_chars: int = _env_int("MAX_EXTRACT_CHARS", 60000, 1000)
     max_filename_length: int = _env_int("MAX_FILENAME_LENGTH", 160, 16)
 
     # -- RAG (P2) ------------------------------------------------------------
@@ -108,8 +112,7 @@ class Settings:
 
     # -- workflow (P3) -------------------------------------------------------
     workflow_max_retries: int = _env_int("WORKFLOW_MAX_RETRIES", 1, 0)
-    workflow_step_timeout_seconds: int = _env_int("WORKFLOW_STEP_TIMEOUT_SECONDS", 180, 5)
-    workflow_report_backend: str = os.getenv("WORKFLOW_REPORT_BACKEND", "template").lower()
+    workflow_step_timeout_seconds: int = _env_int("WORKFLOW_STEP_TIMEOUT_SECONDS", 600, 5)
 
     # -- derived paths -------------------------------------------------------
     @property
@@ -148,7 +151,6 @@ class Settings:
             "embedding_backend": self.embedding_backend,
             "answer_backend": self.answer_backend,
             "rerank_backend": self.rerank_backend,
-            "workflow_report_backend": self.workflow_report_backend,
             "research_timeout_seconds": self.research_timeout_seconds,
             "max_upload_mb": self.max_upload_mb,
             "max_pdf_pages": self.max_pdf_pages,
