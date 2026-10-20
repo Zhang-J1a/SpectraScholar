@@ -446,3 +446,27 @@ $env:WORKSPACE_DIR="$PWD\.smoke-workspace"
 5. Redis/RQ 队列与取消/预算。
 6. 多用户与 PostgreSQL/pgvector。
 7. 生成真实界面截图与 3 分钟演示视频。
+
+---
+
+## 11. Git / GitHub 发布状态
+
+- 本地 Git 已初始化，按功能拆成 8 个提交，当前分支 `main`，工作区干净。
+- 远程已配置：
+  ```text
+  origin https://github.com/Zhang-J1a/SpectraScholar.git
+  ```
+- 用户已确认仓库为 **Private**。
+- 推送尝试：
+  - 默认 Schannel：`schannel: AcquireCredentialsHandle failed: SEC_E_NO_CREDENTIALS`；
+  - SSH：`kex_exchange_identification: Connection closed by remote host`；
+  - 改用 OpenSSL 后能进入认证阶段，但非交互环境没有可用凭据：`could not read Username for 'https://github.com'`。
+- 结论：**当前沙箱无法完成认证/推送**，代码只在本地提交；没有强推、没有覆盖远程、没有删除历史。
+- 在有凭据的终端执行：
+  ```powershell
+  cd SpectraScholar-Starter
+  git remote -v
+  git push -u origin main
+  ```
+  若远程仓库尚未创建，先在 GitHub 创建私有仓库 `SpectraScholar`，再执行上述 push。
+
