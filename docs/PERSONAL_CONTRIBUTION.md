@@ -1,7 +1,7 @@
 # 个人贡献说明
 
 > 目的：在简历、GitHub 和面试中准确区分 **GPT Researcher 上游能力** 与 **本人新增实现**。
-> 统计口径：`spectrascholar/` 下 Python 源文件共 5,391 行（含注释/空行，2026-10-20）；测试 1,115 行；脚本 368 行；Web 888 行。
+> 统计口径：`spectrascholar/` 下 Python 源文件共 5,398 行（含注释/空行，2026-10-20）；测试 1,115 行；脚本 394 行；Web 896 行。
 
 ## 1. 上游：GPT Researcher（Apache-2.0）
 
@@ -71,9 +71,9 @@
 | `spectrascholar/main.py`（159 行） | App 工厂、路由、Trace、限流、安全头、统一错误 |
 | `spectrascholar/api/documents.py`（158 行） | 上传安全、去重、页查看、删除联动索引 |
 | `spectrascholar/api/system.py` | health、config、单条证据核验 |
-| `web/index.html`（888 行） | 中文单页 UI、轮询、Markdown、引用跳转、工作流 |
+| `web/index.html`（896 行） | 中文单页 UI、轮询、Markdown、引用跳转、工作流 |
 | `tests/`（1,115 行） | 56 个测试、PDF 工厂、Mock GPT Researcher/LLM |
-| `scripts/`（368 行） | 合成夹具评测、GPT Researcher API 检查/真实冒烟、证据统计 |
+| `scripts/`（394 行） | 合成夹具评测、GPT Researcher API 检查/真实冒烟、证据统计 |
 | `Dockerfile` / `compose.yaml` / `.env.example` | 部署与配置（Docker 构建未验证） |
 
 ## 3. 明确不属于本人的工作

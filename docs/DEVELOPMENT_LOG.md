@@ -451,7 +451,7 @@ $env:WORKSPACE_DIR="$PWD\.smoke-workspace"
 
 ## 11. Git / GitHub 发布状态
 
-- 本地 Git 已初始化，按功能拆成 8 个提交，当前分支 `main`，工作区干净。
+- 本地 Git 已初始化，按功能拆成 8 个功能/文档提交，另加本条发布状态说明（共 9 个提交），当前分支 `main`，工作区干净。
 - 远程已配置：
   ```text
   origin https://github.com/Zhang-J1a/SpectraScholar.git
