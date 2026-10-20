@@ -30,7 +30,7 @@
 | `research.py` | 后端选择、每任务配置、超时/重试、任务事件、引用审计 | 页面搜索/报告生成（上游） |
 | `store.py` | SQLite schema/迁移、任务/文档/对比/工作流持久化 | 业务规则 |
 | `evidence.py` | PDF 读取、页码/原文匹配原语 | 判断科学正确性 |
-| `extraction/*` | 规则抽取、LLM 候选、证据拒绝、字段缺失 | 表格结构解析（未实现） |
+| `extraction/*` | 规则抽取、LLM 候选、表格结构解析、证据拒绝、字段缺失 | 复杂跨页表/多级表头/OCR |
 | `compare.py` | 方法/数据集/指标对比、可比组、Markdown | 论文质量评价 |
 | `citations.py` | 本地引用解析、外部链接标记、缺引用结论检测 | 联网核验、语义验证 |
 | `rag/*` | chunk、BM25、embedding、混合检索、拒答、带引用回答 | 训练语义模型 |
@@ -153,13 +153,29 @@ PaperExtraction
 ├── datasets: DatasetRecord(name, evidence)
 ├── graph_constructions: GraphConstructionRecord(kind, evidence)
 ├── experiment_conditions: ExperimentCondition(dataset, train_ratio, patch_size, protocol, evidence)
-├── metrics: MetricRecord(dataset, metric, value, train_ratio, patch_size, protocol, evidence)
+├── metrics: MetricRecord(dataset, method, metric, value, train_ratio, patch_size,
+│                          protocol, source=text|table|llm, evidence)
 ├── missing_fields: list[str]
 ├── rejections: list[RejectionRecord]
 └── stats: ExtractionStats
 ```
 
 LLM 抽取的候选必须通过 `make_evidence_ref`，否则进入 `rejections`，不会进入结果字段。
+
+### 4.3 表格抽取（P1-A 扩展）
+
+`extraction/tables.py`：
+
+1. pdfplumber 的 `find_tables()` 检测带线表格；
+2. 表头别名映射到 OA/AA/Kappa；
+3. 行首为方法名，列指标 → `MetricRecord(method=..., source="table")`；
+4. 表格标题/上方区域提取数据集、训练比例、补丁、协议；
+5. 数值必须在 pypdf 页文本中逐字出现，否则 `quote_not_found`；
+6. `98.4/97.1` 等多值单元格 → `ambiguous_table_cell` 拒绝；
+7. 与正文指标按 `(dataset, metric, value, page)` 去重；表格保留行列关联，正文补足条件；
+8. 无表格/无 pdfplumber/PDF 打不开 → 自动降级，不阻断正文抽取。
+
+> 表格结构证明“行/列关联”，页文本核验证明“数值确实出现在该页”，但**语义是否正确仍需人工确认**。
 
 ---
 
@@ -266,7 +282,8 @@ SQLite 表：
 | 换领域 Prompt | `domains.py` |
 | 换真实向量库 | `rag/index.py` 实现同名接口 |
 | 换 reranker | `rag/index.py` 的 `rerank` 分支 |
-| 加表格解析 | `extraction/` 新增解析器，输出同样 `MetricRecord` |
+| 扩展复杂表格 | 改 `extraction/tables.py`，输出同样 `MetricRecord(source="table")` |
+| 加 OCR | 在 `read_pdf_pages`/表格解析前加 OCR fallback，保持页码映射 |
 | 加 OCR | `evidence.read_pdf_pages` 前置 fallback |
 | 换任务队列 | `api/research.py` 的 `tasks.add_task` → RQ/Celery |
 | 加多用户 | `documents/jobs` 增加 owner 字段 + 查询过滤 + 鉴权 |
@@ -279,9 +296,10 @@ SQLite 表：
 1. 真实 GPT Researcher 调用未在本环境验证（无 Key/外网）。
 2. 真实论文抽取/检索未评测；合成夹具分数不代表真实质量。
 3. hash embedding 非语义；语义检索质量未验证。
-4. 表格结构未解析，指标关联来自文本窗口，需要人工核对。
-5. 外部链接不联网核验。
-6. 单进程 `BackgroundTasks` 不适合生产并发。
-7. 无 OCR、无病毒扫描、无多租户。
-8. Docker 构建未验证（无 Docker CLI）。
-9. 页面截图未生成（浏览器 IPC 被沙箱阻断）。
+4. 表格解析只覆盖带线结构表；复杂跨页表、多级表头、合并单元格、图片表格仍需人工或 OCR。
+5. 检索消融在 hash 词法嵌入下三模式并列，尚未证明语义/混合检索收益。
+6. 外部链接不联网核验。
+7. 单进程 `BackgroundTasks` 不适合生产并发。
+8. 无 OCR、无病毒扫描、无多租户。
+9. Docker 构建未验证（无 Docker CLI）。
+10. 页面截图未生成（浏览器 IPC 被沙箱阻断）。

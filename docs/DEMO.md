@@ -13,7 +13,7 @@ uvicorn spectrascholar.main:app --reload
 
 打开 <http://127.0.0.1:8000/>。
 
-生成两篇合成演示 PDF（可选）：
+生成三份合成演示 PDF（两篇正文 + 一张带线表格，可选）：
 
 ```powershell
 python scripts\make_demo_pdfs.py --out demo_assets
@@ -34,25 +34,26 @@ python scripts\make_demo_pdfs.py --out demo_assets
 
 ### 2.2 文献库（30 秒）
 
-1. 上传 `demo_assets/dynamic_gnn.pdf` 与 `hybridsn.pdf`。
+1. 上传 `demo_assets/dynamic_gnn.pdf`、`hybridsn.pdf` 与 `table_paper.pdf`。
 2. 指出：文件名、页数、大小、SHA 前 10 位、标题。
 3. 再上传同一文件 → 返回已有记录（SHA 去重）。
 4. 点“查看” → 打开 PDF 页文本。
 
 ### 2.3 论文对比（45 秒）
 
-1. 勾选两篇 → “比较选中论文”。
+1. 勾选三篇 → “比较选中论文”。
 2. 展示：
    - 方法/模型家族/图构建；
    - 数据集矩阵；
+   - 指标表新增“来源”列：`table_paper.pdf` 的 6 条指标显示 `source=table`，方法列为 HybridSN/GCN；
    - OA 98.4% vs 97.1%，训练比例 10%、补丁 9x9、协议随机 → **可比**，排名 1/2；
-   - Kappa 只有一篇 → **不可比**，无排名；
+   - Kappa 只有部分论文报告 → **不可比**，无排名；
    - “不可比项与风险提示”。
 3. 下载 Markdown，指出证据附录的页码和引用。
 
 ### 2.4 工作流（45 秒）
 
-1. 勾选两篇 → “运行本地工作流”。
+1. 勾选三篇 → “运行本地工作流”。
 2. 展示 7 个节点：plan/screen/retrieve/extract/verify/compare/report。
 3. 每个节点有状态、尝试次数、耗时、输出摘要。
 4. 打开工作流报告：包含引用核验报告与工作流边界说明。

@@ -6,7 +6,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.150-009688?logo=fastapi&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-56%20passed-2ea44f)
+![Tests](https://img.shields.io/badge/tests-61%20passed-2ea44f)
 ![Coverage](https://img.shields.io/badge/coverage-87%25-2ea44f)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Upstream](https://img.shields.io/badge/upstream-GPT%20Researcher%20Apache--2.0-orange)
@@ -35,11 +35,12 @@ SpectraScholar 把这三件事做成了显式契约：
 
 | 能力 | 状态 | 证据 |
 |---|---|---|
-| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 56 个 pytest |
+| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 61 个 pytest |
 | Demo 调研任务（不调用搜索/LLM） | ✅ 已实现 | 报告中明确“不是调研结果” |
 | GPT Researcher Adapter | ✅ 代码完成，API 签名按 **0.16.1** 源码核对 | Mock 集成测试覆盖成功/空响应/超时/重试/缺密钥 |
 | GPT Researcher 真实联网 + 真实模型端到端 | ⚠️ **未验证** | 当前环境无 API Key，且外网直连被阻断 |
-| 规则结构化抽取（方法/数据集/指标/图构建/实验条件） | ✅ 已实现 | 合成夹具 14/14 字段命中、14/14 原文证据通过 |
+| 规则结构化抽取（方法/数据集/指标/图构建/实验条件） | ✅ 已实现 | 三份合成夹具 20/20 字段命中、23/23 原文证据通过 |
+| PDF 表格结构解析（OA/AA/Kappa 行列） | ✅ 已实现 | pdfplumber + 带线表格夹具；无表格时自动降级 |
 | LLM 结构化抽取 + 逐字证据拒绝 | ✅ 代码与假模型测试完成 | 幻觉数值/引文会被丢弃并记录 |
 | 真实 LLM 抽取效果 | ⚠️ **未验证** | 没有可用模型 API |
 | 多论文对比、可比性分组、Markdown 导出 | ✅ 已实现 | OA 条件一致时正确排名；Kappa 单篇不排名 |
@@ -121,6 +122,8 @@ SpectraScholar 把这三件事做成了显式契约：
 
 - `EXTRACTOR_BACKEND=heuristic`：离线、只匹配字面量；
 - `EXTRACTOR_BACKEND=llm`：模型候选 + **逐字原文拒绝**；候选不匹配时记录 `RejectionRecord`；
+- 表格解析：`pdfplumber` 检测带线表格，把行识别为方法名、列识别为 OA/AA/Kappa；数值必须同时出现在页文本中才保留；
+- 表格指标带 `method + source=table`，与正文指标按 `(dataset, metric, value, page)` 去重，优先保留表格的行列关联；
 - 缺失字段返回 `null`，并写入 `missing_fields`；
 - **原文出现 ≠ 事实正确 ≠ 实验可比**，这三个层级在数据结构里分开。
 
@@ -171,7 +174,8 @@ PDF → 页级 chunk（保留页码/偏移） → embedding + BM25
 - `EMBEDDING_BACKEND=openai` 使用真实 embedding；
 - 空知识库或低重合时拒答；
 - 回答中每个片段带页级引用；LLM 回答没有可核验引用时自动降级为抽取式；
-- 删除文献时同步删除索引。
+- 删除文献时同步删除索引；
+- `scripts/evaluate_pipeline.py` 同时跑 `bm25 / vector / hybrid` 三模式消融；当前 hash 嵌入下并列 1.0，**不宣称混合检索提升**。
 
 ### 4.6 工作流与工程化（P3）
 
@@ -392,19 +396,19 @@ python scripts/evaluate_pipeline.py
 
 实际结果：
 
-- **56 passed**（pytest）
+- **61 passed**（pytest）
 - **ruff：All checks passed**
-- **coverage：87%**（3208 statements，428 missed）
-- 合成两页论文夹具：
-  - 抽取字段命中 **14/14**
-  - 原文证据接受 **14/14**
-  - Recall@1 / Recall@3 / MRR = **1.0 / 1.0 / 1.0**
-  - 引用有效率 **3/3**
+- **coverage：87%**（3454 statements，466 missed）
+- 三份合成夹具（两篇正文 + 一张带线 OA/AA/Kappa 表格）：
+  - 抽取字段命中 **20/20**
+  - 原文证据接受 **23/23**
+  - BM25 / 向量 / 混合检索：Recall@1 / @3 / MRR 均为 **1.0 / 1.0 / 1.0**
+  - 引用有效率 **4/4**
   - 7/7 工作流节点完成
-  - 对比 42 ms、索引 17 ms、检索中位 3 ms、回答 15 ms、工作流 360 ms
-- HTTP 端到端冒烟：上传 2 篇 PDF → Demo 研究 → 对比 → 索引 → 检索 → 问答 → 工作流 → 报告下载均成功。
+  - 对比 123 ms、索引 18 ms、检索中位 3 ms、回答 20 ms、工作流 379 ms
+- HTTP 端到端冒烟：上传 PDF → Demo 研究 → 对比 → 索引 → 检索 → 问答 → 工作流 → 报告下载均成功（2 篇正文夹具；表格夹具已通过独立 API 测试）。
 
-> ⚠️ 上述检索/抽取分数来自**合成夹具 + hash 词法嵌入**，只证明流水线连通，不代表真实论文或语义检索质量。真实论文集见 [`eval/README.md`](eval/README.md)，因外网阻断尚未下载。完整方法与限制见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。
+> ⚠️ 上述检索/抽取分数来自**合成夹具 + hash 词法嵌入**，只证明流水线连通，不代表真实论文或语义检索质量。三种检索模式在 hash 词法嵌入下并列 1.0，**不能**据此宣称混合检索提升了语义效果；需要真实 embedding 与真实论文重测。真实论文集见 [`eval/README.md`](eval/README.md)，因外网阻断尚未下载。完整方法与限制见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。
 
 测试覆盖的关键失败路径：
 
@@ -429,14 +433,14 @@ SpectraScholar-Starter/
 │   ├── research.py             # GPT Researcher Adapter + 任务运行器
 │   ├── store.py                # SQLite 持久化与迁移
 │   ├── evidence.py             # PDF 读取 + 页码/原文核验原语
-│   ├── extraction/             # 规则抽取、LLM 抽取、证据拒绝
+│   ├── extraction/             # 规则/LLM 抽取、表格解析、证据拒绝
 │   ├── compare.py              # 多论文对比、可比组、Markdown
 │   ├── citations.py            # 引用解析/审计/报告附加节
 │   ├── rag/                    # chunk、BM25、embedding、混合索引、RAG 服务
 │   ├── workflow.py             # 7 节点本地文献工作流
 │   └── domains.py              # 可替换领域模板
 ├── web/index.html              # 单页中文 Web UI（无构建步骤）
-├── tests/                      # 56 个离线测试 + PDF 工厂 + Mock GPT Researcher
+├── tests/                      # 61 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
 ├── scripts/                    # 评测、GPT Researcher API 检查/真实冒烟
 ├── eval/                       # 真实论文清单与标注模板（PDF 未提交）
 ├── docs/                       # 架构、开发日志、评测、面试、贡献说明
@@ -463,7 +467,7 @@ SpectraScholar-Starter/
 
 - 多租户与用户级数据隔离（当前是单用户）；
 - Redis/RQ/Celery 任务队列与取消/超时/预算控制（当前 `BackgroundTasks`）；
-- 恶意 PDF/病毒扫描、OCR、表格结构解析；
+- 恶意 PDF/病毒扫描、OCR、复杂跨页表/多级表头解析；
 - 真实 API 的 token 成本、429、长任务稳定性压测；
 - HTTPS、反向代理、备份、数据库迁移到 PostgreSQL；
 - 外部链接联网核验（当前明确标记 `external_unchecked`）；
@@ -481,7 +485,7 @@ SpectraScholar-Starter/
 2. 下载合法论文，完成真实抽取标注与引用有效率评测；
 3. 用 OpenAI embedding 对比 hash 基线，报告 Recall@K / MRR / 引用精确率；
 4. 将 `BackgroundTasks` 替换为 Redis/RQ，增加取消与预算；
-5. 表格结构解析（Camelot/Unstructured）与 OCR；
+5. 复杂表头/跨页表格解析与 OCR（当前仅支持带线结构表）；
 6. 如有需要，再用 LangGraph 替换自建工作流，保留现有节点契约与测试。
 
 详见 [`docs/ROADMAP.md`](docs/ROADMAP.md)。

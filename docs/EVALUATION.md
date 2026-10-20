@@ -7,13 +7,15 @@
 
 | 指标 | 结果 | 数据来源 | 能否用于简历 |
 |---|---|---|---|
-| 自动化测试 | **56 passed** | `pytest -q` | ✅ 可以 |
-| 代码覆盖率 | **87%**（3208 stmts / 428 miss） | `pytest --cov` | ✅ 可以 |
+| 自动化测试 | **61 passed** | `pytest -q` | ✅ 可以 |
+| 代码覆盖率 | **87%**（3454 stmts / 466 miss） | `pytest --cov` | ✅ 可以 |
 | Lint | **All checks passed** | `ruff check` | ✅ 可以 |
-| 合成夹具抽取字段命中 | **14/14** | `scripts/evaluate_pipeline.py` | ✅ 可写“合成夹具” |
-| 合成夹具原文证据接受 | **14/14** | 同上 | ✅ 可写“合成夹具” |
-| 合成夹具 Recall@1 / @3 / MRR | **1.0 / 1.0 / 1.0** | 同上，hash 嵌入 | ⚠️ 只能说明流水线连通，**不能**当语义检索效果 |
-| 合成夹具引用有效率 | **3/3** | 同上 | ✅ 可写“合成夹具” |
+| 合成夹具抽取字段命中 | **20/20** | `scripts/evaluate_pipeline.py` | ✅ 可写“合成夹具” |
+| 合成夹具原文证据接受 | **23/23** | 同上 | ✅ 可写“合成夹具” |
+| 表格夹具方法级指标 | **6 条 table 指标 + 1 个数据集** | `tests/test_tables.py` | ✅ 可写“表格结构解析” |
+| BM25 / 向量 / 混合 Recall@1 | **1.0 / 1.0 / 1.0** | 同上，hash 嵌入 | ⚠️ 三者并列，不能宣称混合提升 |
+| BM25 / 向量 / 混合 MRR | **1.0 / 1.0 / 1.0** | 同上 | ⚠️ 同上 |
+| 合成夹具引用有效率 | **4/4** | 同上 | ✅ 可写“合成夹具” |
 | 工作流完成 | **7/7 节点** | 同上 | ✅ 可以 |
 | 真实 GPT Researcher 任务成功率 | **未验证** | 无 Key/外网 | ❌ 不能写 |
 | 真实论文字段正确率 | **未验证** | PDF 未下载 | ❌ 不能写 |
@@ -35,12 +37,12 @@ py -3.12 -m venv .venv
 测试使用：
 
 - 独立的 `.test-workspace`（Git 忽略），每个用例前重建；
-- 标准库生成的**真实可解析 PDF**（非 mock 字节）；
+- 标准库生成的**真实可解析 PDF**（非 mock 字节），包括普通文本页和带线表格页；
 - 假 `gpt_researcher` 模块，记录构造参数与调用；
 - 假 `AsyncOpenAI`，返回可控 JSON/错误；
 - `TestClient` 启动真实 FastAPI 生命周期。
 
-覆盖的 10 类验收要求：
+覆盖的验收要求：
 
 1. 正常 API 请求（研究/上传/对比/索引/问答/工作流）。
 2. 非法参数（主题过短、重复文档、非法 source、top_k 越界）。
@@ -52,6 +54,8 @@ py -3.12 -m venv .venv
 8. 重复文献与条件不一致（SHA 去重、duplicate IDs、train_ratio 缺失）。
 9. 任务状态转换（queued→running→completed/failed；重试；事件）。
 10. Demo 与真实模式隔离（`is_demo`、报告头、缺 Key 失败）。
+11. 表格解析（表头识别、单一数值、`98.4/97.1` 拒绝、无页文本拒绝、无表格降级、开关关闭）。
+12. 表格指标与正文指标合并、方法级来源、可比性表格展示。
 
 ---
 
@@ -60,23 +64,35 @@ py -3.12 -m venv .venv
 ```text
 Name                                     Stmts   Miss  Cover
 ------------------------------------------------------------
+spectrascholar\api\comparison.py            65     12    82%
+spectrascholar\api\documents.py            110     17    85%
+spectrascholar\api\knowledge.py             36      5    86%
+spectrascholar\api\research.py              64     10    84%
+spectrascholar\api\system.py                32      4    88%
+spectrascholar\api\workflows.py             45      4    91%
 spectrascholar\citations.py                106      5    95%
-spectrascholar\compare.py                  263     24    91%
+spectrascholar\compare.py                  263     23    91%
+spectrascholar\evidence.py                 102     27    74%
 spectrascholar\extraction\heuristic.py     253     27    89%
 spectrascholar\extraction\llm.py           214     44    79%
-spectrascholar\main.py                      93      6    94%
+spectrascholar\extraction\service.py        50      2    96%
+spectrascholar\extraction\tables.py        235     47    80%
+spectrascholar\main.py                      91      6    93%
 spectrascholar\rag\bm25.py                  50      5    90%
-spectrascholar\rag\index.py                199     38    81%
+spectrascholar\rag\chunking.py              62     14    77%
+spectrascholar\rag\embeddings.py            85     27    68%
+spectrascholar\rag\index.py                204     38    81%
 spectrascholar\rag\service.py              193     51    74%
-spectrascholar\research.py                 213     38    82%
-spectrascholar\schemas.py                  381      2    99%
-spectrascholar\store.py                    218     21    90%
+spectrascholar\research.py                 213     35    84%
+spectrascholar\schemas.py                  385      2    99%
+spectrascholar\settings.py                 106      5    95%
+spectrascholar\store.py                    219     22    90%
 spectrascholar\workflow.py                 214     36    83%
 ------------------------------------------------------------
-TOTAL                                     3208    428    87%
+TOTAL                                     3454    466    87%
 ```
 
-未覆盖部分主要是：真实 provider 客户端、异常分支、PDF 加密/损坏、部分索引持久化分支。
+未覆盖部分主要是：真实 provider 客户端、PDF 加密/损坏、部分索引持久化分支、表格解析的异常分支。
 
 ---
 
@@ -84,10 +100,11 @@ TOTAL                                     3208    428    87%
 
 ### 4.1 数据
 
-`scripts/evaluate_pipeline.py` 生成两篇两页英文 PDF：
+`scripts/evaluate_pipeline.py` 生成三份合成 PDF：
 
 - `dynamic_gnn.pdf`：GCN + KNN + dynamic graph；Indian Pines；10% 训练；9x9；random split；OA 98.4%、Kappa 0.977。
 - `hybridsn.pdf`：HybridSN + 3D/2D-CNN；Indian Pines；10%；9x9；random split；OA 97.1%、AA 96.5%；RBF/static baseline。
+- `table_paper.pdf`：一张**带实际线条**的表格，表头 `Method / OA / AA / Kappa`，两行 HybridSN、GCN；标题包含 Indian Pines、10%、9x9、random split。
 
 这些是**人工构造的夹具**，不是 HybridSN/SSRN 原论文。
 
@@ -96,12 +113,14 @@ TOTAL                                     3208    428    87%
 ```text
 Corpus: synthetic_fixture / real_papers=False
 Embedding: hash-512
-Extraction field accuracy: 14/14 (1.0)
-Evidence acceptance: 14/14 (1.0)
-Recall@1: 1.0; Recall@3: 1.0; MRR: 1.0
-Citation validity: 1.0 (3 checks)
+Extraction field accuracy: 20/20 (1.0)
+Evidence acceptance: 23/23 (1.0)
+Retrieval [bm25]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
+Retrieval [vector]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
+Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
+Citation validity: 1.0 (4 checks)
 Workflow: completed 7/7 steps
-Latency: {'compare': 42, 'index': 17, 'search_median': 3, 'answer': 15, 'workflow': 360}
+Latency: {'compare': 123, 'index': 18, 'search_median': 3, 'answer': 20, 'workflow': 379}
 ```
 
 完整 JSON：[`evaluation_results.json`](evaluation_results.json)。
@@ -110,19 +129,40 @@ Latency: {'compare': 42, 'index': 17, 'search_median': 3, 'answer': 15, 'workflo
 
 | 指标 | 定义 |
 |---|---|
-| 字段命中 | 每篇论文检查 title/methods/datasets/metrics/graph/train_ratio/patch_size 共 7 项，命中数/总数 |
+| 字段命中 | 每篇论文检查 title/methods/datasets/metrics/graph/train_ratio/patch_size；表格论文不检查标题，共 20 项 |
 | 证据接受 | `verified_quote` 证据数 / 证据总数 |
 | Recall@K | 标注的 (filename, page) 是否出现在 Top-K 命中 |
 | MRR | 首次命中的排名倒数均值 |
 | 引用有效率 | 回答中非失败引用数 / 总引用检查数 |
 
-### 4.4 不能从这组数字推出的结论
+### 4.4 检索消融的真实结论
+
+三种模式在合成夹具上并列 1.0，原因很明确：
+
+- 只有 3 篇文档、约 8 个 chunk，查询词与标注页高度重合；
+- `EMBEDDING_BACKEND=hash` 是**词法哈希**，不是语义模型；它和 BM25 都依赖词面重合；
+- 因此这组数字**不能**证明“混合检索优于 BM25”或“向量检索有语义泛化”。
+- 要得到有意义的 ablation，必须使用真实 embedding（OpenAI/sentence-transformers）和真实论文/更难查询；见第 6 节计划。
+
+### 4.5 表格解析的实际验证
+
+- `pdfplumber` 从带线表格中识别出 4 列、3 行（含表头）；
+- 生成 6 条 `source=table` 指标，方法列分别为 `HybridSN` / `GCN`；
+- 每条指标都有页文本中的数值证据，`verified_quote`；
+- 数据集 `Indian Pines` 从表格标题上下文提取并核验；
+- 训练比例 10%、补丁 9x9、协议 random split 从标题上下文提取；
+- `98.4/97.1` 这类多值单元格被记录为 `ambiguous_table_cell`，不猜测；
+- 表格数值不在页文本时记录 `quote_not_found`；
+- 无表格/开关关闭/PDF 无法打开时自动降级并写 note，不使整个抽取失败。
+
+### 4.6 不能从这组数字推出的结论
 
 - 不能推出真实论文上的抽取准确率；
 - 不能推出 hash 嵌入的语义检索质量；
+- 不能推出混合检索相对 BM25 的提升；
 - 不能推出 GPT Researcher 的真实任务成功率；
 - 不能推出 token 成本；
-- 不能推出系统对复杂表格/公式/扫描件的鲁棒性。
+- 不能推出系统对复杂跨页表、多级表头、公式、扫描件的鲁棒性。
 
 ---
 
@@ -144,6 +184,8 @@ Latency: {'compare': 42, 'index': 17, 'search_median': 3, 'answer': 15, 'workflo
 | 报告/对比下载 | 200 |
 | OpenAPI | 200 |
 
+表格 PDF 的 API 对比在 `tests/test_tables.py` 中验证：返回 `source=table`、`method=HybridSN/GCN`，Markdown 指标表包含“来源”列。
+
 控制台中文出现的乱码是 PowerShell 编码显示问题；已用 `repr`/`ord` 验证 API 返回的是正确 Unicode（如 `0x672c 0x62a5 0x544a`）。
 
 ---
@@ -162,6 +204,7 @@ Latency: {'compare': 42, 'index': 17, 'search_median': 3, 'answer': 15, 'workflo
 2. 两人独立标注 10～20 个字段，分歧由第三人裁决；
 3. 记录：
    - 字段 Precision/Recall/F1；
+   - 表格/正文指标来源准确率；
    - 引用有效率（verified / total）；
    - Recall@1/3/5、MRR；
    - 单任务耗时、失败率；
@@ -185,7 +228,7 @@ Latency: {'compare': 42, 'index': 17, 'search_median': 3, 'answer': 15, 'workflo
 # 覆盖率
 .\.venv\Scripts\python.exe -m pytest --cov=spectrascholar --cov-report=term
 
-# 合成夹具评测（写入 docs/evaluation_results.json）
+# 合成夹具评测（写入 docs/evaluation_results.json，含三模式消融）
 .\.venv\Scripts\python.exe scripts\evaluate_pipeline.py
 
 # 真实 GPT Researcher 检查（需要 live 依赖）

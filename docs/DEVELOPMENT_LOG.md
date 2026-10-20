@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：56 个测试连续运行，工作区每个用例可重建。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 61 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -347,8 +347,8 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 ```
 
 ```text
-........................................................                 [100%]
-56 passed, 1 warning in 7.20s
+.............................................................            [100%]
+61 passed, 1 warning in 7.14s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  3208 statements  428 missed  87%
+TOTAL  3454 statements  466 missed  87%
 ```
 
 ### 8.4 合成夹具评测
@@ -378,15 +378,17 @@ TOTAL  3208 statements  428 missed  87%
 ```
 
 ```text
-Extraction field accuracy: 14/14 (1.0)
-Evidence acceptance: 14/14 (1.0)
-Recall@1: 1.0; Recall@3: 1.0; MRR: 1.0
-Citation validity: 1.0 (3 checks)
+Extraction field accuracy: 20/20 (1.0)
+Evidence acceptance: 23/23 (1.0)
+Retrieval [bm25]:   Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
+Retrieval [vector]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
+Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
+Citation validity: 1.0 (4 checks)
 Workflow: completed 7/7 steps
-Latency: compare 35ms, index 17ms, search median 3ms, answer 16ms, workflow 353ms
+Latency: compare 123ms, index 18ms, search median 3ms, answer 20ms, workflow 379ms
 ```
 
-> 这些数字只来自合成两页 PDF + hash 嵌入；真实论文与真实 embedding 未验证。
+> 这些数字只来自三份合成 PDF（两篇正文 + 一张带线表格）+ hash 词法嵌入；三种检索模式并列，不能宣称混合检索提升。真实论文与真实 embedding 未验证。
 
 ### 8.5 HTTP 冒烟
 
@@ -407,6 +409,8 @@ $env:WORKSPACE_DIR="$PWD\.smoke-workspace"
 - 问答：grounded=true，refusal=false，引用通过；
 - 工作流：202 → completed，7/7 节点；
 - 报告下载 / OpenAPI：200。
+- 表格 HTTP 冒烟：上传带线表格 PDF → 对比返回 6 条 `source=table` 指标（HybridSN/GCN），Markdown 含“来源”列；
+- 任务列表接口已瘦身：`GET /api/v1/research` 不返回 `report` 字段。
 
 ### 8.6 未验证事项
 
@@ -437,21 +441,119 @@ $env:WORKSPACE_DIR="$PWD\.smoke-workspace"
 
 ---
 
-## 10. 下一步
+## 10. 第二阶段：表格感知抽取与检索消融（本次新增）
+
+### 10.1 为什么先做这个
+
+真实论文的 OA/AA/Kappa 大量在表格里，而第一版只做正文文本窗口，容易出现“能读到数字但不知道属于哪个方法/数据集”的问题。本轮目标：
+
+1. 用结构化表格解析补上**方法级指标**；
+2. 不放松证据约束：表格数值仍要能在页文本中定位；
+3. 建立 BM25 / 向量 / 混合三种检索模式的真实消融脚本；
+4. 保持无 API Key 也能跑测试。
+
+### 10.2 表格抽取实现
+
+新增 `spectrascholar/extraction/tables.py`（235 行）：
+
+- `pdfplumber>=0.11,<1` 的 `page.find_tables()` 检测带线表格；
+- 表头识别：`OA`、`AA`、`Kappa`、`OA(%)`、`Overall Accuracy` 等别名；
+- 行首识别为方法名，列识别为指标；
+- 表格标题/上方 110pt 区域用于提取数据集、训练比例、补丁、协议；
+- 表格数值必须仍能在 pypdf 页文本中找到，才生成 `verified_quote` 证据；
+- `98.4/97.1`、`98.4 ± 0.2` 等多值单元格记录 `ambiguous_table_cell`，不猜测；
+- 无表格、pdfplumber 未安装、PDF 打不开、开关关闭都自动降级并写 note；
+- `MetricRecord` 新增 `method` 与 `source=table`；
+- 与正文指标按 `(dataset, metric, value, page)` 去重，优先保留表格的行列关联，同时保留正文里已有的补丁/协议条件。
+
+### 10.3 发现并修复的 Bug
+
+#### Bug：多值单元格没有被拒绝
+
+最初只拒绝“数字 + 字母”的单元格，`98.4/97.1` 没有字母，会被静默跳过，既没有指标也没有 rejection，难以审计。
+
+**修复**：任何含数字但无法解析为单一数值的单元格都记录 `ambiguous_table_cell`，明确写入 `rejections`。
+
+#### Bug：表格条件覆盖正文条件
+
+表格指标替换正文同 key 指标时，最初直接丢掉正文已有的 `patch_size`。
+
+**修复**：合并时表格字段优先，缺失字段回退到正文值；仍不猜测缺失协议。
+
+### 10.4 表格夹具与测试
+
+`tests/conftest.py` 现在生成**带真实 PDF 线条**的表格页：
+
+```text
+Table 1: OA on Indian Pines with 10% training samples, patch size 9x9, random split.
+Method   OA     AA     Kappa
+HybridSN 98.4   97.8   0.976
+GCN      97.1   96.5   0.965
+```
+
+新增 `tests/test_tables.py` 5 个测试：
+
+- 真实表格 PDF → 6 条 table 指标、方法 HybridSN/GCN、数据集/训练比例/补丁/协议、证据通过；
+- `98.4/97.1` → ambiguous rejection；
+- 页文本无数字 → quote_not_found；
+- 无表格 / 开关关闭 / PDF 打不开 → 降级 note；
+- 表格指标与正文合并、`source=table` 展示；
+- API 对比返回 `source=table`、方法列、Markdown “来源”列。
+
+### 10.5 检索消融
+
+`scripts/evaluate_pipeline.py` 现在对同一组标注查询分别运行：
+
+- `bm25`
+- `vector`
+- `hybrid`
+
+实际结果（hash-512，合成三文档）：
+
+```text
+Retrieval [bm25]:   Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
+Retrieval [vector]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
+Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
+```
+
+**结论**：三者并列，不能宣称混合检索更好。原因是语料只有 3 篇/约 8 chunks，查询与标注高度重合，且 hash 嵌入本身就是词法哈希。要证明语义收益，必须换真实 embedding 和更难的真实论文查询。这一点已写入 README/EVALUATION，避免误导。
+
+### 10.6 本轮真实结果
+
+```text
+pytest -q                         → 61 passed
+pytest --cov                      → 87% (3454 / 466)
+ruff check                        → All checks passed
+Extraction field accuracy         → 20/20
+Evidence acceptance               → 23/23
+Citation validity                 → 4/4
+Workflow                          → 7/7
+```
+
+### 10.7 仍未完成
+
+- 复杂跨页表、多级表头、合并单元格；
+- 图片/扫描表格 OCR；
+- 真实 embedding 的 ablation；
+- 真实论文表格上的行列准确率。
+
+---
+
+## 11. 下一步
 
 1. 有网络/Key 的环境：跑 10 个真实任务，记录成功率、错误码、耗时、cost。
 2. 下载合法 PDF，完成真实标注，重跑抽取/引用/Recall@K。
-3. OpenAI embedding 对照 hash，做 ablation。
-4. 表格解析/OCR 插件化。
+3. OpenAI embedding 对照 hash，做真实 ablation。
+4. 多级表头/跨页表/OCR。
 5. Redis/RQ 队列与取消/预算。
 6. 多用户与 PostgreSQL/pgvector。
 7. 生成真实界面截图与 3 分钟演示视频。
 
 ---
 
-## 11. Git / GitHub 发布状态
+## 12. Git / GitHub 发布状态
 
-- 本地 Git 已初始化，按功能拆成 8 个功能/文档提交，另加本条发布状态说明（共 9 个提交），当前分支 `main`，工作区干净。
+- 本地 Git 已初始化，按功能拆成多个功能/文档提交，当前分支 `main`，工作区干净。
 - 远程已配置：
   ```text
   origin https://github.com/Zhang-J1a/SpectraScholar.git

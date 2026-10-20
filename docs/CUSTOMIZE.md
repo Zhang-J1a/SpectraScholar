@@ -13,7 +13,7 @@
 | 想做什么 | 改哪里 |
 |---|---|
 | 增加 LLM 抽取字段 | `extraction/llm.py` 的 Prompt + `build_paper_from_draft` |
-| 增加表格解析 | 新建 `extraction/table.py`，输出同样的 `MetricRecord`，不要绕过证据层 |
+| 扩展表格解析 | 改 `extraction/tables.py`，输出同样的 `MetricRecord(source="table")`，不要绕过证据层 |
 | 增加 OCR | `evidence.read_pdf_pages` 前置 fallback；保持页码映射 |
 | 换真实向量库 | `rag/index.py` 的 `add_document/search/remove_document` |
 | 换 reranker | `rag/index.py` 的 `rerank` 分支；保留分数可解释性 |

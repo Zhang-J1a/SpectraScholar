@@ -38,8 +38,9 @@
 - [x] 字段绑定 document/page/quote/status
 - [x] 缺失返回 null，不虚构
 - [x] LLM 候选逐字拒绝
+- [x] 带线表格解析（方法级 OA/AA/Kappa、表格/正文去重、多值单元格拒绝）
 - [ ] 真实论文标注下的字段 F1
-- [ ] 表格结构解析
+- [ ] 复杂跨页表/多级表头/合并单元格
 - [ ] OCR
 
 ## P1-B 验收
@@ -74,8 +75,8 @@
 - [x] 空结果拒答
 - [x] 删除文献同步删索引
 - [x] 合成夹具 Recall/MRR 评测
+- [x] BM25 / 向量 / 混合三模式消融脚本（hash 下并列 1.0，不能宣称提升）
 - [ ] 真实 embedding + 真实论文 Recall@K
-- [ ] 向量 vs 混合检索 ablation
 - [ ] Reranker ablation
 
 ## P3 验收
@@ -87,7 +88,7 @@
 - [x] 幂等键
 - [x] 统一错误/Trace/限流/安全头
 - [x] 可选 API Key
-- [x] 56 tests / 87% coverage / ruff
+- [x] 61 tests / 87% coverage / ruff
 - [x] Dockerfile + compose + healthcheck（静态检查）
 - [ ] Docker 构建与另一台机器部署
 - [ ] Redis/RQ 队列与取消
@@ -96,7 +97,7 @@
 ## 下一阶段优先级
 
 1. **真实评测**（最高）：10 个真实任务、3 篇合法论文、真实 embedding、成本/耗时。
-2. **表格/OCR**：真实论文的 OA 表格是最大缺口。
+2. **表格/OCR**：带线结构表已支持；下一步是复杂表头/跨页表与扫描件 OCR。
 3. **任务队列**：Redis/RQ + 取消 + 预算。
 4. **多用户/持久化升级**：PostgreSQL + pgvector。
 5. **LangGraph**：只有在节点契约和真实失败案例稳定后再考虑。
