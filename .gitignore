@@ -1,9 +1,27 @@
-﻿.venv/
-.uv-cache/
+# secrets and local configuration
 .env
+.env.*
+!.env.example
+
+# python / tooling
+.venv/
+.uv-cache/
+.uv-temp/
 __pycache__/
 *.pyc
 .pytest_cache/
+.pytest_cache*/
+pytest-cache-files-*/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# runtime data (papers, reports, DB, vector index, generated configs)
 workspace/*
 !workspace/papers/
 !workspace/reports/
@@ -11,3 +29,22 @@ workspace/papers/*
 workspace/reports/*
 !workspace/papers/.gitkeep
 !workspace/reports/.gitkeep
+*.sqlite3
+*.sqlite3-*
+*.db
+*.log
+
+# test / smoke / browser scratch directories
+.test-workspace/
+.smoke-workspace*/
+.eval-workspace/
+.chrome-profile*/
+.chrome-profile2/
+demo_assets/
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

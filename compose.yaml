@@ -8,6 +8,20 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      WORKSPACE_DIR: /data/workspace
     volumes:
-      - ./workspace:/code/workspace
+      # Named volume avoids host bind-mount UID/permission problems with the
+      # non-root container user. Use `docker cp` to retrieve reports.
+      - spectrascholar_workspace:/data/workspace
+    init: true
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  spectrascholar_workspace:

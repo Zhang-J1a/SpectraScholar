@@ -1,0 +1,29 @@
+NOTICE
+======
+
+SpectraScholar
+Copyright (c) 2026 SpectraScholar contributors
+Licensed under the MIT License (see LICENSE).
+
+Third-party upstream
+--------------------
+This project depends on GPT Researcher:
+
+  GPT Researcher
+  https://github.com/assafelovic/gpt-researcher
+  Licensed under the Apache License, Version 2.0.
+  Copyright belongs to the GPT Researcher authors and contributors.
+
+SpectraScholar calls GPT Researcher through its public Python API
+(`GPTResearcher.conduct_research()` / `write_report()`). No GPT Researcher
+source files are copied into this repository. The research planning, web
+search, scraping, context management and report-generation capabilities are
+upstream work and must not be presented as original work of this project.
+
+If you copy, modify or redistribute GPT Researcher source code or derivative
+works in the future, you must also comply with the Apache License 2.0
+requirements, including retaining its LICENSE/NOTICE and marking modified
+files.
+
+Other dependencies (FastAPI, Pydantic, pypdf, OpenAI Python SDK, pytest, etc.)
+remain under their respective licenses.

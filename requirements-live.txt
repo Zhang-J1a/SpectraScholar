@@ -1,3 +1,4 @@
 -r requirements.txt
-# GPT Researcher can introduce additional dependencies and API usage costs.
-gpt-researcher
+# Pinned to the version whose public API was inspected in this project.
+# Upgrade deliberately and rerun tests / scripts/check_gptr_api.py.
+gpt-researcher==0.16.1
