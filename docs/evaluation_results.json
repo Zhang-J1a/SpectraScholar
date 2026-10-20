@@ -3,33 +3,44 @@
   "real_papers": false,
   "embedding_backend": "hash-512",
   "note": "合成两页论文夹具，仅验证抽取/检索/引用流水线；不代表真实论文上的科学正确率或语义检索质量。",
-  "generated_at": "2026-10-20T14:40:33+0800",
-  "documents": 2,
-  "chunks": 4,
+  "generated_at": "2026-10-20T15:32:32+0800",
+  "documents": 3,
+  "chunks": 5,
   "extraction": {
     "field_accuracy": 1.0,
-    "fields_passed": 14,
-    "fields_total": 14,
+    "fields_passed": 20,
+    "fields_total": 20,
     "evidence_acceptance": 1.0,
-    "evidence_verified": 14,
-    "evidence_total": 14,
+    "evidence_verified": 23,
+    "evidence_total": 23,
     "per_paper": [
       {
         "filename": "dynamic_gnn.pdf",
         "checks": {
-          "title": true,
           "methods": true,
           "datasets": true,
           "metrics": true,
           "graph": true,
           "train_ratio": true,
-          "patch_size": true
+          "patch_size": true,
+          "title": true
         }
       },
       {
         "filename": "hybridsn.pdf",
         "checks": {
-          "title": true,
+          "methods": true,
+          "datasets": true,
+          "metrics": true,
+          "graph": true,
+          "train_ratio": true,
+          "patch_size": true,
+          "title": true
+        }
+      },
+      {
+        "filename": "table_paper.pdf",
+        "checks": {
           "methods": true,
           "datasets": true,
           "metrics": true,
@@ -41,31 +52,58 @@
     ]
   },
   "retrieval": {
+    "primary_mode": "hybrid",
     "queries": 4,
     "recall_at_1": 1.0,
     "recall_at_3": 1.0,
     "mrr": 1.0,
+    "modes": {
+      "bm25": {
+        "queries": 4,
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "mrr": 1.0,
+        "median_latency_ms": 3
+      },
+      "vector": {
+        "queries": 4,
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "mrr": 1.0,
+        "median_latency_ms": 3
+      },
+      "hybrid": {
+        "queries": 4,
+        "recall_at_1": 1.0,
+        "recall_at_3": 1.0,
+        "mrr": 1.0,
+        "median_latency_ms": 3
+      }
+    },
     "runs": [
       {
         "query": "dynamic graph KNN graph construction",
         "filename": "dynamic_gnn.pdf",
         "page": 1,
+        "mode": "hybrid",
         "rank": 1,
-        "latency_ms": 5,
+        "latency_ms": 3,
         "top_hit": "dynamic_gnn.pdf p.1"
       },
       {
         "query": "HybridSN 3D-CNN 2D-CNN spectral-spatial",
         "filename": "hybridsn.pdf",
         "page": 1,
+        "mode": "hybrid",
         "rank": 1,
-        "latency_ms": 3,
+        "latency_ms": 2,
         "top_hit": "hybridsn.pdf p.1"
       },
       {
         "query": "overall accuracy 98.4 Indian Pines training samples",
         "filename": "dynamic_gnn.pdf",
         "page": 2,
+        "mode": "hybrid",
         "rank": 1,
         "latency_ms": 3,
         "top_hit": "dynamic_gnn.pdf p.2"
@@ -74,6 +112,7 @@
         "query": "static graph RBF baseline",
         "filename": "hybridsn.pdf",
         "page": 2,
+        "mode": "hybrid",
         "rank": 1,
         "latency_ms": 3,
         "top_hit": "hybridsn.pdf p.2"
@@ -83,7 +122,7 @@
   "citation": {
     "answer_mode": "extractive",
     "grounded": true,
-    "total_checks": 3,
+    "total_checks": 4,
     "failed_checks": 0,
     "validity": 1.0
   },
@@ -91,13 +130,13 @@
     "status": "completed",
     "steps_completed": 7,
     "steps_total": 7,
-    "elapsed_ms": 1040
+    "elapsed_ms": 873
   },
   "latency_ms": {
-    "compare": 42,
-    "index": 17,
+    "compare": 123,
+    "index": 18,
     "search_median": 3,
-    "answer": 15,
-    "workflow": 360
+    "answer": 20,
+    "workflow": 379
   }
 }
