@@ -28,6 +28,7 @@
 | `spectrascholar/main.py` | App 工厂、路由挂载、Trace、限流、安全头、异常格式 | 业务算法 |
 | `api/*` | HTTP 参数校验、状态码映射、响应模型 | 长任务执行 |
 | `research.py` | 后端选择、每任务配置、超时/重试、任务事件、引用审计 | 页面搜索/报告生成（上游） |
+| `llm_config.py` | OpenAI/DeepSeek 聊天凭据解析；OpenAI 优先 | embedding 提供（DeepSeek 无） |
 | `store.py` | SQLite schema/迁移、任务/文档/对比/工作流持久化 | 业务规则 |
 | `evidence.py` | PDF 读取、页码/原文匹配原语 | 判断科学正确性 |
 | `extraction/*` | 规则抽取、LLM 候选、表格结构解析、证据拒绝、字段缺失 | 复杂跨页表/多级表头/OCR |
@@ -280,6 +281,7 @@ SQLite 表：
 | 增加新数据集 | `extraction/heuristic.py::DATASET_PATTERNS` |
 | 增加新模型家族 | `MODEL_PATTERNS` + `infer_family` |
 | 换领域 Prompt | `domains.py` |
+| 换聊天 provider | 改 `llm_config.py` + `research.py` 的 provider 密钥映射 |
 | 换真实向量库 | `rag/index.py` 实现同名接口 |
 | 换 reranker | `rag/index.py` 的 `rerank` 分支 |
 | 扩展复杂表格 | 改 `extraction/tables.py`，输出同样 `MetricRecord(source="table")` |
@@ -303,3 +305,4 @@ SQLite 表：
 8. 无 OCR、无病毒扫描、无多租户。
 9. Docker 构建未验证（无 Docker CLI）。
 10. 页面截图未生成（浏览器 IPC 被沙箱阻断）。
+11. DeepSeek 只用于聊天/抽取/问答；没有 embedding API，语义检索仍需其他 provider。

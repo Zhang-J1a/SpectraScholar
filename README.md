@@ -6,7 +6,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.150-009688?logo=fastapi&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-61%20passed-2ea44f)
+![Tests](https://img.shields.io/badge/tests-66%20passed-2ea44f)
 ![Coverage](https://img.shields.io/badge/coverage-87%25-2ea44f)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Upstream](https://img.shields.io/badge/upstream-GPT%20Researcher%20Apache--2.0-orange)
@@ -35,7 +35,7 @@ SpectraScholar 把这三件事做成了显式契约：
 
 | 能力 | 状态 | 证据 |
 |---|---|---|
-| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 61 个 pytest |
+| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 66 个 pytest |
 | Demo 调研任务（不调用搜索/LLM） | ✅ 已实现 | 报告中明确“不是调研结果” |
 | GPT Researcher Adapter | ✅ 代码完成，API 签名按 **0.16.1** 源码核对 | Mock 集成测试覆盖成功/空响应/超时/重试/缺密钥 |
 | GPT Researcher 真实联网 + 真实模型端到端 | ⚠️ **未验证** | 当前环境无 API Key，且外网直连被阻断 |
@@ -93,7 +93,7 @@ SpectraScholar 把这三件事做成了显式契约：
 - 每个任务有 Trace ID、事件日志、尝试次数、耗时、错误类型；
 - 区分可重试（超时、429、网络）与不可重试（缺密钥、缺依赖、空报告）；
 - 空上下文/空报告直接失败，不包装成成功；
-- 没有 `OPENAI_API_KEY` / `TAVILY_API_KEY` 时给出明确错误；
+- 没有 `OPENAI_API_KEY` / `DEEPSEEK_API_KEY` / `TAVILY_API_KEY` 时给出明确错误；
 - Demo 模式与真实模式在 API、报告头、页面徽章中显式区分。
 
 ### 4.2 科研论文结构化抽取（P1-A）
@@ -287,6 +287,35 @@ python scripts/smoke_gptr.py --topic "graph neural networks for hyperspectral im
 
 > 当前开发环境没有执行过真实 API 调用。`scripts/smoke_gptr.py` 失败时会明确打印错误并以非零码退出，不会伪造成功。
 
+#### 使用 DeepSeek（聊天模型）
+
+DeepSeek 提供 OpenAI 兼容的聊天 API，上游 GPT Researcher 0.16.1 也内置 `deepseek` provider。最小配置：
+
+```dotenv
+RESEARCH_BACKEND=gptr
+DEEPSEEK_API_KEY=你的DeepSeekKey
+TAVILY_API_KEY=你的搜索Key
+
+# 可选：显式指定模型；只配置 DeepSeek 时项目会自动选 deepseek-chat
+GPTR_FAST_LLM=deepseek:deepseek-chat
+GPTR_SMART_LLM=deepseek:deepseek-chat
+GPTR_STRATEGIC_LLM=deepseek:deepseek-chat
+EXTRACTION_MODEL=deepseek-chat
+ANSWER_MODEL=deepseek-chat
+EXTRACTOR_BACKEND=llm
+ANSWER_BACKEND=llm
+
+# DeepSeek 没有 embedding API，语义检索仍需其他 embedding 服务
+EMBEDDING_BACKEND=hash
+```
+
+说明：
+
+- 只配置 `DEEPSEEK_API_KEY` 时，项目的 GPT Researcher 模型、抽取模型、问答模型会自动切到 `deepseek-chat`；同时为 GPT Researcher 设置 `CONTEXT_FILTER=keyword`，避免隐式调用 OpenAI embedding。
+- 如果同时配置 `OPENAI_API_KEY`，本项目自己的抽取/问答会优先用 OpenAI；想用 DeepSeek 请显式设置 `EXTRACTION_MODEL=deepseek-chat`、`ANSWER_MODEL=deepseek-chat` 和 `GPTR_*`。
+- DeepSeek 目前不提供官方 embedding API。`EMBEDDING_BACKEND=openai` 会请求 OpenAI 兼容 embedding 服务，不能指向 DeepSeek；没有其他 embedding 服务时保持 `hash`，并明确它只是词法基线。
+- 不要把 Key 发到聊天、Issue、截图或提交历史；`.env` 已被 Git 忽略。
+
 本地 PDF 模式：先上传 PDF，再把“资料来源”设为 `local`。上游 `DOC_PATH` 会指向本项目的 `workspace/papers`。
 
 **不要**在 `.env` 中设置 `REPORT_SOURCE` / `LANGUAGE`：这两个值由每次任务的隔离配置决定；上游环境变量优先级更高，手设可能覆盖本项目的本地/网页选择。
@@ -377,6 +406,9 @@ docker compose build
 | `EMBEDDING_BACKEND` | `hash` | `hash`（非语义）/ `openai` |
 | `ANSWER_BACKEND` | `extractive` | `extractive` / `llm` |
 | `RERANK_BACKEND` | `lexical` | 目前仅实现词法重排 |
+| `OPENAI_API_KEY` | 空 | OpenAI 兼容聊天/embedding 密钥 |
+| `DEEPSEEK_API_KEY` | 空 | DeepSeek 聊天密钥；无官方 embedding |
+| `EXTRACTION_MODEL` | 自动 | OpenAI 默认 `gpt-4o-mini`，仅 DeepSeek 时 `deepseek-chat` |
 | `API_KEY` | 空 | 设置后所有 `/api`（除 health）要求 `X-API-Key` |
 | `RATE_LIMIT_PER_MINUTE` | 60 | 写请求限流；0 关闭 |
 | `MAX_PDF_PAGES` | 30 | 文本提取/索引页数上限 |
@@ -396,9 +428,9 @@ python scripts/evaluate_pipeline.py
 
 实际结果：
 
-- **61 passed**（pytest）
+- **66 passed**（pytest）
 - **ruff：All checks passed**
-- **coverage：87%**（3454 statements，466 missed）
+- **coverage：87%**（3488 statements，465 missed）
 - 三份合成夹具（两篇正文 + 一张带线 OA/AA/Kappa 表格）：
   - 抽取字段命中 **20/20**
   - 原文证据接受 **23/23**
@@ -440,7 +472,7 @@ SpectraScholar-Starter/
 │   ├── workflow.py             # 7 节点本地文献工作流
 │   └── domains.py              # 可替换领域模板
 ├── web/index.html              # 单页中文 Web UI（无构建步骤）
-├── tests/                      # 61 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
+├── tests/                      # 66 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
 ├── scripts/                    # 评测、GPT Researcher API 检查/真实冒烟
 ├── eval/                       # 真实论文清单与标注模板（PDF 未提交）
 ├── docs/                       # 架构、开发日志、评测、面试、贡献说明

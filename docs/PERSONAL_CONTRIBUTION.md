@@ -1,7 +1,7 @@
 # 个人贡献说明
 
 > 目的：在简历、GitHub 和面试中准确区分 **GPT Researcher 上游能力** 与 **本人新增实现**。
-> 统计口径：`spectrascholar/` 下 Python 源文件共 5,828 行（含注释/空行，2026-10-20）；测试 1,259 行；脚本 457 行；Web 896 行。
+> 统计口径：`spectrascholar/` 下 Python 源文件共 5,918 行（含注释/空行，2026-10-20）；测试 1,330 行；脚本 461 行；Web 896 行。
 
 ## 1. 上游：GPT Researcher（Apache-2.0）
 
@@ -30,6 +30,7 @@
 | `spectrascholar/store.py`（566 行） | SQLite schema/迁移、短连接显式关闭、任务/事件/文档/对比/工作流 |
 | `spectrascholar/settings.py` | 统一配置、模型/超时/RAG/工作流参数 |
 | `spectrascholar/logging_utils.py` | Trace ID、JSON/文本日志 |
+| `spectrascholar/llm_config.py` | OpenAI/DeepSeek 聊天凭据解析；OpenAI 优先 |
 
 ### 2.2 结构化抽取与证据
 
@@ -73,8 +74,8 @@
 | `spectrascholar/api/documents.py`（141 行） | 上传安全、去重、页查看、删除联动索引 |
 | `spectrascholar/api/system.py` | health、config、单条证据核验 |
 | `web/index.html`（896 行） | 中文单页 UI、轮询、Markdown、引用跳转、工作流 |
-| `tests/`（1,259 行） | 61 个测试、PDF/表格工厂、Mock GPT Researcher/LLM |
-| `scripts/`（457 行） | 合成夹具评测、BM25/向量/混合消融、GPT Researcher 检查/真实冒烟、证据统计 |
+| `tests/`（1,330 行） | 66 个测试、PDF/表格工厂、Mock GPT Researcher/LLM |
+| `scripts/`（461 行） | 合成夹具评测、BM25/向量/混合消融、GPT Researcher 检查/真实冒烟、证据统计 |
 | `Dockerfile` / `compose.yaml` / `.env.example` | 部署与配置（Docker 构建未验证） |
 
 ## 3. 明确不属于本人的工作
@@ -86,7 +87,7 @@
 
 ## 4. 可验证的个人成果
 
-- 61 个 pytest 通过，覆盖率 87%；
+- 66 个 pytest 通过，覆盖率 87%；
 - `ruff` 全绿；
 - 真实 Uvicorn HTTP 冒烟：上传→研究→对比→索引→问答→工作流→下载均成功；
 - 合成夹具：字段 20/20、证据 23/23、引用 4/4、工作流 7/7；

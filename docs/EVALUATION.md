@@ -7,8 +7,8 @@
 
 | 指标 | 结果 | 数据来源 | 能否用于简历 |
 |---|---|---|---|
-| 自动化测试 | **61 passed** | `pytest -q` | ✅ 可以 |
-| 代码覆盖率 | **87%**（3454 stmts / 466 miss） | `pytest --cov` | ✅ 可以 |
+| 自动化测试 | **66 passed** | `pytest -q` | ✅ 可以 |
+| 代码覆盖率 | **87%**（3488 stmts / 465 miss） | `pytest --cov` | ✅ 可以 |
 | Lint | **All checks passed** | `ruff check` | ✅ 可以 |
 | 合成夹具抽取字段命中 | **20/20** | `scripts/evaluate_pipeline.py` | ✅ 可写“合成夹具” |
 | 合成夹具原文证据接受 | **23/23** | 同上 | ✅ 可写“合成夹具” |
@@ -89,7 +89,7 @@ spectrascholar\settings.py                 106      5    95%
 spectrascholar\store.py                    219     22    90%
 spectrascholar\workflow.py                 214     36    83%
 ------------------------------------------------------------
-TOTAL                                     3454    466    87%
+TOTAL                                     3488    465    87%
 ```
 
 未覆盖部分主要是：真实 provider 客户端、PDF 加密/损坏、部分索引持久化分支、表格解析的异常分支。

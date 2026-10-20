@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 61 个）。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 66 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -348,7 +348,7 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 
 ```text
 .............................................................            [100%]
-61 passed, 1 warning in 7.14s
+66 passed, 1 warning in 7.87s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  3454 statements  466 missed  87%
+TOTAL  3488 statements  465 missed  87%
 ```
 
 ### 8.4 合成夹具评测
@@ -521,8 +521,8 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 ### 10.6 本轮真实结果
 
 ```text
-pytest -q                         → 61 passed
-pytest --cov                      → 87% (3454 / 466)
+pytest -q                         → 66 passed
+pytest --cov                      → 87% (3488 / 465)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -530,12 +530,27 @@ Citation validity                 → 4/4
 Workflow                          → 7/7
 ```
 
-### 10.7 仍未完成
+### 10.7 DeepSeek 支持（补充）
+
+上游源码确认：`gpt_researcher/llm_provider/generic/base.py` 内置 `deepseek` provider，使用 `ChatOpenAI(openai_api_base="https://api.deepseek.com", openai_api_key=os.environ["DEEPSEEK_API_KEY"])`。因此 DeepSeek 可以驱动 GPT Researcher 的聊天/报告流程。
+
+本轮补充：
+
+- 新增 `spectrascholar/llm_config.py`：统一解析 `OPENAI_API_KEY` 或 `DEEPSEEK_API_KEY`，供 LLM 抽取和 RAG 问答共用；OpenAI 优先。
+- `GPTResearcherBackend._preflight` 按 provider 检查对应密钥（`openai`→`OPENAI_API_KEY`，`deepseek`→`DEEPSEEK_API_KEY`）。
+- 只配置 DeepSeek 时，settings 自动把 GPT Researcher / 抽取 / 问答模型切到 `deepseek-chat`。
+- 在每任务 GPT Researcher 配置中加 `CONTEXT_FILTER=keyword`，避免 DeepSeek-only 环境隐式调用 OpenAI embedding。
+- **限制**：DeepSeek 没有官方 embedding API。`EMBEDDING_BACKEND=openai` 不能指向 DeepSeek；默认保持 `hash`，或在 `.env` 配置其他 OpenAI 兼容 embedding 服务。
+- 新增 4 个 `test_llm_config.py` 测试 + 1 个 GPT Researcher DeepSeek provider 测试。
+- 当前沙箱仍无法访问 `api.deepseek.com`，所以只完成代码、单元测试和上游源码核对，**没有真实 DeepSeek 调用**。
+
+### 10.8 仍未完成
 
 - 复杂跨页表、多级表头、合并单元格；
 - 图片/扫描表格 OCR；
 - 真实 embedding 的 ablation；
-- 真实论文表格上的行列准确率。
+- 真实论文表格上的行列准确率；
+- 真实 DeepSeek/OpenAI API 调用（网络受限）。
 
 ---
 
