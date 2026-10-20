@@ -24,6 +24,13 @@ LOCAL_RE = re.compile(
 )
 LOCAL_PREFIX_RE = re.compile(r"\[\[\s*doc:", re.IGNORECASE)
 EXTERNAL_LINK_RE = re.compile(r"(?<!!)\[([^\]]{0,200})\]\((https?://[^\s)]+)\)", re.IGNORECASE)
+# Upstream GPT Researcher reports often cite local PDFs as relative Markdown
+# links, e.g. [hybridsn.pdf](hybridsn.pdf). They are references, but without a
+# page number/document id they cannot be page-verified.
+LOCAL_FILE_LINK_RE = re.compile(
+    r"(?<!!)\[([^\]]{0,200})\]\((?!https?://)([^)\s]+\.pdf(?:#[^)]*)?)\)",
+    re.IGNORECASE,
+)
 BARE_URL_RE = re.compile(r"(?<!\()(https?://[^\s<>\]]+)", re.IGNORECASE)
 CODE_FENCE_RE = re.compile(r"```.*?```", re.DOTALL)
 
@@ -54,7 +61,15 @@ def _iter_sentences(report: str) -> list[str]:
             continue
         # Split on English/Chinese sentence terminators, keeping the text.
         parts = re.split(r"(?<=[。！？!?;；])\s*|(?<=\.)\s+(?=[A-Z0-9\u4e00-\u9fff])", line)
-        sentences.extend(part.strip() for part in parts if part.strip())
+        for part in (part.strip() for part in parts if part.strip()):
+            # A citation often follows the sentence punctuation:
+            #   "OA is 98.4%。[[doc:d1 p.1]]"
+            # Attach marker-only fragments to the previous sentence so the
+            # numeric claim is not falsely reported as uncited.
+            if LOCAL_RE.fullmatch(part) and sentences:
+                sentences[-1] = f"{sentences[-1]} {part}"
+            else:
+                sentences.append(part)
     return sentences
 
 
@@ -64,7 +79,11 @@ def find_unsupported_claims(report: str, *, limit: int = 50) -> list[Unsupported
     for sentence in _iter_sentences(report):
         if not METRIC_CLAIM_RE.search(sentence) or not NUMBER_RE.search(sentence):
             continue
-        if LOCAL_RE.search(sentence) or EXTERNAL_LINK_RE.search(sentence):
+        if (
+            LOCAL_RE.search(sentence)
+            or EXTERNAL_LINK_RE.search(sentence)
+            or LOCAL_FILE_LINK_RE.search(sentence)
+        ):
             continue
         key = normalized(sentence)[:300]
         if key in seen:
@@ -185,6 +204,17 @@ def audit_report(
             )
         )
 
+    for match in LOCAL_FILE_LINK_RE.finditer(report):
+        checks.append(
+            CitationCheck(
+                raw=match.group(0),
+                kind="local_file",
+                filename=match.group(2),
+                status="local_file_unverified",
+                message="相对 PDF 文件链接；缺少页码与文档 ID，无法做页级/原文核验",
+            )
+        )
+
     for match in LOCAL_PREFIX_RE.finditer(report):
         # Report a malformed local marker only if it is not covered by LOCAL_RE.
         covered = any(start <= match.start() < end for start, end in local_spans)
@@ -201,6 +231,7 @@ def audit_report(
     verified_local = sum(1 for check in checks if check.status == "verified_quote")
     page_only = sum(1 for check in checks if check.status == "verified_page_only")
     external = sum(1 for check in checks if check.kind == "external_url")
+    local_file_unverified = sum(1 for check in checks if check.kind == "local_file")
     failed = sum(
         1
         for check in checks
@@ -214,12 +245,14 @@ def audit_report(
         page_only_local=page_only,
         failed_local=failed,
         external_unchecked=external,
+        local_file_unverified=local_file_unverified,
         unsupported_claims=unsupported,
         checks=checks,
         checked_at=datetime.now(UTC).isoformat(timespec="seconds"),
         scope_note=(
             "本报告只核验引文是否存在于指定 PDF 页码，并检查数值性结论是否有引用；"
-            "不验证事实语义、论文质量或实验可比性。外部 URL 未联网核验。"
+            "不验证事实语义、论文质量或实验可比性。外部 URL 未联网核验；"
+            "相对 PDF 文件名链接缺少页码/文档 ID，只能标记为未做页级核验。"
         ),
     )
 
@@ -232,6 +265,7 @@ def render_audit_markdown(audit: CitationAudit) -> str:
         f"原文片段核验通过 {audit.verified_local} 条；仅页码核验 {audit.page_only_local} 条；"
         f"失败 {audit.failed_local} 条。",
         f"- 外部链接：{audit.external_unchecked} 条（未联网核验）。",
+        f"- 本地 PDF 文件链接：{audit.local_file_unverified} 条（无页码/文档 ID，未做页级核验）。",
         f"- 缺少引用的数值性结论：{len(audit.unsupported_claims)} 条。",
         "",
     ]

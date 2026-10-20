@@ -576,6 +576,7 @@ function auditSummary(audit) {
       <div class="stat"><b>${audit.verified_local}</b><span>原文片段通过</span></div>
       <div class="stat"><b>${audit.page_only_local}</b><span>仅页码通过</span></div>
       <div class="stat"><b>${audit.failed_local}</b><span>本地引用失败</span></div>
+      <div class="stat"><b>${audit.local_file_unverified || 0}</b><span>本地文件链接（未页级核验）</span></div>
       <div class="stat"><b>${audit.unsupported_claims.length}</b><span>缺引用数值结论</span></div>
     </div>
     <p class="tiny" style="margin:8px 0 0">${esc(audit.scope_note || "")}</p>

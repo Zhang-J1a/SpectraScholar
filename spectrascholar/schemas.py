@@ -25,6 +25,7 @@ EvidenceStatus = Literal[
     "page_missing",                # page number outside the PDF
     "document_missing",            # document id is unknown
     "external_unchecked",          # web link, no network verification performed
+    "local_file_unverified",       # relative PDF filename, no page/document ID
     "malformed",                   # citation syntax could not be parsed
     "unverified",                  # extraction not checked at all
 ]
@@ -358,7 +359,7 @@ class ComparisonResponse(BaseModel):
 # ---------------------------------------------------------------------------
 class CitationCheck(BaseModel):
     raw: str
-    kind: Literal["local_pdf", "external_url", "unknown"] = "unknown"
+    kind: Literal["local_pdf", "local_file", "external_url", "unknown"] = "unknown"
     document_id: str | None = None
     filename: str | None = None
     page: int | None = None
@@ -379,12 +380,14 @@ class CitationAudit(BaseModel):
     page_only_local: int = 0
     failed_local: int = 0
     external_unchecked: int = 0
+    local_file_unverified: int = 0
     unsupported_claims: list[UnsupportedClaim] = Field(default_factory=list)
     checks: list[CitationCheck] = Field(default_factory=list)
     checked_at: str = ""
     scope_note: str = (
         "本报告只核验引文是否存在于指定 PDF 页码，并检查数值性结论是否有引用；"
-        "不验证事实语义、论文质量或实验可比性。外部 URL 未联网核验。"
+        "不验证事实语义、论文质量或实验可比性。外部 URL 未联网核验；"
+        "相对 PDF 文件名链接缺少页码/文档 ID，只能标记为未做页级核验。"
     )
 
 

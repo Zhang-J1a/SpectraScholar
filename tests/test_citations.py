@@ -48,6 +48,16 @@ def test_audit_verifies_quotes_pages_documents_and_external_links():
     assert "原文出现 ≠ 事实正确" in rendered
 
 
+def test_local_pdf_markdown_link_is_marked_unverified_not_unsupported():
+    report = "The OA is 98.4% ([paper.pdf](paper.pdf))."
+    audit = audit_report(report, _resolver)
+    assert audit.local_file_unverified == 1
+    assert audit.failed_local == 0
+    assert audit.unsupported_claims == []
+    assert audit.checks[0].kind == "local_file"
+    assert audit.checks[0].status == "local_file_unverified"
+
+
 def test_audit_page_only_citation_is_distinguished():
     report = "See page. [[doc:d1 p.2]]"
     audit = audit_report(report, _resolver)
@@ -55,6 +65,14 @@ def test_audit_page_only_citation_is_distinguished():
     assert audit.verified_local == 0
     assert audit.failed_local == 0
     assert audit.checks[0].status == "verified_page_only"
+
+
+def test_claim_with_trailing_page_only_citation_is_not_flagged():
+    report = "The OA is 98.4%。[[doc:d1 p.1]]"
+    assert find_unsupported_claims(report) == []
+    audit = audit_report(report, _resolver)
+    assert audit.page_only_local == 1
+    assert audit.failed_local == 0
 
 
 def test_audit_scope_excludes_tables_and_headings_from_claims():
