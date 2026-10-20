@@ -227,11 +227,13 @@ class ExperimentCondition(BaseModel):
 
 class MetricRecord(BaseModel):
     dataset: str | None = None
+    method: str | None = None
     metric: str  # OA / AA / Kappa / other
     value: str
     train_ratio: str | None = None
     patch_size: str | None = None
     protocol: str | None = None
+    source: Literal["text", "table", "llm"] = "text"
     evidence: list[EvidenceRef] = Field(default_factory=list)
     note: str | None = None
 
@@ -302,6 +304,7 @@ class MetricRow(BaseModel):
     train_ratio: str | None = None
     patch_size: str | None = None
     protocol: str | None = None
+    source: Literal["text", "table", "llm"] = "text"
     evidence_status: str = "unverified"
     comparable_group: str | None = None
     comparable: bool = False

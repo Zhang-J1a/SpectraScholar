@@ -691,8 +691,8 @@ function renderComparison(result) {
     `</tbody></table></div>` : `<div class="empty">未抽取到数据集名称。</div>`;
 
   html += `<h3>实验指标与可比性</h3>`;
-  html += metrics.length ? `<div class="tablewrap"><table><thead><tr><th>论文</th><th>数据集</th><th>指标</th><th>数值</th><th>训练比例</th><th>补丁</th><th>证据</th><th>可比性</th><th>说明</th></tr></thead><tbody>` +
-    metrics.map((row) => `<tr><td>${esc(row.filename)}</td><td>${esc(row.dataset || "未注明")}</td><td>${esc(row.metric)}</td><td><strong>${esc(row.value)}</strong></td><td>${esc(row.train_ratio || "未注明")}</td><td>${esc(row.patch_size || "未注明")}</td><td>${esc(row.evidence_status)}</td><td>${metricBadge(row)}</td><td>${esc(row.reason || "")}</td></tr>`).join("") +
+  html += metrics.length ? `<div class="tablewrap"><table><thead><tr><th>论文</th><th>方法</th><th>来源</th><th>数据集</th><th>指标</th><th>数值</th><th>训练比例</th><th>补丁</th><th>证据</th><th>可比性</th><th>说明</th></tr></thead><tbody>` +
+    metrics.map((row) => `<tr><td>${esc(row.filename)}</td><td>${esc(row.method || "未提取")}</td><td>${esc(row.source || "text")}</td><td>${esc(row.dataset || "未注明")}</td><td>${esc(row.metric)}</td><td><strong>${esc(row.value)}</strong></td><td>${esc(row.train_ratio || "未注明")}</td><td>${esc(row.patch_size || "未注明")}</td><td>${esc(row.evidence_status)}</td><td>${metricBadge(row)}</td><td>${esc(row.reason || "")}</td></tr>`).join("") +
     `</tbody></table></div>` : `<div class="empty">未抽取到可核验的 OA/AA/Kappa。</div>`;
 
   html += `<h3>不可比项与风险提示</h3>`;

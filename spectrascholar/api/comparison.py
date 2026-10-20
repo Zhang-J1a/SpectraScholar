@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import PlainTextResponse
 
 from ..compare import build_comparison
-from ..evidence import PDFExtractionError, read_pdf_pages
-from ..extraction import ExtractionError, extract_pages, resolve_mode
+from ..evidence import PDFExtractionError
+from ..extraction import ExtractionError, extract_document, resolve_mode
 from ..schemas import CompareRequest, ComparisonResponse
 from ..settings import settings
 from ..store import (
@@ -47,12 +47,11 @@ async def compare_papers(req: CompareRequest):
         if not path.is_file():
             raise HTTPException(status_code=404, detail=f"论文文件已丢失: {document_id}")
         try:
-            pages = read_pdf_pages(path)
             papers.append(
-                await extract_pages(
+                await extract_document(
                     document_id,
                     document["filename"],
-                    pages,
+                    path,
                     mode,
                 )
             )

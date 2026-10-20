@@ -8,6 +8,7 @@ from ..schemas import PaperExtraction
 from ..settings import settings
 from .heuristic import extract_heuristic
 from .llm import LLMExtractionError, extract_llm
+from .tables import merge_table_result, parse_pdf_tables
 
 
 class ExtractionError(RuntimeError):
@@ -33,14 +34,25 @@ async def extract_pages(
     filename: str,
     pages: list[str],
     mode: str = "auto",
+    *,
+    pdf_path: Path | None = None,
 ) -> PaperExtraction:
     resolved = resolve_mode(mode)
     if resolved == "heuristic":
-        return extract_heuristic(document_id, filename, pages)
-    try:
-        return await extract_llm(document_id, filename, pages)
-    except LLMExtractionError as exc:
-        raise ExtractionError(exc.code, str(exc), retryable=exc.retryable) from exc
+        paper = extract_heuristic(document_id, filename, pages)
+    else:
+        try:
+            paper = await extract_llm(document_id, filename, pages)
+        except LLMExtractionError as exc:
+            raise ExtractionError(exc.code, str(exc), retryable=exc.retryable) from exc
+
+    if pdf_path is not None and settings.table_extraction_enabled:
+        try:
+            table_result = parse_pdf_tables(pdf_path, pages, document_id)
+            paper = merge_table_result(paper, table_result)
+        except Exception as exc:
+            paper.notes.append(f"表格解析失败（已忽略，不影响正文抽取）: {type(exc).__name__}: {exc}")
+    return paper
 
 
 async def extract_document(
@@ -50,7 +62,7 @@ async def extract_document(
     mode: str = "auto",
 ) -> PaperExtraction:
     pages = read_pdf_pages(path)
-    return await extract_pages(document_id, filename, pages, mode)
+    return await extract_pages(document_id, filename, pages, mode, pdf_path=path)
 
 
 def evidence_counts(paper: PaperExtraction) -> dict[str, int]:

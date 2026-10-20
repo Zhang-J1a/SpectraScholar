@@ -88,6 +88,7 @@ class Settings:
     extraction_timeout_seconds: int = _env_int("EXTRACTION_TIMEOUT_SECONDS", 90, 5)
     extraction_max_attempts: int = _env_int("EXTRACTION_MAX_ATTEMPTS", 2, 1)
     extraction_max_candidates: int = _env_int("EXTRACTION_MAX_CANDIDATES", 40, 5)
+    table_extraction_enabled: bool = _env_bool("TABLE_EXTRACTION_ENABLED", True)
 
     # -- uploads / PDF -------------------------------------------------------
     max_upload_mb: int = _env_int("MAX_UPLOAD_MB", 20, 1)

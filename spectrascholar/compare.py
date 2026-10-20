@@ -128,13 +128,14 @@ def _metric_rows(papers: list[PaperExtraction]) -> tuple[list[MetricRow], list[C
                 MetricRow(
                     document_id=paper.document_id,
                     filename=paper.filename,
-                    method=_first_method(paper),
+                    method=metric.method or _first_method(paper),
                     dataset=metric.dataset,
                     metric=metric.metric,
                     value=metric.value,
                     train_ratio=metric.train_ratio,
                     patch_size=metric.patch_size,
                     protocol=metric.protocol,
+                    source=metric.source,
                     evidence_status=evidence_status,
                     comparable_group=group,
                     comparable=False,
@@ -223,8 +224,10 @@ def _profile(paper: PaperExtraction) -> PaperProfile:
     families = _unique([method.family for method in paper.methods if method.family])
     datasets = _unique([dataset.name for dataset in paper.datasets])
     metrics_summary = [
-        f"{metric.dataset or '数据集未注明'} {metric.metric}={metric.value}"
+        (f"{metric.method or '方法未注明'} · " if metric.method else "")
+        + f"{metric.dataset or '数据集未注明'} {metric.metric}={metric.value}"
         + (f"（训练比例 {metric.train_ratio}）" if metric.train_ratio else "")
+        + (f"［{metric.source}］" if metric.source == "table" else "")
         for metric in paper.metrics
     ]
 
@@ -420,12 +423,13 @@ def build_markdown(
     lines += ["", "## 4. 实验指标与可比性", ""]
     if metric_rows:
         lines += [
-            "| 论文 | 方法 | 数据集 | 指标 | 数值 | 训练比例 | 补丁 | 证据 | 可比 | 组内排名 | 说明 |",
-            "|---|---|---|---|---|---|---|---|---|---|---|",
+            "| 论文 | 方法 | 来源 | 数据集 | 指标 | 数值 | 训练比例 | 补丁 | 证据 | 可比 | 组内排名 | 说明 |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|",
         ]
         for row in metric_rows:
             lines.append(
-                f"| {_cell(row.filename)} | {_cell(row.method or '未提取')} | {_cell(row.dataset or '未注明')} | "
+                f"| {_cell(row.filename)} | {_cell(row.method or '未提取')} | {row.source} | "
+                f"{_cell(row.dataset or '未注明')} | "
                 f"{_cell(row.metric)} | {_cell(row.value)} | {_cell(row.train_ratio or '未注明')} | "
                 f"{_cell(row.patch_size or '未注明')} | {row.evidence_status} | "
                 f"{'是' if row.comparable else '否'} | {row.rank_in_group or '-'} | {_cell(row.reason or '')} |"

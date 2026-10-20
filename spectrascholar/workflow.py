@@ -167,6 +167,7 @@ async def _step_extract(state: WorkflowState) -> str:
                 document["filename"],
                 pages,
                 state.req.extraction_mode,
+                pdf_path=settings.paper_dir / document["stored_name"],
             )
             papers.append(paper)
         except ExtractionError as exc:
