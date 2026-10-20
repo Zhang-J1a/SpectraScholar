@@ -1,0 +1,3 @@
+-r requirements.txt
+# GPT Researcher can introduce additional dependencies and API usage costs.
+gpt-researcher

@@ -1,0 +1,13 @@
+﻿.venv/
+.uv-cache/
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+workspace/*
+!workspace/papers/
+!workspace/reports/
+workspace/papers/*
+workspace/reports/*
+!workspace/papers/.gitkeep
+!workspace/reports/.gitkeep
