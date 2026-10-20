@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 66 个）。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 68 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -138,8 +138,8 @@ py -3.12 -m venv .venv
   - `GPTResearcher.__init__(query, report_type, report_source, report_format, config_path, ...)`
   - `async conduct_research()`
   - `async write_report()`
-- **未完成真实联调**：环境无 API Key，且外网直连失败。
-- 尝试安装完整 live 依赖时，`sgmllib3k` sdist 构建在 Windows 沙箱内因临时目录 `chmod` 被拒绝而失败；没有把这次失败包装成成功。
+- **当时未完成真实联调**：环境无 API Key，且外网直连失败。后续用户提供 DeepSeek Key，已在 10.8 完成本地 PDF 真实任务。
+- 尝试安装完整 live 依赖时，`sgmllib3k` sdist 构建在 Windows 沙箱内因临时目录 `chmod` 被拒绝而失败；后来通过手工补齐 `docopt/sgmllib3k/langdetect` 并安装剩余依赖完成 import，没有把失败包装成成功。
 - 提供 `scripts/check_gptr_api.py` 与 `scripts/smoke_gptr.py`，在具备网络/Key 的环境可真实执行并明确输出失败。
 
 ---
@@ -348,7 +348,7 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 
 ```text
 .............................................................            [100%]
-66 passed, 1 warning in 7.87s
+68 passed, 1 warning in 7.88s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  3488 statements  465 missed  87%
+TOTAL  3498 statements  466 missed  87%
 ```
 
 ### 8.4 合成夹具评测
@@ -416,8 +416,9 @@ $env:WORKSPACE_DIR="$PWD\.smoke-workspace"
 
 | 事项 | 原因 | 影响 |
 |---|---|---|
-| GPT Researcher 真实 API | 无 Key + 外网阻断 | 只完成 Mock 集成与源码签名核对 |
-| 真实 LLM 抽取 | 无 Key | 只完成假模型测试 |
+| GPT Researcher 真实本地 PDF | 已用 DeepSeek 完成 2/2 | 报告 14.8k–15.3k 字符；无页级引用 |
+| GPT Researcher 真实网页检索 | 无 Tavily Key/网络 | 未验证 |
+| 真实 LLM 抽取 | 已用 DeepSeek 完成夹具 12/12 | 真实论文未验证 |
 | 真实论文评测 | 无法下载 PDF | 只有合成夹具 |
 | Docker 构建 | 无 Docker CLI | Dockerfile/compose 仅静态审查 |
 | 浏览器截图 | Chrome IPC 被沙箱阻断 | UI 只做 HTTP/JS 语法验证 |
@@ -521,8 +522,8 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 ### 10.6 本轮真实结果
 
 ```text
-pytest -q                         → 66 passed
-pytest --cov                      → 87% (3488 / 465)
+pytest -q                         → 68 passed
+pytest --cov                      → 87% (3498 / 466)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -544,13 +545,40 @@ Workflow                          → 7/7
 - 新增 4 个 `test_llm_config.py` 测试 + 1 个 GPT Researcher DeepSeek provider 测试。
 - 当前沙箱仍无法访问 `api.deepseek.com`，所以只完成代码、单元测试和上游源码核对，**没有真实 DeepSeek 调用**。
 
-### 10.8 仍未完成
+### 10.8 真实 DeepSeek / GPT Researcher 联调（2026-10-20）
 
-- 复杂跨页表、多级表头、合并单元格；
-- 图片/扫描表格 OCR；
+用户提供 DeepSeek Key 后完成了真实调用：
+
+1. **聊天冒烟**：`deepseek-chat` 返回 `OK`，usage 10 tokens；服务端返回的 model 字段是 `deepseek-flash`，不影响调用。
+2. **真实 LLM 抽取**：两页夹具，`12/12` 候选通过逐字核验；OA 98.4%、Kappa 0.977；约 3.7s。指标的数据集/方法关联仍缺失，不能直接排名。
+3. **真实 RAG 回答**：3 条 page-only 引用，`grounded=false`；回答把引用放在段末，未逐句附引用，审计保持严格。
+4. **真实 GPT Researcher API 任务**（`source=local`）：
+   - 第 1 次：completed，15,263 字符，28,770 ms，`backend=gptr`、`is_demo=false`；
+   - 第 2 次：completed，14,861 字符，32,411 ms；
+   - 两次都只读本地合成 PDF；没有真实网页检索（无 Tavily Key）。
+
+联调中发现并修复的 Bug：
+
+- **`config_dir` 未创建**：`scripts/smoke_gptr.py` 直接调用 backend 时，`_write_config` 写文件失败。修复：写入前 `mkdir(parents=True, exist_ok=True)`，smoke 脚本调用 `settings.ensure_directories()`。
+- **smoke 回调参数不匹配**：`on_event` 缺少 `duration_ms` 默认值，`TypeError`。修复为可选参数。
+- **空环境变量覆盖模型默认值**：用户 `.env` 中 `EXTRACTION_MODEL=` 等空字符串会覆盖 settings 的 DeepSeek 默认值，导致模型名为空。修复：所有模型字段使用 `os.getenv(...).strip() or default`。
+- **测试读取真实 `.env`**：用户加入 Key 后，pytest 可能加载真实 Key。修复：新增 `SPECTRASCHOLAR_SKIP_DOTENV=1`，conftest 在导入 app 前设置，测试永不读取真实 `.env`。
+- **上游报告引用格式不可页级核验**：GPT Researcher 使用 `[filename](xxx.pdf)` 或作者-年份，不是 `[[doc:id p.N]]`。修复：新增 `local_file_unverified` 状态与统计，识别相对 PDF 链接；审计明确写“未做页级核验”，不把链接当已验证。
+- **段末引用误报**：`"OA 98.4%。[[doc:d1 p.1]]"` 的引用标记被拆成独立句，导致数值句误报缺引用。修复：将 marker-only 片段合并到上一句。
+
+真实结果边界：
+
+- 真实 web 检索未验证（无 Tavily Key，`api.tavily.com` 不可达）；
+- 上游报告没有页级引用，所以“引用核验通过”仍为 0；
+- 真实论文仍未下载，抽取质量只代表合成夹具。
+
+### 10.9 仍未完成
+
+- 真实 GPT Researcher web 检索（Tavily Key/网络）；
+- 真实论文 PDF 与标注评测；
 - 真实 embedding 的 ablation；
-- 真实论文表格上的行列准确率；
-- 真实 DeepSeek/OpenAI API 调用（网络受限）。
+- 复杂跨页表、多级表头、合并单元格、OCR；
+- 真实论文表格上的行列准确率。
 
 ---
 

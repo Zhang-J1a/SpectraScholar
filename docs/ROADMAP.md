@@ -7,8 +7,8 @@
 | 阶段 | 内容 | 状态 |
 |---|---|---|
 | V0 | 参考骨架：FastAPI/SQLite/上传/极简 UI/5 测试 | ✅ 已导入并保留 |
-| P0 | 真实 Agent 适配、状态机、日志、超时重试 | ✅ 代码 + Mock 测试完成；⚠️ 真实 API 未验证 |
-| P1-A | 结构化论文抽取 | ✅ 规则/LLM 代码 + 测试；⚠️ 真实 LLM 效果未验证 |
+| P0 | 真实 Agent 适配、状态机、日志、超时重试 | ✅ 代码 + Mock + 2 次 DeepSeek 本地 PDF 真实任务；⚠️ 网页检索未验证 |
+| P1-A | 结构化论文抽取 | ✅ 规则/LLM 代码 + 测试 + 真实 DeepSeek 夹具抽取；⚠️ 真实论文未验证 |
 | P1-B | 多论文对比/可比性/Markdown | ✅ 完成并有测试 |
 | P1-C | 可信引用校验 | ✅ 完成并有测试 |
 | P2 | 混合 RAG（BM25+向量+RRF） | ✅ 代码 + 合成夹具评测；⚠️ 语义质量未验证 |
@@ -88,7 +88,7 @@
 - [x] 幂等键
 - [x] 统一错误/Trace/限流/安全头
 - [x] 可选 API Key
-- [x] 66 tests / 87% coverage / ruff
+- [x] 68 tests / 87% coverage / ruff
 - [x] Dockerfile + compose + healthcheck（静态检查）
 - [ ] Docker 构建与另一台机器部署
 - [ ] Redis/RQ 队列与取消

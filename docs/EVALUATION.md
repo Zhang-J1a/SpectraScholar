@@ -7,8 +7,8 @@
 
 | 指标 | 结果 | 数据来源 | 能否用于简历 |
 |---|---|---|---|
-| 自动化测试 | **66 passed** | `pytest -q` | ✅ 可以 |
-| 代码覆盖率 | **87%**（3488 stmts / 465 miss） | `pytest --cov` | ✅ 可以 |
+| 自动化测试 | **68 passed** | `pytest -q` | ✅ 可以 |
+| 代码覆盖率 | **87%**（3498 stmts / 466 miss） | `pytest --cov` | ✅ 可以 |
 | Lint | **All checks passed** | `ruff check` | ✅ 可以 |
 | 合成夹具抽取字段命中 | **20/20** | `scripts/evaluate_pipeline.py` | ✅ 可写“合成夹具” |
 | 合成夹具原文证据接受 | **23/23** | 同上 | ✅ 可写“合成夹具” |
@@ -17,10 +17,13 @@
 | BM25 / 向量 / 混合 MRR | **1.0 / 1.0 / 1.0** | 同上 | ⚠️ 同上 |
 | 合成夹具引用有效率 | **4/4** | 同上 | ✅ 可写“合成夹具” |
 | 工作流完成 | **7/7 节点** | 同上 | ✅ 可以 |
-| 真实 GPT Researcher 任务成功率 | **未验证** | 无 Key/外网 | ❌ 不能写 |
+| 真实 GPT Researcher 本地 PDF 任务 | **2/2 completed** | DeepSeek + 本地合成 PDF | ✅ 可写“本地 PDF 模式 2 次” |
+| 真实 GPT Researcher 网页检索任务 | **未验证** | 无 Tavily Key，网络不可达 | ❌ 不能写 |
+| 真实 DeepSeek LLM 抽取（夹具） | **12/12 候选通过逐字核验** | 2026-10-20 真实调用 | ✅ 可写“夹具、非真实论文” |
+| 真实 DeepSeek RAG 回答（夹具） | **3 条 page-only 引用；grounded=false** | 同上 | ✅ 可写“回答可用但未达逐句引用” |
 | 真实论文字段正确率 | **未验证** | PDF 未下载 | ❌ 不能写 |
 | 真实语义 Recall@K | **未验证** | 未用真实 embedding | ❌ 不能写 |
-| Token / API 成本 | **未验证** | 未调用真实 API | ❌ 不能写 |
+| Token / API 成本 | **未完整统计** | 只记录单次 chat usage | ❌ 不能写完整成本 |
 | Docker 构建 | **未验证** | 无 Docker CLI | ❌ 不能写 |
 
 ---
@@ -70,26 +73,27 @@ spectrascholar\api\knowledge.py             36      5    86%
 spectrascholar\api\research.py              64     10    84%
 spectrascholar\api\system.py                32      4    88%
 spectrascholar\api\workflows.py             45      4    91%
-spectrascholar\citations.py                106      5    95%
+spectrascholar\citations.py                113      5    96%
 spectrascholar\compare.py                  263     23    91%
 spectrascholar\evidence.py                 102     27    74%
 spectrascholar\extraction\heuristic.py     253     27    89%
-spectrascholar\extraction\llm.py           214     44    79%
+spectrascholar\extraction\llm.py           215     41    81%
 spectrascholar\extraction\service.py        50      2    96%
-spectrascholar\extraction\tables.py        235     47    80%
+spectrascholar\extraction\tables.py        235     40    83%
+spectrascholar\llm_config.py                23      0   100%
 spectrascholar\main.py                      91      6    93%
 spectrascholar\rag\bm25.py                  50      5    90%
 spectrascholar\rag\chunking.py              62     14    77%
 spectrascholar\rag\embeddings.py            85     27    68%
 spectrascholar\rag\index.py                204     38    81%
-spectrascholar\rag\service.py              193     51    74%
-spectrascholar\research.py                 213     35    84%
-spectrascholar\schemas.py                  385      2    99%
-spectrascholar\settings.py                 106      5    95%
+spectrascholar\rag\service.py              195     53    73%
+spectrascholar\research.py                 218     35    84%
+spectrascholar\schemas.py                  386      2    99%
+spectrascholar\settings.py                 111      6    95%
 spectrascholar\store.py                    219     22    90%
 spectrascholar\workflow.py                 214     36    83%
 ------------------------------------------------------------
-TOTAL                                     3488    465    87%
+TOTAL                                     3498    466    87%
 ```
 
 未覆盖部分主要是：真实 provider 客户端、PDF 加密/损坏、部分索引持久化分支、表格解析的异常分支。
@@ -187,6 +191,67 @@ Latency: {'compare': 123, 'index': 18, 'search_median': 3, 'answer': 20, 'workfl
 表格 PDF 的 API 对比在 `tests/test_tables.py` 中验证：返回 `source=table`、`method=HybridSN/GCN`，Markdown 指标表包含“来源”列。
 
 控制台中文出现的乱码是 PowerShell 编码显示问题；已用 `repr`/`ord` 验证 API 返回的是正确 Unicode（如 `0x672c 0x62a5 0x544a`）。
+
+---
+
+## 5.1 真实 DeepSeek / GPT Researcher 运行（2026-10-20）
+
+环境：`.env` 只配置 `DEEPSEEK_API_KEY`，没有 OpenAI/Tavily Key；上游依赖在当前沙箱中手工补齐（`docopt`、`sgmllib3k`、`langdetect` 的 sdist 构建受临时目录 `chmod` 限制，正常机器直接 `pip install -r requirements-live.txt` 即可）。
+
+### 5.1.1 DeepSeek 聊天
+
+```text
+request model = deepseek-chat
+reply = "OK"
+response model = deepseek-flash
+usage = 10 tokens
+```
+
+结论：Key 有效、网络可达、OpenAI 兼容调用正常。响应模型名是服务端返回，不改变项目的调用代码。
+
+### 5.1.2 真实 LLM 抽取（合成夹具，不是真实论文）
+
+- 模型：`deepseek-chat`
+- 输入：两页 `dynamic_gnn.pdf` 夹具
+- 结果：`12/12` 候选通过逐字原文核验，耗时约 3.7s
+- 标题/年份/方法/数据集：可提取
+- 指标：OA 98.4%、Kappa 0.977，`source=text`
+- 问题：指标记录中的 `dataset`/`method` 为 `null`，因此对比时仍标记不可比
+- 结论：LLM 抽取链路真实可用；**字段关联质量仍需真实论文与表格解析验证**，不能宣称真实论文准确率。
+
+### 5.1.3 真实 RAG 回答（合成夹具）
+
+- 检索：hash + BM25，3 篇夹具
+- 回答模式：`llm`
+- 引用：3 条 `verified_page_only`
+- `grounded=false`：回答把引用放在段末/整句之后，未对每个数值逐句附引用；审计保持严格，没有把“有链接”误判为“已核验”
+- 结论：LLM 回答链路可用；引用策略仍需要改进 prompt 或人工复核。
+
+### 5.1.4 真实 GPT Researcher API 任务
+
+通过项目 `/api/v1/research`，`source=local`，DeepSeek：
+
+| 运行 | 状态 | 字符数 | 耗时 | 审计 |
+|---|---|---|---|---|
+| 第 1 次 | completed | 15,263 | 28,770 ms | 0 条页级引用；23 条本地 PDF 文件链接被标为未页级核验；18 条数值结论缺引用 |
+| 第 2 次 | completed | 14,861 | 32,411 ms | 0 条页级引用；12 条数值结论缺引用（报告使用作者-年份，没有链接） |
+
+- `backend=gptr`、`is_demo=false`、`attempts=1`；
+- 报告由上游生成，引用风格不是本项目的 `[[doc:id p.N]]`，因此**不能算作页级引用通过**；
+- 审计明确写出“本地文件链接/作者-年份引用未做页级核验”，不伪造验证成功；
+- 两次任务都只使用本地合成 PDF，**没有真实网页检索**；真实 web 模式仍需要 Tavily Key 与可达网络。
+
+### 5.1.5 可复现命令
+
+```powershell
+# 真实聊天冒烟（脚本不在仓库中，避免密钥；可用 OpenAI SDK 直接调用）
+# 真实 GPT Researcher 本地模式：
+$env:WORKSPACE_DIR="$PWD\.smoke-workspace\gptr-api"
+$env:RESEARCH_BACKEND="gptr"
+$env:GPTR_RETRIEVER="duckduckgo"
+$env:GPTR_MAX_ITERATIONS="1"
+uvicorn spectrascholar.main:app --port 8015
+```
 
 ---
 

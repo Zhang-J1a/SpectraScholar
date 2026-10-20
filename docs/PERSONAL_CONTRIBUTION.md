@@ -1,7 +1,7 @@
 # 个人贡献说明
 
 > 目的：在简历、GitHub 和面试中准确区分 **GPT Researcher 上游能力** 与 **本人新增实现**。
-> 统计口径：`spectrascholar/` 下 Python 源文件共 5,918 行（含注释/空行，2026-10-20）；测试 1,330 行；脚本 461 行；Web 896 行。
+> 统计口径：`spectrascholar/` 下 Python 源文件共 5,958 行（含注释/空行，2026-10-20）；测试 1,346 行；脚本 462 行；Web 897 行。
 
 ## 1. 上游：GPT Researcher（Apache-2.0）
 
@@ -73,9 +73,9 @@
 | `spectrascholar/main.py`（135 行） | App 工厂、路由、Trace、限流、安全头、统一错误 |
 | `spectrascholar/api/documents.py`（141 行） | 上传安全、去重、页查看、删除联动索引 |
 | `spectrascholar/api/system.py` | health、config、单条证据核验 |
-| `web/index.html`（896 行） | 中文单页 UI、轮询、Markdown、引用跳转、工作流 |
-| `tests/`（1,330 行） | 66 个测试、PDF/表格工厂、Mock GPT Researcher/LLM |
-| `scripts/`（461 行） | 合成夹具评测、BM25/向量/混合消融、GPT Researcher 检查/真实冒烟、证据统计 |
+| `web/index.html`（897 行） | 中文单页 UI、轮询、Markdown、引用跳转、工作流 |
+| `tests/`（1,346 行） | 68 个测试、PDF/表格工厂、Mock GPT Researcher/LLM |
+| `scripts/`（462 行） | 合成夹具评测、BM25/向量/混合消融、GPT Researcher 检查/真实冒烟、证据统计 |
 | `Dockerfile` / `compose.yaml` / `.env.example` | 部署与配置（Docker 构建未验证） |
 
 ## 3. 明确不属于本人的工作
@@ -87,18 +87,20 @@
 
 ## 4. 可验证的个人成果
 
-- 66 个 pytest 通过，覆盖率 87%；
+- 68 个 pytest 通过，覆盖率 87%；
 - `ruff` 全绿；
 - 真实 Uvicorn HTTP 冒烟：上传→研究→对比→索引→问答→工作流→下载均成功；
 - 合成夹具：字段 20/20、证据 23/23、引用 4/4、工作流 7/7；
 - 表格夹具：6 条 `source=table` 方法级指标、1 个数据集、多值单元格拒绝；
 - BM25/向量/混合消融均跑通；hash 词法嵌入下三模式并列 1.0，不宣称语义提升；
+- 真实 DeepSeek：聊天、LLM 抽取（12/12 候选）、RAG 回答均完成；
+- 真实 GPT Researcher 本地 PDF 模式：2/2 任务 completed，报告 14.8k–15.3k 字符，约 29–32s；
 - 明确记录的失败路径：缺 Key、超时、空报告、幻觉引用、不可比条件、空知识库、表格多值单元格。
 
 ## 5. 不能声称的成果
 
-- 真实 GPT Researcher 端到端成功（未验证）；
-- 真实论文字段正确率 / 语义 Recall@K / token 成本（未验证）；
+- 真实 GPT Researcher **网页检索**成功（未验证，无 Tavily Key）；
+- 真实论文字段正确率 / 语义 Recall@K / 完整 token 成本（未验证）；
 - Docker 部署验证通过（无 Docker CLI）；
 - 浏览器视觉截图（被沙箱阻断）；
 - 上游搜索/报告能力为本人原创。

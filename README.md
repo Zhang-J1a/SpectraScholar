@@ -6,7 +6,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.150-009688?logo=fastapi&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-66%20passed-2ea44f)
+![Tests](https://img.shields.io/badge/tests-68%20passed-2ea44f)
 ![Coverage](https://img.shields.io/badge/coverage-87%25-2ea44f)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Upstream](https://img.shields.io/badge/upstream-GPT%20Researcher%20Apache--2.0-orange)
@@ -35,14 +35,16 @@ SpectraScholar 把这三件事做成了显式契约：
 
 | 能力 | 状态 | 证据 |
 |---|---|---|
-| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 66 个 pytest |
+| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 68 个 pytest |
 | Demo 调研任务（不调用搜索/LLM） | ✅ 已实现 | 报告中明确“不是调研结果” |
-| GPT Researcher Adapter | ✅ 代码完成，API 签名按 **0.16.1** 源码核对 | Mock 集成测试覆盖成功/空响应/超时/重试/缺密钥 |
-| GPT Researcher 真实联网 + 真实模型端到端 | ⚠️ **未验证** | 当前环境无 API Key，且外网直连被阻断 |
+| GPT Researcher Adapter | ✅ 代码完成，API 签名按 **0.16.1** 源码核对 | Mock 集成测试 + 真实本地任务 |
+| GPT Researcher 真实本地 PDF 调研（DeepSeek） | ✅ **已完成 2 次真实任务** | `backend=gptr`、`is_demo=false`、14.8k–15.3k 字符、28.8–32.4s |
+| GPT Researcher 真实网页检索 | ⚠️ **未验证** | 没有 Tavily Key；当前网络也无法访问 `api.tavily.com` |
 | 规则结构化抽取（方法/数据集/指标/图构建/实验条件） | ✅ 已实现 | 三份合成夹具 20/20 字段命中、23/23 原文证据通过 |
 | PDF 表格结构解析（OA/AA/Kappa 行列） | ✅ 已实现 | pdfplumber + 带线表格夹具；无表格时自动降级 |
-| LLM 结构化抽取 + 逐字证据拒绝 | ✅ 代码与假模型测试完成 | 幻觉数值/引文会被丢弃并记录 |
-| 真实 LLM 抽取效果 | ⚠️ **未验证** | 没有可用模型 API |
+| LLM 结构化抽取 + 逐字证据拒绝 | ✅ 代码 + 真实 DeepSeek 调用 | 夹具 12/12 候选通过逐字核验；幻觉候选仍由单测覆盖 |
+| 真实 LLM 抽取的字段关联 | ⚠️ 部分 | OA/Kappa 可抽取，但数据集/方法关联仍缺失，不能直接排名 |
+| 真实论文上的抽取/检索效果 | ⚠️ **未验证** | 只有合成夹具；真实 PDF 未下载 |
 | 多论文对比、可比性分组、Markdown 导出 | ✅ 已实现 | OA 条件一致时正确排名；Kappa 单篇不排名 |
 | 引用核验（页码/原文/外部链接/缺引用结论） | ✅ 已实现 | 单测 + 报告自动附加核验节 |
 | 混合 RAG（BM25 + 向量 + RRF + 词法重排） | ✅ 已实现 | 合成夹具 Recall@1/3 = 1.0（仅流水线验证） |
@@ -285,7 +287,7 @@ python scripts/check_gptr_api.py
 python scripts/smoke_gptr.py --topic "graph neural networks for hyperspectral image classification" --source web
 ```
 
-> 当前开发环境没有执行过真实 API 调用。`scripts/smoke_gptr.py` 失败时会明确打印错误并以非零码退出，不会伪造成功。
+> 已使用 DeepSeek 在 `source=local` 模式完成 2 次真实 GPT Researcher 任务（`backend=gptr`、`is_demo=false`）。真实网页检索仍需要 Tavily Key；`scripts/smoke_gptr.py` 失败时会明确打印错误并以非零码退出，不会伪造成功。
 
 #### 使用 DeepSeek（聊天模型）
 
@@ -428,9 +430,9 @@ python scripts/evaluate_pipeline.py
 
 实际结果：
 
-- **66 passed**（pytest）
+- **68 passed**（pytest）
 - **ruff：All checks passed**
-- **coverage：87%**（3488 statements，465 missed）
+- **coverage：87%**（3498 statements，466 missed）
 - 三份合成夹具（两篇正文 + 一张带线 OA/AA/Kappa 表格）：
   - 抽取字段命中 **20/20**
   - 原文证据接受 **23/23**
@@ -439,6 +441,9 @@ python scripts/evaluate_pipeline.py
   - 7/7 工作流节点完成
   - 对比 123 ms、索引 18 ms、检索中位 3 ms、回答 20 ms、工作流 379 ms
 - HTTP 端到端冒烟：上传 PDF → Demo 研究 → 对比 → 索引 → 检索 → 问答 → 工作流 → 报告下载均成功（2 篇正文夹具；表格夹具已通过独立 API 测试）。
+- **真实 DeepSeek + GPT Researcher 本地 PDF 调研**：2 次任务 `completed`，`backend=gptr`、`is_demo=false`，报告 14,861 / 15,263 字符，耗时 28.8s / 32.4s。
+- **真实 DeepSeek LLM 抽取**：夹具 12/12 候选通过逐字核验（OA 98.4%、Kappa 0.977）；但数据集/方法关联缺失，仍不可直接排名。
+- **真实 DeepSeek RAG 回答**：返回 3 条 page-only 引用；`grounded=false`，因为回答未提供逐句引用/原文片段，审计保持严格。
 
 > ⚠️ 上述检索/抽取分数来自**合成夹具 + hash 词法嵌入**，只证明流水线连通，不代表真实论文或语义检索质量。三种检索模式在 hash 词法嵌入下并列 1.0，**不能**据此宣称混合检索提升了语义效果；需要真实 embedding 与真实论文重测。真实论文集见 [`eval/README.md`](eval/README.md)，因外网阻断尚未下载。完整方法与限制见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。
 
@@ -472,7 +477,7 @@ SpectraScholar-Starter/
 │   ├── workflow.py             # 7 节点本地文献工作流
 │   └── domains.py              # 可替换领域模板
 ├── web/index.html              # 单页中文 Web UI（无构建步骤）
-├── tests/                      # 66 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
+├── tests/                      # 68 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
 ├── scripts/                    # 评测、GPT Researcher API 检查/真实冒烟
 ├── eval/                       # 真实论文清单与标注模板（PDF 未提交）
 ├── docs/                       # 架构、开发日志、评测、面试、贡献说明
