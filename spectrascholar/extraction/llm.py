@@ -67,8 +67,8 @@ USER_PROMPT_TEMPLATE = """从下面的科研论文文本中抽取结构化信息
   "graph_construction": [{{"kind": "KNN|RBF|static|dynamic|superpixel|other", "page": 1, "quote": "..."}}],
   "conditions": [{{"dataset": "...", "train_ratio": "10%", "patch_size": "9x9",
                    "protocol": "...", "page": 1, "quote": "..."}}],
-  "metrics": [{{"dataset": "...", "metric": "OA|AA|Kappa", "value": "98.4%",
-                "train_ratio": "10%", "patch_size": "9x9", "page": 1, "quote": "..."}}]
+  "metrics": [{{"dataset": "...", "method": "...", "metric": "OA|AA|Kappa", "value": "98.4%",
+                "train_ratio": "10%", "patch_size": "9x9", "protocol": "...", "page": 1, "quote": "..."}}]
 }}
 
 硬性规则：
@@ -79,6 +79,11 @@ USER_PROMPT_TEMPLATE = """从下面的科研论文文本中抽取结构化信息
 5. 不要输出表格中无法确认行列归属的数字。
 6. authors 只填能确认的作者行；year 只填有出版上下文支持的年份。
 7. 最多返回 {max_candidates} 个列表候选。
+8. 每条 metric 必须填写 dataset、method、train_ratio、patch_size；无法从表头/正文确定时，
+   不要输出该条 metric，而不是把 dataset/method 留空。
+9. 表格指标行的 quote 必须包含方法名和同一行的全部数值；dataset 由表头列顺序确定，
+   不得只复制一个孤立数值。不同 dataset/训练比例的行不得合并。
+10. 若表格是图片或无法确认列归属，返回空 metrics，并在 conditions 中保留可确认条件。
 
 论文文本：
 {context}
@@ -124,10 +129,27 @@ def parse_json_object(raw: str) -> dict[str, Any]:
         try:
             data = json.loads(candidate)
         except json.JSONDecodeError as exc:
+            repaired = _repair_json_object(candidate)
+            if repaired is not None:
+                return repaired
             raise LLMExtractionError("invalid_json", f"模型 JSON 无法解析: {exc}") from exc
     if not isinstance(data, dict):
         raise LLMExtractionError("invalid_json", "模型未返回 JSON 对象")
     return data
+
+
+def _repair_json_object(raw: str) -> dict[str, Any] | None:
+    """Best-effort repair for provider JSON that is truncated/missing commas."""
+    text = _strip_code_fence(raw)
+    try:
+        import json_repair  # type: ignore[import-not-found]
+    except ImportError:
+        return None
+    try:
+        repaired = json_repair.loads(text)
+    except Exception:
+        return None
+    return repaired if isinstance(repaired, dict) else None
 
 
 async def _call_model(prompt: str) -> str:
@@ -265,21 +287,33 @@ def _metric_from_candidate(
     dataset = candidate.get("dataset")
     if dataset and normalized(str(dataset)) not in normalized(quote):
         dataset = _dataset_in(quote)
+    method = candidate.get("method") or candidate.get("name")
+    if method and normalized(str(method)) not in normalized(quote):
+        method = None
     train_ratio = candidate.get("train_ratio")
     if train_ratio and normalized(str(train_ratio)) not in normalized(quote):
         train_ratio = _train_ratio_in(quote)
     patch_size = candidate.get("patch_size")
     if patch_size and normalized(str(patch_size)) not in normalized(quote):
         patch_size = _patch_size_in(quote)
+    missing_binding = [
+        field
+        for field, value in (("dataset", dataset), ("method", method), ("train_ratio", train_ratio))
+        if not value
+    ]
+    note = "模型候选已通过逐字原文核验；表格行列与语义需人工确认"
+    if missing_binding:
+        note += f"；缺少绑定字段: {', '.join(missing_binding)}"
     return MetricRecord(
         dataset=str(dataset) if dataset else None,
+        method=str(method) if method else None,
         metric=metric,
         value=value,
         train_ratio=str(train_ratio) if train_ratio else None,
         patch_size=str(patch_size) if patch_size else None,
         protocol=str(candidate.get("protocol")) if candidate.get("protocol") else None,
         evidence=[evidence],
-        note="模型候选已通过逐字原文核验；表格行列与语义需人工确认",
+        note=note,
     )
 
 

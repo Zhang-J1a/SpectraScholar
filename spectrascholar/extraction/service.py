@@ -8,7 +8,7 @@ from ..schemas import PaperExtraction
 from ..settings import settings
 from .heuristic import extract_heuristic
 from .llm import LLMExtractionError, extract_llm
-from .tables import merge_table_result, parse_pdf_tables
+from .tables import merge_table_result, parse_pdf_tables, parse_text_metric_rows
 
 
 class ExtractionError(RuntimeError):
@@ -52,6 +52,16 @@ async def extract_pages(
             paper = merge_table_result(paper, table_result)
         except Exception as exc:
             paper.notes.append(f"表格解析失败（已忽略，不影响正文抽取）: {type(exc).__name__}: {exc}")
+        try:
+            text_rows = parse_text_metric_rows(
+                pages,
+                document_id,
+                [method.name for method in paper.methods],
+                paper.experiment_conditions,
+            )
+            paper = merge_table_result(paper, text_rows)
+        except Exception as exc:
+            paper.notes.append(f"文本表格行解析失败（已忽略）: {type(exc).__name__}: {exc}")
     return paper
 
 

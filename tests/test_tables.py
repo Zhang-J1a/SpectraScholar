@@ -10,9 +10,11 @@ from spectrascholar.extraction.tables import (
     merge_table_result,
     parse_pdf_tables,
     parse_table_rows,
+    parse_text_metric_rows,
 )
 from spectrascholar.schemas import (
     EvidenceRef,
+    ExperimentCondition,
     MetricRecord,
     PaperExtraction,
 )
@@ -33,6 +35,31 @@ def _table_pages() -> list[str]:
         "HybridSN 98.4 97.8 0.976\n"
         "GCN 97.1 96.5 0.965"
     ]
+
+
+def test_text_table_rows_bind_datasets_and_metrics():
+    page = (
+        "TABLE II\n"
+        "Methods Indian Pines Dataset University of Pavia Dataset Salinas Scene Dataset"
+        "OA Kappa AA OA Kappa AA OA Kappa AA\n"
+        "HybridSN 99.75 ± 0.1 99.71 ± 0.1 99.63 ± 0.2 "
+        "99.98 ± 0.0 99.98 ± 0.0 99.97 ± 0.0 "
+        "100 ± 0.0 100 ± 0.0 100 ± 0.0\n"
+    )
+    result = parse_text_metric_rows(
+        [page],
+        "doc-text-row",
+        ["HybridSN"],
+        [ExperimentCondition(dataset="Indian Pines", train_ratio="30%", patch_size="25x25")],
+    )
+    assert len(result.metrics) == 9
+    assert result.metrics[0].dataset == "Indian Pines"
+    assert result.metrics[0].metric == "OA"
+    assert result.metrics[0].value == "99.75"
+    assert result.metrics[0].method == "HybridSN"
+    assert result.metrics[0].train_ratio == "30%"
+    assert result.metrics[0].patch_size == "25x25"
+    assert result.metrics[0].source == "table"
 
 
 def test_table_pdf_extracts_method_level_metrics():

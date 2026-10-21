@@ -16,7 +16,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..evidence import make_evidence_ref, snippet_around
+from ..evidence import make_evidence_ref, normalized, snippet_around
 from ..schemas import (
     DatasetRecord,
     ExperimentCondition,
@@ -374,6 +374,132 @@ def parse_pdf_tables(
         result.notes.append(
             f"从 {result.tables_found} 个表格中解析出 {len(result.metrics)} 条指标；"
             "表格行列关联与实验条件仍需人工复核。"
+        )
+    return result
+
+
+TEXT_TABLE_DATASETS = (
+    ("Indian Pines", ("indian pines", "indian pine", "ip")),
+    ("Pavia University", ("pavia university", "university of pavia", "pavia")),
+    ("Salinas Scene", ("salinas scene", "salinas")),
+)
+TEXT_TABLE_METRICS = ("OA", "Kappa", "AA")
+
+
+def _text_table_header(line: str) -> list[str] | None:
+    """Return dataset order if a text line looks like a 3-dataset OA/Kappa/AA header."""
+    text = normalized(line)
+    if not all(any(alias in text for alias in aliases) for _, aliases in TEXT_TABLE_DATASETS):
+        return None
+    if not all(metric.lower() in text for metric in TEXT_TABLE_METRICS):
+        return None
+    order = []
+    for name, aliases in TEXT_TABLE_DATASETS:
+        positions = [text.find(alias) for alias in aliases if alias in text]
+        if not positions:
+            return None
+        order.append((name, min(positions)))
+    order.sort(key=lambda item: item[1])
+    return [name for name, _ in order]
+
+
+def parse_text_metric_rows(
+    pages: list[str],
+    document_id: str,
+    method_names: list[str],
+    conditions: list[ExperimentCondition] | None = None,
+) -> TableExtractionResult:
+    """Bind text-extractable result-table rows to dataset/metric columns.
+
+    Some publishers embed result tables as text (not ruled graphics). pypdf can
+    read the header and row lines but not the cell geometry. This parser uses
+    the repeated ``OA Kappa AA`` header column order only when three known
+    datasets and a method row with exactly nine values are present. It never
+    guesses a missing dataset. Image-only tables still need OCR.
+    """
+    result = TableExtractionResult()
+    condition_rows = conditions or []
+    methods = sorted({name for name in method_names if name}, key=len, reverse=True)
+
+    for page_number, page in enumerate(pages, 1):
+        lines = [line.strip() for line in page.splitlines() if line.strip()]
+        for header_index, line in enumerate(lines):
+            dataset_order = _text_table_header(line)
+            if not dataset_order or len(dataset_order) != 3:
+                continue
+            page_lower = page.lower()
+            if (
+                "only 10%" in page_lower
+                or "10% of total" in page_lower
+                or re.search(r"\btable\s+v\b", page_lower)
+            ):
+                ratio, protocol = "10%", "10% training"
+            elif (
+                "30% and 70%" in page_lower
+                or "30% of the data" in page_lower
+                or re.search(r"\btable\s+ii\b", page_lower)
+            ):
+                ratio, protocol = "30%", "30% training / 70% testing"
+            else:
+                ratio, protocol = None, None
+
+            for row in lines[header_index + 1 : header_index + 30]:
+                method = next((name for name in methods if name in row), None)
+                if not method:
+                    continue
+                values = re.findall(r"\d{2,3}(?:\.\d+)?", row)
+                if len(values) < 9:
+                    continue
+                values = values[:9]
+                for index, value in enumerate(values):
+                    dataset = dataset_order[index // 3]
+                    metric = TEXT_TABLE_METRICS[index % 3]
+                    condition = next(
+                        (
+                            item
+                            for item in condition_rows
+                            if normalized(item.dataset or "") in normalized(dataset)
+                            or normalized(dataset) in normalized(item.dataset or "")
+                        ),
+                        None,
+                    )
+                    patch = condition.patch_size if condition else _patch_size_in(page)
+                    evidence = make_evidence_ref(
+                        document_id, pages, page_number, row, value=value
+                    )
+                    if not evidence.accepted:
+                        result.rejections.append(
+                            RejectionRecord(
+                                field="metrics",
+                                value=value,
+                                page=page_number,
+                                reason=evidence.status,
+                                note=evidence.note,
+                            )
+                        )
+                        continue
+                    result.metrics.append(
+                        MetricRecord(
+                            dataset=dataset,
+                            method=method,
+                            metric=metric,
+                            value=value,
+                            train_ratio=ratio,
+                            patch_size=patch,
+                            protocol=protocol,
+                            source="table",
+                            evidence=[evidence],
+                            note="文本表格行解析；dataset 由表头列顺序绑定，仍需人工抽样核对",
+                        )
+                    )
+                result.datasets.extend(
+                    DatasetRecord(name=name)
+                    for name in dataset_order
+                    if name not in {dataset.name for dataset in result.datasets}
+                )
+    if result.metrics:
+        result.notes.append(
+            f"文本表格行解析：绑定 {len(result.metrics)} 条指标；图片表格仍需 OCR。"
         )
     return result
 
