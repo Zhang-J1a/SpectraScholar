@@ -420,7 +420,7 @@ $env:WORKSPACE_DIR="$PWD\.smoke-workspace"
 | GPT Researcher 真实网页检索 | 已完成 10/10（Tavily） | 均值 20.2k 字符、62 来源；代理环境需临时放行 |
 | 真实 LLM 抽取 | 夹具 12/12；真实论文 3 篇已评测 | 文本表 + Tesseract OCR 绑定 17/24；OCR 仍有误读 |
 | 真实论文评测 | 3 篇 PDF 已评测 | 只评抽取，不评真实检索/RAG |
-| Docker 构建 | 无 Docker CLI | Dockerfile/compose 仅静态审查 |
+| Docker 构建 | 本机通过 | Docker 29.9.2 + Compose 5.6.0；api healthy、worker completed；第二台机器未验证 |
 | 浏览器截图 | Chrome IPC 被沙箱阻断 | UI 只做 HTTP/JS 语法验证 |
 | 语义检索质量 | 默认 hash 嵌入 | 明确标注非语义，未宣称效果 |
 
@@ -625,7 +625,7 @@ Workflow                          → 7/7
 - API 默认可用 `QUEUE_BACKEND=sqlite`；测试用 `inline` 保持旧路径。
 - 跨进程验收：API 提交后进程退出 → `scripts/run_worker.py --once` 认领 → completed。
 - 新增 `scripts/generate_real_comparison.py`：3 篇真实论文、46,987 字符报告、82 个页级引用、0 个可比组（不强行排名）。
-- Dockerfile 复制 `scripts/`，compose 增加 `worker` 服务；但当前无 Docker CLI，未构建。
+- Dockerfile 复制 `scripts/`，compose 增加 `worker` 服务；当时无 Docker CLI，未构建。
 
 ### 10.11 仍未完成
 
@@ -654,6 +654,21 @@ returned=3 attempts=1 duplicates=0
 
 返回 3 篇相关论文（含 2024/2025/2026）。这是**工具端点**，尚未接入 7 节点工作流的自主工具选择。
 
+### 10.13 V1.6：Docker 本机验证
+
+环境：Docker Desktop 29.9.2、Compose v5.6.0、WSL 3.0.3.0 / kernel 6.18.54.1-1。
+
+```text
+docker compose build       -> 成功
+docker compose up -d       -> api healthy, worker running
+POST /api/v1/research      -> 202 queued, demo=true
+worker                     -> claimed ... / finished ...: completed（949 ms，1,219 字符）
+docker compose down        -> 清理
+```
+
+注意：构建时 `docker-credential-desktop` 不在 PATH，需先把 `D:\Docker\resources\bin` 加入 PATH。  
+这是本机容器验证；第二台电脑仍未验证。
+
 ---
 
 ## 11. 下一步
@@ -661,7 +676,7 @@ returned=3 attempts=1 duplicates=0
 1. 继续修正 SSRN/WFCG 的 OCR 列错位/表题缺失；目标把指标→数据集绑定从 17/24 继续提升。
 2. 将 arXiv 工具接入工作流规划节点，形成真正的 tool-calling 循环。
 3. 在 3 篇真实论文上做检索/RAG 评测（Recall@K、引用有效性、回答 grounded）。
-4. 在有 Docker 的机器上执行 `docker compose up --build`，完成 V1.6。
+4. 在第二台机器验证 Compose（本机已 build/up/worker 通过）。
 5. OpenAI embedding 对照 hash，做真实 ablation。
 6. 多级表头/跨页表/OCR。
 7. Redis/RQ 队列与取消/预算。

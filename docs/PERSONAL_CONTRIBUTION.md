@@ -78,7 +78,7 @@
 | `web/index.html`（897 行） | 中文单页 UI、轮询、Markdown、引用跳转、工作流 |
 | `tests/`（1,723 行） | 81 个测试、PDF/表格工厂、Mock GPT Researcher/LLM、队列、OCR 降级、arXiv 工具 |
 | `scripts/`（1,388 行） | 合成夹具评测、10 任务本地/网页真实研究评测、3 篇真实论文评测、真实对照报告、队列 worker、BM25/向量/混合消融、GPT Researcher 检查/真实冒烟 |
-| `Dockerfile` / `compose.yaml` / `.env.example` | 部署与配置（Docker 构建未验证） |
+| `Dockerfile` / `compose.yaml` / `.env.example` | 部署与配置（本机 build/up/worker 已验证；第二台机器未验证） |
 
 ## 3. 明确不属于本人的工作
 
@@ -106,7 +106,7 @@
 
 - 真实 GPT Researcher **网页引用正确或生产稳定**（10 次任务完成，但 443 条外部链接未核验，且代理环境需临时放行）；
 - 真实论文**指标可直接排名**（指标→数据集绑定仅 17/24；OCR 有误读/列错位）；完整 token 成本未统计；
-- Docker 部署验证通过（无 Docker CLI）；
+- 第二台机器 Docker 部署验证；本机已 build/up/worker 通过；
 - 浏览器视觉截图（被沙箱阻断）；
 - 上游搜索/报告能力为本人原创。
 

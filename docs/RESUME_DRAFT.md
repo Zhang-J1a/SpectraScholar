@@ -1,12 +1,12 @@
 # 简历项目描述（只使用已验证事实）
 
-> 当前可用的真实数字：81 tests / 86% coverage / 合成夹具 20/20 字段、23/23 证据、4/4 引用、7/7 工作流；真实 GPT Researcher 本地 PDF 模式 + DeepSeek 完成 10/10 任务（报告均值 14.7k 字符，p50 24.0s / p95 33.5s，上游估算 $0.663）；Tavily 网页任务完成 10/10（均值 20.2k 字符、62 个来源、p50 36.9s，当前代理环境需临时放行）；3 篇真实论文抽取中 LLM 元数据/方法/数据集 3/3、9/9、指标数值 18/24，文本表 + Tesseract OCR 后指标→数据集 17/24；BM25/向量/混合在 hash 下并列 1.0，不能宣称语义提升。Docker、浏览器截图未验证。
+> 当前可用的真实数字：81 tests / 86% coverage / 合成夹具 20/20 字段、23/23 证据、4/4 引用、7/7 工作流；真实 GPT Researcher 本地 PDF 模式 + DeepSeek 完成 10/10 任务（报告均值 14.7k 字符，p50 24.0s / p95 33.5s，上游估算 $0.663）；Tavily 网页任务完成 10/10（均值 20.2k 字符、62 个来源、p50 36.9s，当前代理环境需临时放行）；3 篇真实论文抽取中 LLM 元数据/方法/数据集 3/3、9/9、指标数值 18/24，文本表 + Tesseract OCR 后指标→数据集 17/24；BM25/向量/混合在 hash 下并列 1.0，不能宣称语义提升。Docker 本机 build/up/worker 已验证；第二台机器和浏览器截图未验证。
 
 **SpectraScholar — 科研文献调研与分析 Agent（个人二次开发）**
 
 基于 GPT Researcher（Apache-2.0）进行业务扩展，构建可追溯、可比较、可测试的科研文献 Agent：FastAPI 后端、中文 Web UI、PDF 管理、结构化抽取、多论文可比性分析、混合 RAG 与引用核验。
 
-技术栈：Python 3.12、FastAPI、Pydantic、SQLite、BM25、GPT Researcher、Docker（配置未构建验证）。
+技术栈：Python 3.12、FastAPI、Pydantic、SQLite、BM25、GPT Researcher、Docker（本机 build/up 验证）。
 
 个人工作：
 

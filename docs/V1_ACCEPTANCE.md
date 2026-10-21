@@ -5,9 +5,9 @@
 
 ## 结论
 
-**V1 的 6 项中：3 项完成，1 项部分完成，1 项工程实现完成但部署未验证，1 项被环境阻塞。**
+**V1 的 6 项中：4 项完成，2 项部分完成（V1.3 OCR、V1.6 第二台机器）。**
 
-因此不能写“V1 全部通过”；可以写“V1 代码闭环完成，Docker/第二台机器验证未完成；图片表格 OCR 已真实运行，但仍有误读/列错位”。
+本机 Docker 已完成真实 `build/up`、api healthy、worker completed；但路线要求“另一台电脑”，这一步仍未验证。因此不能写“V1 全部通过”；可以写“V1 代码闭环 + 本机 Docker 通过；第二台机器和完整 OCR 绑定仍未完成”。
 
 | V1 项 | 状态 | 证据 |
 |---|---|---|
@@ -16,7 +16,7 @@
 | 3. 表格解析 + 缺失字段 null/原因 | ⚠️ 部分 | 文本表 + Tesseract OCR 后绑定 17/24；OCR 仍有误读/列错位，未达到完整正确 |
 | 4. 引用逐条映射 + citation_verified/unsupported | ✅ 结构化报告完成 | 3 篇真实论文对照，82 个页级引用、91 个页码；无可比组时 0 排名 |
 | 5. 长任务可靠队列 | ✅ 完成 | SQLite queue + 独立 worker；跨进程验收 queued→completed |
-| 6. Docker Compose 另一台电脑验证 | ❌ 阻塞 | 当前机器无 `docker`/`podman`；compose 已加 worker，但未真实构建 |
+| 6. Docker Compose 另一台电脑验证 | ⚠️ 本机通过，跨机器未验证 | Docker 29.9.2 + Compose v5.6.0；`compose build`、`up -d`、api healthy、worker completed 一次 Demo；第二台机器未验证 |
 
 ## V1 验收报告
 
@@ -52,24 +52,38 @@ queue_stats={'completed': 1}
 
 ## V1.3 仍需说明的边界
 
-- HybridSN 的结果表是**文本行**，新增的行解析器可以按表头把 9 个值绑定到 3 个数据集 × OA/Kappa/AA；因此从 0/24 提升到 12/24。
+- HybridSN 的结果表是**文本行**，行解析器按表头把 9 个值绑定到 3 个数据集 × OA/Kappa/AA；仅文本表时是 12/24，加入 OCR 后提升到 17/24。
 - SSRN/WFCG 的结果表主要是**图片**；Tesseract 5.5.3 已安装，OCR 已真实运行，并新增转置表解析（方法列 × OA/AA/Kappa 行）。
 - 现实结果：指标→数据集绑定从 12/24 提升到 **17/24**，但仍有 OCR 误读、表题/列错位；**不满足“所有真实论文表格都稳定解析”**。
 - 图片表 OCR 指标必须人工抽样核对，不能把 17/24 写成全对。
 
-## V1.6 阻塞
+## V1.6 本机 Docker 验收
+
+环境：
 
 ```text
-docker  = not found
-podman  = not found
-tesseract = not found
+Docker Desktop 29.9.2
+Docker Compose v5.6.0
+WSL 3.0.3.0 / kernel 6.18.54.1-1
 ```
 
-`compose.yaml` 已静态解析为 `api` + `worker` 两个服务，且 worker 共享 workspace 卷；但没有 Docker CLI，无法真实构建，更无法在“另一台电脑”验证。不能把静态 YAML 检查写成部署成功。
+真实执行：
+
+```text
+$env:PATH="D:\Docker\resources\bin;$env:PATH"  # docker-credential-desktop
+docker compose build       -> api/worker 镜像构建成功
+docker compose up -d       -> api healthy, worker running
+POST /api/v1/research      -> 202 queued, demo=true
+worker log                 -> claimed <job> (attempt 1)
+                           -> finished <job>: completed
+docker compose down        -> 容器/网络清理
+```
+
+任务耗时 949 ms，报告 1,219 字符。  
+这证明 compose 的 `api + worker` 和共享命名卷在本机可用；但**没有在第二台电脑验证**，所以 V1.6 只能写“本机通过”，不能写“跨机器通过”。
 
 ## 下一步（严格顺序）
 
-1. 在有 Docker 的机器上执行 `docker compose up --build`，跑通 API + worker + 上传/研究/报告。
-2. 安装 OCR（RapidOCR 或 Tesseract）后，为 SSRN/WFCG 图片表格补表格行绑定。
-3. 继续修正 OCR 列错位/表题缺失；当前指标绑定 17/24，仍不能宣称完整正确。
-4. 若要继续 V2，再做 30–50 题评测集与真实 embedding ablation。
+1. 在第二台电脑执行 `docker compose build && docker compose up -d`，验证跨机器部署。
+2. 继续修正 OCR 列错位/表题缺失；当前指标绑定 17/24，仍不能宣称完整正确。
+3. 若要继续 V2，再做 30–50 题评测集与真实 embedding ablation。

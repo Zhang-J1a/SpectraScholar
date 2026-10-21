@@ -53,7 +53,7 @@ SpectraScholar 把这三件事做成了显式契约：
 | 混合 RAG（BM25 + 向量 + RRF + 词法重排） | ✅ 已实现 | 合成夹具 Recall@1/3 = 1.0（仅流水线验证） |
 | hash 嵌入的语义质量 | ❌ **不能宣称** | hash 是词法哈希，不是语义模型；需切换 OpenAI embedding 后重测 |
 | 真实论文测试集（HybridSN/SSRN/WFCG） | ✅ 3 篇本地 PDF 已评测 | 见 `eval/real_papers.labels.json`；GCN-HSI 仍未下载 |
-| Docker 镜像构建 | ⚠️ **未验证** | 当前机器没有 Docker CLI |
+| Docker 镜像构建/启动 | ✅ **本机已验证** | Docker 29.9.2 + Compose v5.6.0；api healthy；worker completed；第二台机器未验证 |
 | 网页视觉截图 | ⚠️ 未生成 | Chrome 被 Windows 沙箱阻断（命名管道权限） |
 
 > 本项目坚持一条原则：**没有真实运行过的能力，不写成“已完成真实联调”。**
@@ -368,8 +368,9 @@ docker compose build --no-cache
 
 ### 6.3 Docker
 
-```bash
-cp .env.example .env
+```powershell
+Copy-Item .env.example .env
+$env:PATH = "D:\Docker\resources\bin;$env:PATH"   # docker-credential-desktop
 docker compose up --build
 ```
 
@@ -383,10 +384,11 @@ PowerShell：
 
 ```powershell
 $env:INSTALL_GPT_RESEARCHER="1"
+$env:PATH = "D:\Docker\resources\bin;$env:PATH"   # docker-credential-desktop
 docker compose build
 ```
 
-> 当前机器没有 Docker CLI，镜像构建**未验证**；Dockerfile / compose 已做静态检查。
+> 本机已实际执行 `docker compose build` 与 `docker compose up -d`：api 为 healthy，worker 认领并完成了一次 queued Demo 任务；**第二台机器尚未验证**。不要把本机结果写成跨机器部署。
 > compose 默认使用命名卷 `spectrascholar_workspace`，避免非 root 容器写宿主机 bind mount 的权限问题。
 > 取回报告：`docker compose cp api:/data/workspace/reports ./reports`。
 
@@ -498,7 +500,7 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 - **真实 DeepSeek LLM 抽取**：夹具 12/12 候选通过逐字核验（OA 98.4%、Kappa 0.977）；但数据集/方法关联缺失，仍不可直接排名。
 - **真实 DeepSeek RAG 回答**：返回 3 条 page-only 引用；`grounded=false`，因为回答未提供逐句引用/原文片段，审计保持严格。
 
-> V1 验收状态：[`docs/V1_ACCEPTANCE.md`](docs/V1_ACCEPTANCE.md)（V1.1–V1.5 代码完成；V1.3 图片表、V1.6 Docker 未完成）。
+> V1 验收状态：[`docs/V1_ACCEPTANCE.md`](docs/V1_ACCEPTANCE.md)（V1.1/1.2/1.4/1.5 完成；V1.3 仍有 OCR 误读；V1.6 本机 Docker 通过、第二台机器未验证）。
 >
 > ⚠️ 上述检索/抽取分数来自**合成夹具 + hash 词法嵌入**，只证明流水线连通，不代表真实论文或语义检索质量。三种检索模式在 hash 词法嵌入下并列 1.0，**不能**据此宣称混合检索提升了语义效果；需要真实 embedding 与真实论文重测。真实论文抽取结果见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)，真实检索/RAG 仍未评测；完整方法与限制见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。
 
@@ -573,7 +575,7 @@ SpectraScholar-Starter/
 
 下一步按优先级：
 
-1. 在具备 Docker 的机器上完成 API + worker 的 Compose 构建与第二台机器验证；
+1. 在第二台机器上完成 Compose 构建与启动验证（本机已通过）；
 2. 继续修正 SSRN/WFCG 的 OCR 列错位/表题缺失，把指标→数据集绑定从 17/24 继续提升；
 3. 用 OpenAI embedding 对比 hash 基线，报告 Recall@K / MRR / 引用精确率；
 4. 多机场景再引入 Redis/RQ，增加取消与预算；

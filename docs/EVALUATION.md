@@ -32,7 +32,7 @@
 | 真实论文抽取证据接受 | **222/230（96.5%）** | 同上 | ✅ 可写“证据过滤” |
 | 真实语义 Recall@K | **未验证** | 未用真实 embedding | ❌ 不能写 |
 | Token / API 成本 | **未完整统计** | 只记录单次 chat usage | ❌ 不能写完整成本 |
-| Docker 构建 | **未验证** | 无 Docker CLI | ❌ 不能写 |
+| Docker 构建/启动 | **本机通过，第二台机器未验证** | Docker 29.9.2；api healthy；worker completed | ⚠️ 可写“本机 Compose 验证”，不能写跨机器 |
 
 ---
 

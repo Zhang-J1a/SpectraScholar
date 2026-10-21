@@ -303,6 +303,6 @@ SQLite 表：
 6. 外部链接不联网核验。
 7. SQLite worker 解决单机可靠队列；跨机器并发仍需 Redis/RQ。
 8. 无 OCR、无病毒扫描、无多租户。
-9. Docker 构建未验证（无 Docker CLI）。
+9. Docker 已在本机完成 build/up/worker 验证；第二台机器仍未验证。
 10. 页面截图未生成（浏览器 IPC 被沙箱阻断）。
 11. DeepSeek 只用于聊天/抽取/问答；没有 embedding API，语义检索仍需其他 provider。
