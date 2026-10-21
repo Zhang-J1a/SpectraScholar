@@ -224,7 +224,7 @@ def main() -> int:
         "max_iterations": settings.gptr_max_iterations,
         "note": (
             "10 个本地合成 PDF 任务，验证真实任务可靠性/状态/耗时/引用审计；"
-            "这不是真实论文质量评测，也不代表 web 检索能力。"
+            "这是本地任务可靠性评测，不是真实论文质量评测；web 任务见 web_research_runs.json。"
         ),
         "documents": ids,
         "summary": summary,
@@ -262,7 +262,7 @@ def main() -> int:
         )
     lines += [
         "",
-        "> 这是合成夹具上的任务可靠性评测。真实网页检索与真实论文质量仍未验证。",
+        "> 这是合成夹具上的任务可靠性评测。真实论文质量仍未验证；web 任务见 web_research_runs.md。",
         "",
     ]
     (docs / "research_runs.md").write_text("\n".join(lines), encoding="utf-8")
