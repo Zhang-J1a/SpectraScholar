@@ -94,6 +94,7 @@ class JobSummary(BaseModel):
 class JobDetails(JobSummary):
     report: str | None = None
     citation_audit: dict | None = None
+    metadata: dict | None = None
 
 
 # ---------------------------------------------------------------------------

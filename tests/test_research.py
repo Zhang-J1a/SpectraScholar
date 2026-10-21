@@ -43,6 +43,8 @@ def test_demo_research_completes_with_explicit_demo_marker(client):
     assert "演示模式" in job["report"]
     assert "不是调研结果" in job["report"]
     assert job["elapsed_ms"] is not None and job["elapsed_ms"] >= 0
+    assert job["metadata"]["backend"] == "demo"
+    assert job["metadata"]["report_path"].endswith(".md")
 
     events = client.get(f"/api/v1/research/{submitted['job_id']}/events").json()
     assert any(event["step"] == "completed" for event in events)

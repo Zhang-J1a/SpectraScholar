@@ -383,6 +383,7 @@ async def run_research_job(job_id: str, req: ResearchRequest, trace_id: str | No
                 "completed",
                 report=final_report,
                 citation_audit=audit.model_dump(mode="json"),
+                metadata=metadata,
             )
             elapsed = int((time.perf_counter() - started) * 1000)
             await emit(

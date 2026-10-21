@@ -86,6 +86,7 @@ def init_store() -> None:
                 error_type TEXT,
                 report TEXT,
                 citation_audit TEXT,
+                metadata TEXT,
                 trace_id TEXT,
                 attempts INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL,
@@ -103,6 +104,7 @@ def init_store() -> None:
                 "is_demo": "INTEGER NOT NULL DEFAULT 1",
                 "error_type": "TEXT",
                 "citation_audit": "TEXT",
+                "metadata": "TEXT",
                 "trace_id": "TEXT",
                 "attempts": "INTEGER NOT NULL DEFAULT 0",
                 "started_at": "TEXT",
@@ -243,6 +245,7 @@ def finish_job(
     error: str | None = None,
     error_type: str | None = None,
     citation_audit: dict | None = None,
+    metadata: dict | None = None,
 ) -> None:
     with connect() as connection:
         row = connection.execute(
@@ -257,13 +260,14 @@ def finish_job(
                 elapsed_ms = None
         connection.execute(
             """UPDATE jobs SET status=?, report=?, error=?, error_type=?, citation_audit=?,
-               finished_at=?, elapsed_ms=? WHERE job_id=?""",
+               metadata=?, finished_at=?, elapsed_ms=? WHERE job_id=?""",
             (
                 status,
                 report,
                 error,
                 error_type,
                 _json_or_none(citation_audit),
+                _json_or_none(metadata),
                 now_iso(),
                 elapsed_ms,
                 job_id,
@@ -299,6 +303,7 @@ def _job_row(row: sqlite3.Row) -> dict:
     data = dict(row)
     data["is_demo"] = bool(data.get("is_demo"))
     data["citation_audit"] = _loads(data.get("citation_audit"))
+    data["metadata"] = _loads(data.get("metadata"))
     return data
 
 

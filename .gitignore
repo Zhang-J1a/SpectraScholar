@@ -38,6 +38,7 @@ workspace/reports/*
 .test-workspace/
 .smoke-workspace*/
 .eval-workspace/
+.evaluation-research-workspace/
 .chrome-profile*/
 .chrome-profile2/
 demo_assets/
