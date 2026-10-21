@@ -44,8 +44,8 @@ SpectraScholar 把这三件事做成了显式契约：
 | PDF 表格结构解析（OA/AA/Kappa 行列） | ✅ 已实现 | pdfplumber + 带线表格夹具；无表格时自动降级 |
 | LLM 结构化抽取 + 逐字证据拒绝 | ✅ 代码 + 真实 DeepSeek 调用 | 夹具 12/12 候选通过逐字核验；幻觉候选仍由单测覆盖 |
 | 真实 LLM 抽取的字段关联 | ⚠️ 部分 | OA/Kappa 可抽取，但数据集/方法关联仍缺失，不能直接排名 |
-| 真实论文抽取评测（3 篇） | ✅ **已完成小样本** | LLM：title/year/venue/method 3/3、datasets 9/9、指标数值 20/24、指标→数据集绑定 **17/24** |
-| 真实论文上的条件化指标 | ⚠️ **部分完成** | 条件 3/8；指标→比例/patch 绑定 8/24；OCR 已真实运行，但仍不能直接排名 |
+| 真实论文抽取评测（3 篇） | ✅ **已完成小样本** | LLM：title/year/venue/method 3/3、datasets 9/9、指标数值 18/24、指标→数据集绑定 **17/24** |
+| 真实论文上的条件化指标 | ⚠️ **部分完成** | 条件 4/8；指标→比例/patch 绑定 6/24；OCR 已真实运行，但仍不能直接排名 |
 | 可靠任务队列 | ✅ 完成（SQLite worker） | 跨进程 queued→completed；`scripts/run_worker.py` |
 | 多论文对比、可比性分组、Markdown 导出 | ✅ 已实现 | OA 条件一致时正确排名；Kappa 单篇不排名 |
 | 引用核验（页码/原文/外部链接/缺引用结论） | ✅ 已实现 | 单测 + 报告自动附加核验节 |
@@ -491,7 +491,7 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 - **引用审计真实结果**：10 个本地任务共 301 条引用标记，页级通过 0 条，本地 PDF 文件链接 255 条（未页级核验），外部链接 46 条，缺引用数值结论 88 条；报告正确标注这些边界，没有把“有链接”当成“已核验”。
 - **真实 Tavily 网页任务**：`scripts/evaluate_web_research.py` 跑 **10/10 completed**，`source=web`、`backend=gptr`、`is_demo=false`；报告均值 20,180 字符，p50 36.9s、p95 42.7s，62 个来源，上游 costs 合计 $1.078。
 - **网页引用审计真实结果**：443 条外部链接均标记为未联网核验，页级通过 0 条，31 条数值结论缺引用。当前沙箱需 `ALLOW_PRIVATE_URLS=true` 放行代理地址，不能把这次结果当成通用网络环境下的生产稳定性结论；完整结果见 [`docs/web_research_runs.md`](docs/web_research_runs.md)。
-- **真实论文抽取（3 篇）**：LLM 的 title/year/venue/主方法 **3/3**、datasets **9/9**、指标数值 **20/24**、实验条件 **3/8**；文本表格 + Tesseract OCR 转置表解析把指标→数据集从 **0/24 提升到 17/24**，条件化绑定 **8/24**。证据接受 221/229（96.5%）。仍不能直接排名。详见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)。
+- **真实论文抽取（3 篇）**：LLM 的 title/year/venue/主方法 **3/3**、datasets **9/9**、指标数值 **18/24**、实验条件 **4/8**；文本表格 + Tesseract OCR 转置表解析把指标→数据集从 **0/24 提升到 17/24**，条件化绑定 **6/24**。证据接受 222/230（96.5%）。仍不能直接排名。详见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)。
 - **V1 结构化对照**：3 篇真实论文生成 46,987 字符报告，82 个 `[[doc:... p.N "quote"]]` 页级引用；`comparable_groups=0` 时不强行排名。见 [`docs/real_paper_comparison.md`](docs/real_paper_comparison.md) 和 [`docs/V1_ACCEPTANCE.md`](docs/V1_ACCEPTANCE.md)。
 - **真实 DeepSeek LLM 抽取**：夹具 12/12 候选通过逐字核验（OA 98.4%、Kappa 0.977）；但数据集/方法关联缺失，仍不可直接排名。
 - **真实 DeepSeek RAG 回答**：返回 3 条 page-only 引用；`grounded=false`，因为回答未提供逐句引用/原文片段，审计保持严格。

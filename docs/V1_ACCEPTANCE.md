@@ -22,7 +22,7 @@
 
 - [真实论文结构化对照](real_paper_comparison.md)：3 篇论文、46,987 字符、82 个 `[[doc:... p.N "quote"]]`、91 个页码引用。
 - [对照摘要](real_paper_comparison.json)：`comparable_groups=0`，说明没有在条件不一致时强行排名。
-- [真实论文抽取评测](real_paper_runs.md)：LLM title/year/venue/method 3/3、datasets 9/9、指标数值 20/24、指标→数据集绑定 **17/24**、条件化绑定 **8/24**。
+- [真实论文抽取评测](real_paper_runs.md)：LLM title/year/venue/method 3/3、datasets 9/9、指标数值 18/24、指标→数据集绑定 **17/24**、条件化绑定 **6/24**。
 - [真实研究任务评测](research_runs.md)：10/10 completed。
 - [真实网页评测](web_research_runs.md)：10/10 completed。
 

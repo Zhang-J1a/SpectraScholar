@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-21T15:28:38+00:00",
+  "generated_at": "2026-10-21T15:34:17+00:00",
   "corpus": "real_papers",
   "papers": [
     "hybridsn",
@@ -129,8 +129,8 @@
             ]
           },
           "evidence": {
-            "evidence_total": 17,
-            "evidence_verified": 17,
+            "evidence_total": 19,
+            "evidence_verified": 19,
             "rejected": 0,
             "missing_fields": 1
           },
@@ -147,7 +147,7 @@
               "Kennedy Space Center"
             ],
             "conditions": 4,
-            "metrics": 5,
+            "metrics": 7,
             "rejections": 0
           }
         },
@@ -195,8 +195,8 @@
             ]
           },
           "evidence": {
-            "evidence_total": 49,
-            "evidence_verified": 49,
+            "evidence_total": 55,
+            "evidence_verified": 55,
             "rejected": 0,
             "missing_fields": 0
           },
@@ -218,7 +218,7 @@
               "WHU-Hi"
             ],
             "conditions": 3,
-            "metrics": 30,
+            "metrics": 36,
             "rejections": 0
           }
         }
@@ -270,8 +270,8 @@
           "accuracy": 0.0
         },
         "evidence_acceptance": {
-          "accepted": 168,
-          "total": 168,
+          "accepted": 176,
+          "total": 176,
           "rate": 1.0
         }
       }
@@ -304,7 +304,7 @@
               3
             ],
             "conditions": [
-              1,
+              2,
               4
             ]
           },
@@ -323,8 +323,8 @@
             ]
           },
           "evidence": {
-            "evidence_total": 95,
-            "evidence_verified": 95,
+            "evidence_total": 118,
+            "evidence_verified": 118,
             "rejected": 1,
             "missing_fields": 2
           },
@@ -334,17 +334,21 @@
             "venue": "IEEE Geoscience and Remote Sensing Letters",
             "methods": [
               "HybridSN",
-              "3D-CNN",
+              "SVM",
               "2D-CNN",
-              "PCA"
+              "3D-CNN",
+              "M3D-CNN",
+              "SSRN",
+              "HybridSN"
             ],
             "datasets": [
               "Indian Pines",
-              "Pavia University",
-              "Salinas Scene"
+              "University of Pavia",
+              "Salinas Scene",
+              "Pavia University"
             ],
-            "conditions": 2,
-            "metrics": 83,
+            "conditions": 6,
+            "metrics": 99,
             "rejections": 1
           }
         },
@@ -379,21 +383,21 @@
           },
           "metrics": {
             "value": [
-              2,
+              0,
               6
             ],
             "dataset_association": [
-              2,
+              0,
               6
             ],
             "conditioned": [
-              2,
+              0,
               6
             ]
           },
           "evidence": {
-            "evidence_total": 30,
-            "evidence_verified": 30,
+            "evidence_total": 34,
+            "evidence_verified": 34,
             "rejected": 4,
             "missing_fields": 2
           },
@@ -405,10 +409,10 @@
               "SSRN",
               "SVM",
               "SAE",
-              "CNN",
-              "CNNL",
+              "3-D CNN",
+              "SPC",
               "SPA",
-              "SPC"
+              "CNNL"
             ],
             "datasets": [
               "Indian Pines",
@@ -416,7 +420,7 @@
               "University of Pavia"
             ],
             "conditions": 3,
-            "metrics": 14,
+            "metrics": 18,
             "rejections": 4
           }
         },
@@ -455,7 +459,7 @@
               6
             ],
             "dataset_association": [
-              3,
+              5,
               6
             ],
             "conditioned": [
@@ -464,8 +468,8 @@
             ]
           },
           "evidence": {
-            "evidence_total": 96,
-            "evidence_verified": 96,
+            "evidence_total": 70,
+            "evidence_verified": 70,
             "rejected": 3,
             "missing_fields": 1
           },
@@ -493,7 +497,7 @@
               "Pavia University"
             ],
             "conditions": 2,
-            "metrics": 76,
+            "metrics": 50,
             "rejections": 3
           }
         }
@@ -525,14 +529,14 @@
           "accuracy": 1.0
         },
         "fields.conditions": {
-          "hit": 3,
+          "hit": 4,
           "total": 8,
-          "accuracy": 0.375
+          "accuracy": 0.5
         },
         "metrics.value": {
-          "hit": 20,
+          "hit": 18,
           "total": 24,
-          "accuracy": 0.8333
+          "accuracy": 0.75
         },
         "metrics.dataset_association": {
           "hit": 17,
@@ -540,14 +544,14 @@
           "accuracy": 0.7083
         },
         "metrics.conditioned": {
-          "hit": 8,
+          "hit": 6,
           "total": 24,
-          "accuracy": 0.3333
+          "accuracy": 0.25
         },
         "evidence_acceptance": {
-          "accepted": 221,
-          "total": 229,
-          "rate": 0.9651
+          "accepted": 222,
+          "total": 230,
+          "rate": 0.9652
         }
       }
     }
