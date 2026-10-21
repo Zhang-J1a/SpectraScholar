@@ -1,6 +1,7 @@
 """Extraction service: choose an extractor and load the PDF exactly once."""
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 from ..evidence import read_pdf_pages
@@ -8,6 +9,7 @@ from ..schemas import PaperExtraction
 from ..settings import settings
 from .heuristic import extract_heuristic
 from .llm import LLMExtractionError, extract_llm
+from .ocr import augment_pages_with_ocr
 from .tables import merge_table_result, parse_pdf_tables, parse_text_metric_rows
 
 
@@ -37,6 +39,10 @@ async def extract_pages(
     *,
     pdf_path: Path | None = None,
 ) -> PaperExtraction:
+    ocr_notes: list[str] = []
+    if pdf_path is not None and settings.ocr_enabled:
+        pages, ocr_notes = await asyncio.to_thread(augment_pages_with_ocr, pages, pdf_path)
+
     resolved = resolve_mode(mode)
     if resolved == "heuristic":
         paper = extract_heuristic(document_id, filename, pages)
@@ -62,6 +68,8 @@ async def extract_pages(
             paper = merge_table_result(paper, text_rows)
         except Exception as exc:
             paper.notes.append(f"文本表格行解析失败（已忽略）: {type(exc).__name__}: {exc}")
+    if ocr_notes:
+        paper = paper.model_copy(update={"notes": [*paper.notes, *ocr_notes]})
     return paper
 
 

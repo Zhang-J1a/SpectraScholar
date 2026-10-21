@@ -25,6 +25,8 @@ sys.path.insert(0, str(ROOT))
 os.environ["WORKSPACE_DIR"] = str(WORKSPACE)
 os.environ["EXTRACTOR_BACKEND"] = "llm"
 os.environ["TABLE_EXTRACTION_ENABLED"] = "1"
+if "--ocr" in sys.argv:
+    os.environ["OCR_ENABLED"] = "1"
 os.environ.pop("SPECTRASCHOLAR_SKIP_DOTENV", None)
 
 from spectrascholar.extraction.service import evidence_counts, extract_document  # noqa: E402

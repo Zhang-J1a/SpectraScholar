@@ -12,10 +12,17 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt requirements-live.txt ./
+COPY requirements.txt requirements-live.txt requirements-ocr.txt ./
 ARG INSTALL_GPT_RESEARCHER=0
+ARG INSTALL_OCR=0
 RUN pip install --no-cache-dir -r requirements.txt \
-    && if [ "$INSTALL_GPT_RESEARCHER" = "1" ]; then pip install --no-cache-dir -r requirements-live.txt; fi
+    && if [ "$INSTALL_GPT_RESEARCHER" = "1" ]; then pip install --no-cache-dir -r requirements-live.txt; fi \
+    && if [ "$INSTALL_OCR" = "1" ]; then \
+         apt-get update \
+         && apt-get install -y --no-install-recommends tesseract-ocr \
+         && rm -rf /var/lib/apt/lists/* \
+         && pip install --no-cache-dir -r requirements-ocr.txt; \
+       fi
 
 COPY spectrascholar ./spectrascholar
 COPY scripts ./scripts

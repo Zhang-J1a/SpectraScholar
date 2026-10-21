@@ -4,6 +4,7 @@ services:
       context: .
       args:
         INSTALL_GPT_RESEARCHER: ${INSTALL_GPT_RESEARCHER:-0}
+        INSTALL_OCR: ${INSTALL_OCR:-0}
     ports:
       - "8000:8000"
     env_file:
@@ -28,6 +29,7 @@ services:
       context: .
       args:
         INSTALL_GPT_RESEARCHER: ${INSTALL_GPT_RESEARCHER:-0}
+        INSTALL_OCR: ${INSTALL_OCR:-0}
     command: ["python", "scripts/run_worker.py"]
     env_file:
       - .env

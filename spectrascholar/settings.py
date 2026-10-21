@@ -104,6 +104,14 @@ class Settings:
     extraction_max_candidates: int = _env_int("EXTRACTION_MAX_CANDIDATES", 40, 5)
     table_extraction_enabled: bool = _env_bool("TABLE_EXTRACTION_ENABLED", True)
 
+    # -- optional OCR for image-only result tables (4 GB friendly) ----------
+    ocr_enabled: bool = _env_bool("OCR_ENABLED", False)
+    ocr_dpi: int = _env_int("OCR_DPI", 200, 100)
+    ocr_max_pages: int = _env_int("OCR_MAX_PAGES", 4, 1)
+    ocr_lang: str = os.getenv("OCR_LANG", "eng").strip() or "eng"
+    ocr_psm: int = _env_int("OCR_PSM", 6, 3)
+    tesseract_cmd: str = os.getenv("TESSERACT_CMD", "").strip()
+
     # -- uploads / PDF -------------------------------------------------------
     max_upload_mb: int = _env_int("MAX_UPLOAD_MB", 20, 1)
     max_pdf_pages: int = _env_int("MAX_PDF_PAGES", 30, 1)
