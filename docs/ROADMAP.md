@@ -13,8 +13,9 @@
 | P1-C | 可信引用校验 | ✅ 完成并有测试 |
 | P2 | 混合 RAG（BM25+向量+RRF） | ✅ 代码 + 合成夹具评测；⚠️ 语义质量未验证 |
 | P3 | 工作流 + 工程化 + Web | ✅ 完成；⚠️ Docker/浏览器截图未验证 |
-| V2 真实评测 | 10 个真实任务、真实论文字段/Recall/成本 | ⏳ 待联网/Key/合法 PDF |
-| 生产化 | 队列、多租户、pgvector、审计 | ⏳ 未开始 |
+| V2.1 Tool Calling | arXiv 搜索工具：年份/主题过滤、DOI 去重、分页、重试 | ✅ 端点 + 真实调用；⚠️ 尚未接入自主循环 |
+| V2 真实评测 | 10 个真实任务、真实论文字段/Recall/成本 | ⚠️ 部分：10 本地 + 10 网页 + 3 篇论文；尚无 30–50 题集 |
+| 生产化 | 队列、多租户、pgvector、审计 | ⚠️ SQLite worker 完成；多租户/pgvector 未开始 |
 
 ## P0 验收
 
@@ -24,8 +25,8 @@
 - [x] 空上下文/空报告失败
 - [x] Demo 与真实模式隔离
 - [x] Mock 集成：成功、空报告、缺 Key、超时重试、local 配置
-- [ ] 真实 GPT Researcher 端到端（需要 Key + 网络）
-- [ ] 真实任务 10 例成功率记录
+- [x] 真实 GPT Researcher 本地 PDF 10/10；Tavily 网页 10/10
+- [x] 真实任务 10 例成功率、延迟、成本记录
 
 ## P1-A 验收
 
@@ -88,7 +89,7 @@
 - [x] 幂等键
 - [x] 统一错误/Trace/限流/安全头
 - [x] 可选 API Key
-- [x] 76 tests / 86% coverage / ruff
+- [x] 81 tests / 86% coverage / ruff
 - [x] Dockerfile + compose + healthcheck（静态检查）
 - [ ] Docker 构建与另一台机器部署
 - [ ] Redis/RQ 队列与取消

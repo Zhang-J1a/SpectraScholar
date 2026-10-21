@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 76 个）。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 81 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -348,7 +348,7 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 
 ```text
 .............................................................            [100%]
-76 passed, 1 warning in 12.29s
+81 passed, 1 warning in 14.24s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  3778 statements  534 missed  86%
+TOTAL  3939 statements  552 missed  86%
 ```
 
 ### 8.4 合成夹具评测
@@ -522,8 +522,8 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 ### 10.6 本轮真实结果
 
 ```text
-pytest -q                         → 76 passed
-pytest --cov                      → 86% (3778 / 534)
+pytest -q                         → 81 passed
+pytest --cov                      → 86% (3939 / 552)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -635,18 +635,38 @@ Workflow                          → 7/7
 - 真实 embedding 的 ablation；
 - Docker Compose 真实构建与第二台机器验证。
 
+### 10.12 V2.1：arXiv Tool Calling
+
+新增：
+
+- `spectrascholar/tools/arxiv_search.py`：关键词转 `all:`、年份 `submittedDate`、主题拆词、DOI/arXiv ID 去重、分页、重试；
+- `spectrascholar/api/tools.py`：`GET /api/v1/tools/arxiv_search`，`asyncio.to_thread` + 硬超时；
+- 5 个离线测试，假客户端覆盖查询构造、DOI 去重、空结果、端点、缺依赖。
+
+真实调用（2026-10-21）：
+
+```text
+query=hyperspectral graph neural network
+year=2020–2026
+task_topic=hyperspectral classification
+returned=3 attempts=1 duplicates=0
+```
+
+返回 3 篇相关论文（含 2024/2025/2026）。这是**工具端点**，尚未接入 7 节点工作流的自主工具选择。
+
 ---
 
 ## 11. 下一步
 
 1. 继续修正 SSRN/WFCG 的 OCR 列错位/表题缺失；目标把指标→数据集绑定从 17/24 继续提升。
-2. 在 3 篇真实论文上做检索/RAG 评测（Recall@K、引用有效性、回答 grounded）。
-3. 在有 Docker 的机器上执行 `docker compose up --build`，完成 V1.6。
-4. OpenAI embedding 对照 hash，做真实 ablation。
-4. 多级表头/跨页表/OCR。
-5. Redis/RQ 队列与取消/预算。
-6. 多用户与 PostgreSQL/pgvector。
-7. 生成真实界面截图与 3 分钟演示视频。
+2. 将 arXiv 工具接入工作流规划节点，形成真正的 tool-calling 循环。
+3. 在 3 篇真实论文上做检索/RAG 评测（Recall@K、引用有效性、回答 grounded）。
+4. 在有 Docker 的机器上执行 `docker compose up --build`，完成 V1.6。
+5. OpenAI embedding 对照 hash，做真实 ablation。
+6. 多级表头/跨页表/OCR。
+7. Redis/RQ 队列与取消/预算。
+8. 多用户与 PostgreSQL/pgvector。
+9. 生成真实界面截图与 3 分钟演示视频。
 
 ---
 

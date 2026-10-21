@@ -35,7 +35,7 @@ SpectraScholar 把这三件事做成了显式契约：
 
 | 能力 | 状态 | 证据 |
 |---|---|---|
-| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 76 个 pytest |
+| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 81 个 pytest |
 | Demo 调研任务（不调用搜索/LLM） | ✅ 已实现 | 报告中明确“不是调研结果” |
 | GPT Researcher Adapter | ✅ 代码完成，API 签名按 **0.16.1** 源码核对 | Mock 集成测试 + 真实本地任务 |
 | GPT Researcher 真实本地 PDF 调研（DeepSeek） | ✅ **10/10 真实任务完成** | `backend=gptr`、`is_demo=false`、报告均值 14.7k 字符、p50 24.0s / p95 33.5s、上游 costs 合计 $0.663 |
@@ -47,6 +47,7 @@ SpectraScholar 把这三件事做成了显式契约：
 | 真实论文抽取评测（3 篇） | ✅ **已完成小样本** | LLM：title/year/venue/method 3/3、datasets 9/9、指标数值 18/24、指标→数据集绑定 **17/24** |
 | 真实论文上的条件化指标 | ⚠️ **部分完成** | 条件 4/8；指标→比例/patch 绑定 6/24；OCR 已真实运行，但仍不能直接排名 |
 | 可靠任务队列 | ✅ 完成（SQLite worker） | 跨进程 queued→completed；`scripts/run_worker.py` |
+| Tool Calling（arXiv） | ✅ 端点 + 真实调用 | 年份/主题过滤、DOI 去重、分页、重试、超时；见 [`docs/TOOLS.md`](docs/TOOLS.md) |
 | 多论文对比、可比性分组、Markdown 导出 | ✅ 已实现 | OA 条件一致时正确排名；Kappa 单篇不排名 |
 | 引用核验（页码/原文/外部链接/缺引用结论） | ✅ 已实现 | 单测 + 报告自动附加核验节 |
 | 混合 RAG（BM25 + 向量 + RRF + 词法重排） | ✅ 已实现 | 合成夹具 Recall@1/3 = 1.0（仅流水线验证） |
@@ -414,6 +415,7 @@ docker compose build
 | GET | `/api/v1/research/{id}/events` | 执行日志 |
 | GET | `/api/v1/research/{id}.md` | 下载报告 |
 | POST | `/api/v1/research/{id}/retry` | 重试失败任务 |
+| GET | `/api/v1/tools/arxiv_search` | arXiv 工具：年份/主题过滤、DOI 去重、分页 |
 | POST | `/api/v1/documents` | 上传 PDF |
 | GET | `/api/v1/documents` | 文献列表 |
 | GET | `/api/v1/documents/{id}/pages/{n}` | 查看页文本 |
@@ -476,9 +478,9 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 
 实际结果：
 
-- **76 passed**（pytest）
+- **81 passed**（pytest）
 - **ruff：All checks passed**
-- **coverage：86%**（3778 statements，534 missed）
+- **coverage：86%**（3939 statements，552 missed）
 - 三份合成夹具（两篇正文 + 一张带线 OA/AA/Kappa 表格）：
   - 抽取字段命中 **20/20**
   - 原文证据接受 **23/23**
@@ -530,7 +532,7 @@ SpectraScholar-Starter/
 │   ├── workflow.py             # 7 节点本地文献工作流
 │   └── domains.py              # 可替换领域模板
 ├── web/index.html              # 单页中文 Web UI（无构建步骤）
-├── tests/                      # 76 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
+├── tests/                      # 81 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
 ├── scripts/                    # 评测、GPT Researcher API 检查/真实冒烟
 ├── eval/                       # 3 篇真实论文标注 + 清单（PDF 未提交）
 ├── docs/                       # 架构、开发日志、评测、面试、贡献说明
@@ -596,6 +598,7 @@ SpectraScholar-Starter/
 - [系统架构与设计权衡](docs/ARCHITECTURE.md)
 - [评测方法与真实结果](docs/EVALUATION.md)
 - [V1 验收记录与阻塞项](docs/V1_ACCEPTANCE.md)
+- [Tool Calling：arXiv 搜索](docs/TOOLS.md)
 - [3 篇真实论文结构化对照样例](docs/real_paper_comparison.md)
 - [个人贡献边界](docs/PERSONAL_CONTRIBUTION.md)
 - [面试讲解与 3～5 个学习点](docs/INTERVIEW_GUIDE.md)

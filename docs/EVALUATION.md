@@ -7,8 +7,8 @@
 
 | 指标 | 结果 | 数据来源 | 能否用于简历 |
 |---|---|---|---|
-| 自动化测试 | **76 passed** | `pytest -q` | ✅ 可以 |
-| 代码覆盖率 | **86%**（3778 stmts / 534 miss） | `pytest --cov` | ✅ 可以 |
+| 自动化测试 | **81 passed** | `pytest -q` | ✅ 可以 |
+| 代码覆盖率 | **86%**（3939 stmts / 552 miss） | `pytest --cov` | ✅ 可以 |
 | Lint | **All checks passed** | `ruff check` | ✅ 可以 |
 | 合成夹具抽取字段命中 | **20/20** | `scripts/evaluate_pipeline.py` | ✅ 可写“合成夹具” |
 | 合成夹具原文证据接受 | **23/23** | 同上 | ✅ 可写“合成夹具” |
@@ -23,6 +23,7 @@
 | 真实 GPT Researcher 网页检索任务 | **10/10 completed** | Tavily + DeepSeek；均值 20,180 字符、p50 36.9s / p95 42.7s、62 sources、$1.078 | ✅ 可写“10 次 web 任务完成”；⚠️ 代理放行，外部链接未核验 |
 | 真实 DeepSeek LLM 抽取（夹具） | **12/12 候选通过逐字核验** | 2026-10-20 真实调用 | ✅ 可写“夹具、非真实论文” |
 | 真实 DeepSeek RAG 回答（夹具） | **3 条 page-only 引用；grounded=false** | 同上 | ✅ 可写“回答可用但未达逐句引用” |
+| arXiv Tool Calling | **真实调用返回 3 条** | 2026-10-21；年份/主题过滤、DOI 去重、分页 | ✅ 可写“工具端点 + 真实调用”；⚠️ 未接入自主循环 |
 | 真实论文元数据/方法/数据集（LLM） | **title/year/venue/method 3/3；datasets 9/9** | 3 篇真实 PDF，人工标注 | ✅ 可写“3 篇小样本” |
 | 真实论文实验条件（LLM） | **4/8** | 同上 | ⚠️ 条件绑定部分完成 |
 | 真实论文指标数值（LLM） | **18/24** | 同上 | ⚠️ 只测数值命中 |
@@ -102,7 +103,7 @@ spectrascholar\settings.py                 120      6    95%
 spectrascholar\store.py                    222     22    90%
 spectrascholar\workflow.py                 214     36    83%
 ------------------------------------------------------------
-TOTAL                                     3778    534    86%
+TOTAL                                     3939    552    86%
 ```
 
 未覆盖部分主要是：真实 provider 客户端、PDF 加密/损坏、部分索引持久化分支、表格解析的异常分支。

@@ -1,7 +1,7 @@
 # 个人贡献说明
 
 > 目的：在简历、GitHub 和面试中准确区分 **GPT Researcher 上游能力** 与 **本人新增实现**。
-> 统计口径：`spectrascholar/` 下 Python 源文件共 6,504 行（含注释/空行，2026-10-21）；测试 1,601 行；脚本 1,388 行；Web 897 行。
+> 统计口径：`spectrascholar/` 下 Python 源文件共 6,787 行（含注释/空行，2026-10-21）；测试 1,723 行；脚本 1,388 行；Web 897 行。
 
 ## 1. 上游：GPT Researcher（Apache-2.0）
 
@@ -31,6 +31,8 @@
 | `spectrascholar/settings.py` | 统一配置、模型/超时/RAG/工作流参数 |
 | `spectrascholar/logging_utils.py` | Trace ID、JSON/文本日志 |
 | `spectrascholar/llm_config.py` | OpenAI/DeepSeek 聊天凭据解析；OpenAI 优先 |
+| `spectrascholar/tools/arxiv_search.py` | arXiv Tool：年份/主题过滤、DOI 去重、分页、重试 |
+| `spectrascholar/api/tools.py` | `GET /api/v1/tools/arxiv_search`，to_thread + 超时 |
 
 ### 2.2 结构化抽取与证据
 
@@ -74,7 +76,7 @@
 | `spectrascholar/api/documents.py`（141 行） | 上传安全、去重、页查看、删除联动索引 |
 | `spectrascholar/api/system.py` | health、config、单条证据核验 |
 | `web/index.html`（897 行） | 中文单页 UI、轮询、Markdown、引用跳转、工作流 |
-| `tests/`（1,601 行） | 76 个测试、PDF/表格工厂、Mock GPT Researcher/LLM、队列、OCR 降级 |
+| `tests/`（1,723 行） | 81 个测试、PDF/表格工厂、Mock GPT Researcher/LLM、队列、OCR 降级、arXiv 工具 |
 | `scripts/`（1,388 行） | 合成夹具评测、10 任务本地/网页真实研究评测、3 篇真实论文评测、真实对照报告、队列 worker、BM25/向量/混合消融、GPT Researcher 检查/真实冒烟 |
 | `Dockerfile` / `compose.yaml` / `.env.example` | 部署与配置（Docker 构建未验证） |
 
@@ -87,7 +89,7 @@
 
 ## 4. 可验证的个人成果
 
-- 76 个 pytest 通过，覆盖率 86%；
+- 81 个 pytest 通过，覆盖率 86%；
 - `ruff` 全绿；
 - 真实 Uvicorn HTTP 冒烟：上传→研究→对比→索引→问答→工作流→下载均成功；
 - 合成夹具：字段 20/20、证据 23/23、引用 4/4、工作流 7/7；
