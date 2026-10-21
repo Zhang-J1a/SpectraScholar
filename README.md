@@ -44,12 +44,13 @@ SpectraScholar 把这三件事做成了显式契约：
 | PDF 表格结构解析（OA/AA/Kappa 行列） | ✅ 已实现 | pdfplumber + 带线表格夹具；无表格时自动降级 |
 | LLM 结构化抽取 + 逐字证据拒绝 | ✅ 代码 + 真实 DeepSeek 调用 | 夹具 12/12 候选通过逐字核验；幻觉候选仍由单测覆盖 |
 | 真实 LLM 抽取的字段关联 | ⚠️ 部分 | OA/Kappa 可抽取，但数据集/方法关联仍缺失，不能直接排名 |
-| 真实论文上的抽取/检索效果 | ⚠️ **未验证** | 只有合成夹具；真实 PDF 未下载 |
+| 真实论文抽取评测（3 篇） | ✅ **已完成小样本** | LLM：title/year/venue/method 3/3、datasets 9/9、指标数值 13/24、指标→数据集绑定 **0/24** |
+| 真实论文上的条件化指标 | ⚠️ **部分失败** | 条件 4/8；指标→比例/patch 绑定 0/24，不能直接排名 |
 | 多论文对比、可比性分组、Markdown 导出 | ✅ 已实现 | OA 条件一致时正确排名；Kappa 单篇不排名 |
 | 引用核验（页码/原文/外部链接/缺引用结论） | ✅ 已实现 | 单测 + 报告自动附加核验节 |
 | 混合 RAG（BM25 + 向量 + RRF + 词法重排） | ✅ 已实现 | 合成夹具 Recall@1/3 = 1.0（仅流水线验证） |
 | hash 嵌入的语义质量 | ❌ **不能宣称** | hash 是词法哈希，不是语义模型；需切换 OpenAI embedding 后重测 |
-| 真实论文测试集（HybridSN/SSRN/GNN） | ⚠️ 清单已建，PDF 未下载 | 见 `eval/papers.manifest.json`；不伪造真实指标 |
+| 真实论文测试集（HybridSN/SSRN/WFCG） | ✅ 3 篇本地 PDF 已评测 | 见 `eval/real_papers.labels.json`；GCN-HSI 仍未下载 |
 | Docker 镜像构建 | ⚠️ **未验证** | 当前机器没有 Docker CLI |
 | 网页视觉截图 | ⚠️ 未生成 | Chrome 被 Windows 沙箱阻断（命名管道权限） |
 
@@ -428,6 +429,7 @@ ruff check spectrascholar tests scripts
 python scripts/evaluate_pipeline.py
 python scripts/evaluate_research.py   # 需要 .env 中的真实聊天 Key；只跑本地 PDF
 python scripts/evaluate_web_research.py --limit 10 --allow-private  # 真实 web；代理环境才加 --allow-private
+python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 ```
 
 实际结果：
@@ -447,10 +449,11 @@ python scripts/evaluate_web_research.py --limit 10 --allow-private  # 真实 web
 - **引用审计真实结果**：10 个本地任务共 301 条引用标记，页级通过 0 条，本地 PDF 文件链接 255 条（未页级核验），外部链接 46 条，缺引用数值结论 88 条；报告正确标注这些边界，没有把“有链接”当成“已核验”。
 - **真实 Tavily 网页任务**：`scripts/evaluate_web_research.py` 跑 **10/10 completed**，`source=web`、`backend=gptr`、`is_demo=false`；报告均值 20,180 字符，p50 36.9s、p95 42.7s，62 个来源，上游 costs 合计 $1.078。
 - **网页引用审计真实结果**：443 条外部链接均标记为未联网核验，页级通过 0 条，31 条数值结论缺引用。当前沙箱需 `ALLOW_PRIVATE_URLS=true` 放行代理地址，不能把这次结果当成通用网络环境下的生产稳定性结论；完整结果见 [`docs/web_research_runs.md`](docs/web_research_runs.md)。
+- **真实论文抽取（3 篇）**：LLM 的 title/year/venue/主方法 **3/3**、datasets **9/9**、指标数值 **13/24**、实验条件 **4/8**；但指标→数据集绑定 **0/24**，指标→比例/patch 绑定 **0/24**。证据接受 70/75（93.3%）。这说明“能抽出数值”不等于“能正确绑定实验条件”，当前不能做真实论文排名。详见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)。
 - **真实 DeepSeek LLM 抽取**：夹具 12/12 候选通过逐字核验（OA 98.4%、Kappa 0.977）；但数据集/方法关联缺失，仍不可直接排名。
 - **真实 DeepSeek RAG 回答**：返回 3 条 page-only 引用；`grounded=false`，因为回答未提供逐句引用/原文片段，审计保持严格。
 
-> ⚠️ 上述检索/抽取分数来自**合成夹具 + hash 词法嵌入**，只证明流水线连通，不代表真实论文或语义检索质量。三种检索模式在 hash 词法嵌入下并列 1.0，**不能**据此宣称混合检索提升了语义效果；需要真实 embedding 与真实论文重测。真实论文集见 [`eval/README.md`](eval/README.md)，因外网阻断尚未下载。完整方法与限制见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。
+> ⚠️ 上述检索/抽取分数来自**合成夹具 + hash 词法嵌入**，只证明流水线连通，不代表真实论文或语义检索质量。三种检索模式在 hash 词法嵌入下并列 1.0，**不能**据此宣称混合检索提升了语义效果；需要真实 embedding 与真实论文重测。真实论文抽取结果见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)，真实检索/RAG 仍未评测；完整方法与限制见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。
 
 测试覆盖的关键失败路径：
 
@@ -484,7 +487,7 @@ SpectraScholar-Starter/
 ├── web/index.html              # 单页中文 Web UI（无构建步骤）
 ├── tests/                      # 68 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
 ├── scripts/                    # 评测、GPT Researcher API 检查/真实冒烟
-├── eval/                       # 真实论文清单与标注模板（PDF 未提交）
+├── eval/                       # 3 篇真实论文标注 + 清单（PDF 未提交）
 ├── docs/                       # 架构、开发日志、评测、面试、贡献说明
 ├── workspace/                  # 上传 PDF、报告、SQLite、索引（Git 忽略）
 ├── Dockerfile / compose.yaml

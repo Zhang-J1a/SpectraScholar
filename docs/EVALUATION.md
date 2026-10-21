@@ -23,7 +23,12 @@
 | 真实 GPT Researcher 网页检索任务 | **10/10 completed** | Tavily + DeepSeek；均值 20,180 字符、p50 36.9s / p95 42.7s、62 sources、$1.078 | ✅ 可写“10 次 web 任务完成”；⚠️ 代理放行，外部链接未核验 |
 | 真实 DeepSeek LLM 抽取（夹具） | **12/12 候选通过逐字核验** | 2026-10-20 真实调用 | ✅ 可写“夹具、非真实论文” |
 | 真实 DeepSeek RAG 回答（夹具） | **3 条 page-only 引用；grounded=false** | 同上 | ✅ 可写“回答可用但未达逐句引用” |
-| 真实论文字段正确率 | **未验证** | PDF 未下载 | ❌ 不能写 |
+| 真实论文元数据/方法/数据集（LLM） | **title/year/venue/method 3/3；datasets 9/9** | 3 篇真实 PDF，人工标注 | ✅ 可写“3 篇小样本” |
+| 真实论文实验条件（LLM） | **4/8** | 同上 | ⚠️ 条件绑定不稳定 |
+| 真实论文指标数值（LLM） | **13/24** | 同上 | ⚠️ 只测数值命中 |
+| 真实论文指标→数据集绑定 | **0/24** | 同上 | ❌ 不能写“可直接排名” |
+| 真实论文指标→比例/patch 绑定 | **0/24** | 同上 | ❌ 不能写“条件化对比” |
+| 真实论文抽取证据接受 | **70/75（93.3%）** | 同上 | ✅ 可写“证据过滤” |
 | 真实语义 Recall@K | **未验证** | 未用真实 embedding | ❌ 不能写 |
 | Token / API 成本 | **未完整统计** | 只记录单次 chat usage | ❌ 不能写完整成本 |
 | Docker 构建 | **未验证** | 无 Docker CLI | ❌ 不能写 |
@@ -312,29 +317,51 @@ uvicorn spectrascholar.main:app --port 8015
 
 ---
 
-## 6. 真实论文评测计划（未执行）
+## 6. 真实论文抽取评测（已执行，3 篇小样本）
 
-清单：[`../eval/papers.manifest.json`](../eval/papers.manifest.json)
+PDF：HybridSN（2019）、SSRN（2018）、WFCG（2022）。工作区另有 2 份中文精读笔记，**不计入准确率分母**。
 
-- HybridSN：DOI 10.1109/LGRS.2019.2918719
-- SSRN：DOI 10.1109/TGRS.2017.2755542
-- GCN-HSI：DOI 10.1109/TGRS.2020.3015157 / arXiv 2008.02457
+标注文件：[`../eval/real_papers.labels.json`](../eval/real_papers.labels.json)。共 24 条指标（OA/AA/Kappa × 2 数据集 × 3 篇）、8 个实验条件、9 个数据集字段。
 
-执行条件：
+### 6.1 结果
 
-1. 通过机构订阅或开放获取合法下载 PDF；
-2. 两人独立标注 10～20 个字段，分歧由第三人裁决；
-3. 记录：
-   - 字段 Precision/Recall/F1；
-   - 表格/正文指标来源准确率；
-   - 引用有效率（verified / total）；
-   - Recall@1/3/5、MRR；
-   - 单任务耗时、失败率；
-   - 真实 API token 与费用；
-4. 分别运行 heuristic、LLM、hash、OpenAI embedding 的 ablation；
-5. 把失败案例写入 `docs/DEVELOPMENT_LOG.md`，不要只报平均值。
+| 指标 | heuristic | LLM（DeepSeek） |
+|---|---|---|
+| title | 0/3 | **3/3** |
+| year | 3/3 | **3/3** |
+| venue | 2/3 | **3/3** |
+| 主方法 | 2/3 | **3/3** |
+| 数据集 | 8/9 | **9/9** |
+| 实验条件（dataset + ratio + patch） | 0/8 | **4/8** |
+| 指标数值命中 | 0/24 | **13/24** |
+| 指标→数据集绑定 | 0/24 | **0/24** |
+| 指标→比例/patch 绑定 | 0/24 | **0/24** |
+| 证据接受/（接受+拒绝） | 43/43 | **70/75（93.3%）** |
 
-在完成前，README 和简历中只能写“合成夹具验证”，不能写真实论文准确率。
+### 6.2 关键发现
+
+- **LLM 的元数据/方法/数据集识别很好**：title/year/venue/主方法 3/3，数据集 9/9。
+- **heuristic 几乎不能处理真实论文表格**：title 0/3，条件 0/8，指标 0/24；它只会抽取正文里少量候选。
+- **LLM 能读出部分表格数值**：13/24，主要来自 HybridSN 的表格；但 `dataset`/`method` 字段为空。
+- **指标→数据集绑定为 0/24**：这是最关键的缺陷。当前 LLM 输出“OA=99.19”时没有把它绑定到 Indian Pines，因此无法做严格可比性排名。
+- **条件绑定只有 4/8**：HybridSN 4 条中实际命中 2 条，SSRN 1/2，WFCG 1/2；LLM 输出存在运行间波动。
+- **证据接受率高不等于语义正确**：70/75 说明引文确实出现在 PDF 文本中，但不证明引文支持该数值或实验条件。
+- 这些 PDF 的表格不是带线表格，`pdfplumber` 结构解析无法稳定恢复行列；当前结果主要来自 LLM 正文理解。
+
+### 6.3 结论与限制
+
+- 可以写：**3 篇真实论文上，LLM 的元数据/方法/数据集抽取 3/3、9/9；指标数值 13/24。**
+- 不能写：**真实论文指标可直接排名**，因为指标→数据集绑定是 0/24。
+- 不能写：**真实论文抽取准确率 90%+**；小样本、单次运行、3 篇论文，不足以支撑。
+- 下一步应优先做“指标行绑定”（dataset/method/train_ratio/patch_size 必填 + 表格结构/页内上下文），而不是继续增加论文数量。
+
+结果文件：[`real_paper_runs.json`](real_paper_runs.json)、[`real_paper_runs.md`](real_paper_runs.md)。
+
+复现：
+
+```powershell
+python scripts\evaluate_real_papers.py
+```
 
 ---
 

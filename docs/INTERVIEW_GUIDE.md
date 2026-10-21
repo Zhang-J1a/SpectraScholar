@@ -4,7 +4,7 @@
 
 ## 1. 30 秒项目介绍
 
-> SpectraScholar 是一个科研文献调研 Agent。通用网页搜索、抓取和报告生成使用 Apache-2.0 的 GPT Researcher；我负责的是科研业务层：把论文抽取结果绑定到 PDF 页码和原文片段，做多论文实验条件比较，只有条件一致才允许排名；再实现带页级引用的混合 RAG 和可观测的本地工作流。项目有 FastAPI 后端、中文 Web UI、SQLite 状态、Docker 配置和 68 个离线测试。真实 GPT Researcher 已在本地 PDF 模式 + DeepSeek 下完成 **10/10** 任务（`backend=gptr`、`is_demo=false`，p50 24.0s / p95 33.5s）；真实网页检索完成 **10/10**（Tavily，均值 20.2k 字符、62 个来源，当前代理环境需临时放行）。
+> SpectraScholar 是一个科研文献调研 Agent。通用网页搜索、抓取和报告生成使用 Apache-2.0 的 GPT Researcher；我负责的是科研业务层：把论文抽取结果绑定到 PDF 页码和原文片段，做多论文实验条件比较，只有条件一致才允许排名；再实现带页级引用的混合 RAG 和可观测的本地工作流。项目有 FastAPI 后端、中文 Web UI、SQLite 状态、Docker 配置和 68 个离线测试。真实 GPT Researcher 已在本地 PDF 模式 + DeepSeek 下完成 **10/10** 任务（`backend=gptr`、`is_demo=false`，p50 24.0s / p95 33.5s）；真实网页检索完成 **10/10**（Tavily，均值 20.2k 字符、62 个来源，当前代理环境需临时放行）；3 篇真实论文抽取中 LLM 元数据/方法/数据集 3/3、9/9，但指标→数据集绑定 **0/24**。
 
 ## 2. 2 分钟架构讲解
 
