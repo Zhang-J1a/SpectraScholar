@@ -40,6 +40,7 @@ workspace/reports/*
 .eval-workspace/
 .evaluation-research-workspace/
 .evaluation-web-workspace/
+.evaluation-real-papers/
 .chrome-profile*/
 .chrome-profile2/
 demo_assets/

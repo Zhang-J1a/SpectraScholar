@@ -1,0 +1,551 @@
+{
+  "generated_at": "2026-10-21T14:33:45+00:00",
+  "corpus": "real_papers",
+  "papers": [
+    "hybridsn",
+    "ssrn",
+    "cnn_gat"
+  ],
+  "excluded": [
+    "c009fcebc686498bb0609d970647e316.pdf (Chinese HyperAE reading notes)",
+    "d60d17dea771411ca265badcc5ebc3f2.pdf (Chinese F2HNN reading notes)"
+  ],
+  "labels": "eval\\real_papers.labels.json",
+  "modes": {
+    "heuristic": {
+      "mode": "heuristic",
+      "papers": [
+        {
+          "id": "hybridsn",
+          "filename": "HybridSN Exploring 3-D–2-D CNN Feature Hierarchy for Hyperspectral Image Classification.pdf",
+          "fields": {
+            "title": [
+              0,
+              1
+            ],
+            "year": [
+              1,
+              1
+            ],
+            "venue": [
+              0,
+              1
+            ],
+            "primary_method": [
+              1,
+              1
+            ],
+            "datasets": [
+              3,
+              3
+            ],
+            "conditions": [
+              0,
+              4
+            ]
+          },
+          "metrics": {
+            "value": [
+              0,
+              12
+            ],
+            "dataset_association": [
+              0,
+              12
+            ],
+            "conditioned": [
+              0,
+              12
+            ]
+          },
+          "evidence": {
+            "evidence_total": 12,
+            "evidence_verified": 12,
+            "rejected": 0,
+            "missing_fields": 2
+          },
+          "extracted": {
+            "title": "PUBLISHED IN IEEE GEOSCIENCE AND REMOTE SENSING LETTERS (DOI: 10.1109/LGRS.2019.2918719) 1",
+            "year": "2019",
+            "venue": null,
+            "methods": [
+              "HybridSN",
+              "SSRN",
+              "3D-CNN",
+              "2D-CNN"
+            ],
+            "datasets": [
+              "Indian Pines",
+              "Pavia University",
+              "Salinas"
+            ],
+            "conditions": 0,
+            "metrics": 1,
+            "rejections": 0
+          }
+        },
+        {
+          "id": "ssrn",
+          "filename": "spectral-spatial_residual_networks_for_hyperspectral_image_classification_a_3d_deep_learning_framework_0.pdf",
+          "fields": {
+            "title": [
+              0,
+              1
+            ],
+            "year": [
+              1,
+              1
+            ],
+            "venue": [
+              1,
+              1
+            ],
+            "primary_method": [
+              1,
+              1
+            ],
+            "datasets": [
+              3,
+              3
+            ],
+            "conditions": [
+              0,
+              2
+            ]
+          },
+          "metrics": {
+            "value": [
+              0,
+              6
+            ],
+            "dataset_association": [
+              0,
+              6
+            ],
+            "conditioned": [
+              0,
+              6
+            ]
+          },
+          "evidence": {
+            "evidence_total": 12,
+            "evidence_verified": 12,
+            "rejected": 0,
+            "missing_fields": 2
+          },
+          "extracted": {
+            "title": "IEEE TRANSACTIONS ON GEOSCIENCE AND REMOTE SENSING, VOL. 56, NO. 2, FEBRUARY 2018 847",
+            "year": "2018",
+            "venue": "IEEE TRANSACTIONS ON GEOSCIENCE AND REMOTE SENSING",
+            "methods": [
+              "SSRN"
+            ],
+            "datasets": [
+              "Indian Pines",
+              "Pavia University",
+              "Kennedy Space Center"
+            ],
+            "conditions": 4,
+            "metrics": 0,
+            "rejections": 0
+          }
+        },
+        {
+          "id": "cnn_gat",
+          "filename": "Weighted_Feature_Fusion_of_Convolutional_Neural_Network_and_Graph_Attention_Network_for_Hyperspectral_Image_Classification.pdf",
+          "fields": {
+            "title": [
+              0,
+              1
+            ],
+            "year": [
+              1,
+              1
+            ],
+            "venue": [
+              1,
+              1
+            ],
+            "primary_method": [
+              0,
+              1
+            ],
+            "datasets": [
+              2,
+              3
+            ],
+            "conditions": [
+              0,
+              2
+            ]
+          },
+          "metrics": {
+            "value": [
+              0,
+              6
+            ],
+            "dataset_association": [
+              0,
+              6
+            ],
+            "conditioned": [
+              0,
+              6
+            ]
+          },
+          "evidence": {
+            "evidence_total": 19,
+            "evidence_verified": 19,
+            "rejected": 0,
+            "missing_fields": 1
+          },
+          "extracted": {
+            "title": "IEEE TRANSACTIONS ON IMAGE PROCESSING, VOL. 31, 2022 1559",
+            "year": "2022",
+            "venue": "IEEE TRANSACTIONS ON IMAGE PROCESSING",
+            "methods": [
+              "HybridSN",
+              "SSRN",
+              "GAT",
+              "GCN",
+              "3D-CNN",
+              "2D-CNN"
+            ],
+            "datasets": [
+              "Indian Pines",
+              "Pavia University",
+              "WHU-Hi"
+            ],
+            "conditions": 3,
+            "metrics": 0,
+            "rejections": 0
+          }
+        }
+      ],
+      "summary": {
+        "fields.title": {
+          "hit": 0,
+          "total": 3,
+          "accuracy": 0.0
+        },
+        "fields.year": {
+          "hit": 3,
+          "total": 3,
+          "accuracy": 1.0
+        },
+        "fields.venue": {
+          "hit": 2,
+          "total": 3,
+          "accuracy": 0.6667
+        },
+        "fields.primary_method": {
+          "hit": 2,
+          "total": 3,
+          "accuracy": 0.6667
+        },
+        "fields.datasets": {
+          "hit": 8,
+          "total": 9,
+          "accuracy": 0.8889
+        },
+        "fields.conditions": {
+          "hit": 0,
+          "total": 8,
+          "accuracy": 0.0
+        },
+        "metrics.value": {
+          "hit": 0,
+          "total": 24,
+          "accuracy": 0.0
+        },
+        "metrics.dataset_association": {
+          "hit": 0,
+          "total": 24,
+          "accuracy": 0.0
+        },
+        "metrics.conditioned": {
+          "hit": 0,
+          "total": 24,
+          "accuracy": 0.0
+        },
+        "evidence_acceptance": {
+          "accepted": 43,
+          "total": 43,
+          "rate": 1.0
+        }
+      }
+    },
+    "llm": {
+      "mode": "llm",
+      "papers": [
+        {
+          "id": "hybridsn",
+          "filename": "HybridSN Exploring 3-D–2-D CNN Feature Hierarchy for Hyperspectral Image Classification.pdf",
+          "fields": {
+            "title": [
+              1,
+              1
+            ],
+            "year": [
+              1,
+              1
+            ],
+            "venue": [
+              1,
+              1
+            ],
+            "primary_method": [
+              1,
+              1
+            ],
+            "datasets": [
+              3,
+              3
+            ],
+            "conditions": [
+              2,
+              4
+            ]
+          },
+          "metrics": {
+            "value": [
+              12,
+              12
+            ],
+            "dataset_association": [
+              0,
+              12
+            ],
+            "conditioned": [
+              0,
+              12
+            ]
+          },
+          "evidence": {
+            "evidence_total": 34,
+            "evidence_verified": 34,
+            "rejected": 1,
+            "missing_fields": 2
+          },
+          "extracted": {
+            "title": "HybridSN: Exploring 3D-2D CNN Feature Hierarchy for Hyperspectral Image Classification",
+            "year": "2019",
+            "venue": "IEEE Geoscience and Remote Sensing Letters",
+            "methods": [
+              "HybridSN",
+              "3D-CNN",
+              "2D-CNN",
+              "PCA"
+            ],
+            "datasets": [
+              "Indian Pines",
+              "Pavia University",
+              "Salinas Scene"
+            ],
+            "conditions": 6,
+            "metrics": 18,
+            "rejections": 1
+          }
+        },
+        {
+          "id": "ssrn",
+          "filename": "spectral-spatial_residual_networks_for_hyperspectral_image_classification_a_3d_deep_learning_framework_0.pdf",
+          "fields": {
+            "title": [
+              1,
+              1
+            ],
+            "year": [
+              1,
+              1
+            ],
+            "venue": [
+              1,
+              1
+            ],
+            "primary_method": [
+              1,
+              1
+            ],
+            "datasets": [
+              3,
+              3
+            ],
+            "conditions": [
+              1,
+              2
+            ]
+          },
+          "metrics": {
+            "value": [
+              0,
+              6
+            ],
+            "dataset_association": [
+              0,
+              6
+            ],
+            "conditioned": [
+              0,
+              6
+            ]
+          },
+          "evidence": {
+            "evidence_total": 15,
+            "evidence_verified": 15,
+            "rejected": 1,
+            "missing_fields": 2
+          },
+          "extracted": {
+            "title": "Spectral–Spatial Residual Network for Hyperspectral Image Classification: A 3-D Deep Learning Framework",
+            "year": "2018",
+            "venue": "IEEE Transactions on Geoscience and Remote Sensing",
+            "methods": [
+              "SSRN",
+              "3-D CNN",
+              "SAE",
+              "SVM"
+            ],
+            "datasets": [
+              "Indian Pines",
+              "Kennedy Space Center",
+              "University of Pavia"
+            ],
+            "conditions": 3,
+            "metrics": 2,
+            "rejections": 1
+          }
+        },
+        {
+          "id": "cnn_gat",
+          "filename": "Weighted_Feature_Fusion_of_Convolutional_Neural_Network_and_Graph_Attention_Network_for_Hyperspectral_Image_Classification.pdf",
+          "fields": {
+            "title": [
+              1,
+              1
+            ],
+            "year": [
+              1,
+              1
+            ],
+            "venue": [
+              1,
+              1
+            ],
+            "primary_method": [
+              1,
+              1
+            ],
+            "datasets": [
+              3,
+              3
+            ],
+            "conditions": [
+              1,
+              2
+            ]
+          },
+          "metrics": {
+            "value": [
+              1,
+              6
+            ],
+            "dataset_association": [
+              0,
+              6
+            ],
+            "conditioned": [
+              0,
+              6
+            ]
+          },
+          "evidence": {
+            "evidence_total": 21,
+            "evidence_verified": 21,
+            "rejected": 3,
+            "missing_fields": 1
+          },
+          "extracted": {
+            "title": "Weighted Feature Fusion of Convolutional Neural Network and Graph Attention Network for Hyperspectral Image Classification",
+            "year": "2022",
+            "venue": "IEEE Transactions on Image Processing",
+            "methods": [
+              "WFCG",
+              "GAT",
+              "CNN",
+              "SLIC",
+              "SVM",
+              "1D-CNN",
+              "JSAN",
+              "HybirdSN",
+              "GCN",
+              "MDGCN",
+              "CEGCN"
+            ],
+            "datasets": [
+              "Indian Pines",
+              "University of Pavia",
+              "WHU-Hi-HongHu"
+            ],
+            "conditions": 2,
+            "metrics": 1,
+            "rejections": 3
+          }
+        }
+      ],
+      "summary": {
+        "fields.title": {
+          "hit": 3,
+          "total": 3,
+          "accuracy": 1.0
+        },
+        "fields.year": {
+          "hit": 3,
+          "total": 3,
+          "accuracy": 1.0
+        },
+        "fields.venue": {
+          "hit": 3,
+          "total": 3,
+          "accuracy": 1.0
+        },
+        "fields.primary_method": {
+          "hit": 3,
+          "total": 3,
+          "accuracy": 1.0
+        },
+        "fields.datasets": {
+          "hit": 9,
+          "total": 9,
+          "accuracy": 1.0
+        },
+        "fields.conditions": {
+          "hit": 4,
+          "total": 8,
+          "accuracy": 0.5
+        },
+        "metrics.value": {
+          "hit": 13,
+          "total": 24,
+          "accuracy": 0.5417
+        },
+        "metrics.dataset_association": {
+          "hit": 0,
+          "total": 24,
+          "accuracy": 0.0
+        },
+        "metrics.conditioned": {
+          "hit": 0,
+          "total": 24,
+          "accuracy": 0.0
+        },
+        "evidence_acceptance": {
+          "accepted": 70,
+          "total": 75,
+          "rate": 0.9333
+        }
+      }
+    }
+  },
+  "note": "人工标注 3 篇真实论文的 24 条指标；只评测抽取保真度，不评测论文结论正确性。heuristic/LLM 使用同一批 PDF；LLM 会产生真实 API 费用。"
+}

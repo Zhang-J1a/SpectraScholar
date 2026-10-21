@@ -1,18 +1,20 @@
 {
-  "corpus_status": "not_downloaded",
-  "reason": "开发环境外网阻断（arXiv/IEEE 直连失败），未获取 PDF；不得声称完成真实论文评测。",
-  "verified": false,
+  "corpus_status": "partially_downloaded",
+  "reason": "用户在本地 workspace/papers 提供了 3 篇真实论文 PDF；PDF 不随仓库分发。GCN-HSI 仍未下载，因此不能声称完整论文清单已评测。",
+  "verified": true,
+  "evaluated_papers": ["hybridsn", "ssrn", "wfcg"],
+  "labels": "eval/real_papers.labels.json",
   "papers": [
     {
       "id": "hybridsn",
-      "title": "HybridSN: Exploring 3-D-2-D CNN Feature Hierarchy for Hyperspectral Image Classification",
+      "title": "HybridSN: Exploring 3D-2D CNN Feature Hierarchy for Hyperspectral Image Classification",
       "venue": "IEEE Geoscience and Remote Sensing Letters",
-      "year": 2020,
+      "year": 2019,
       "doi": "10.1109/LGRS.2019.2918719",
       "url": "https://doi.org/10.1109/LGRS.2019.2918719",
-      "expected_datasets": ["Indian Pines", "Pavia University", "Salinas"],
-      "status": "not_downloaded",
-      "note": "元数据来自公开检索结果，未下载全文。"
+      "expected_datasets": ["Indian Pines", "Pavia University", "Salinas Scene"],
+      "status": "downloaded_and_evaluated",
+      "note": "本地 PDF 已由 evaluate_real_papers.py 评测；PDF 未提交。"
     },
     {
       "id": "ssrn",
@@ -21,9 +23,18 @@
       "year": 2018,
       "doi": "10.1109/TGRS.2017.2755542",
       "url": "https://doi.org/10.1109/TGRS.2017.2755542",
-      "expected_datasets": ["Indian Pines", "Pavia University", "Salinas"],
-      "status": "not_downloaded",
-      "note": "元数据来自 OpenAlex 检索结果，未下载全文。"
+      "expected_datasets": ["Indian Pines", "Kennedy Space Center", "University of Pavia"],
+      "status": "downloaded_and_evaluated",
+      "note": "本地 PDF 已评测；论文使用 IN/KSC/UP，Salinas 不在该论文评测集内。"
+    },
+    {
+      "id": "wfcg",
+      "title": "Weighted Feature Fusion of Convolutional Neural Network and Graph Attention Network for Hyperspectral Image Classification",
+      "venue": "IEEE Transactions on Image Processing",
+      "year": 2022,
+      "expected_datasets": ["Indian Pines", "University of Pavia", "WHU-Hi-HongHu"],
+      "status": "downloaded_and_evaluated",
+      "note": "本地 PDF 已评测；替代原计划的 GCN-HSI。PDF 未提交。"
     },
     {
       "id": "gcn-hsi",
@@ -35,7 +46,7 @@
       "url": "https://arxiv.org/abs/2008.02457",
       "expected_datasets": ["Indian Pines", "Pavia University", "Salinas", "Houston"],
       "status": "not_downloaded",
-      "note": "元数据来自 arXiv/公开检索结果，未下载全文。"
+      "note": "仍未下载，未进入 P4.3 评测。"
     }
   ]
 }

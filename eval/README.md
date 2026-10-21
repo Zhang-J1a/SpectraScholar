@@ -1,26 +1,46 @@
-# 真实论文评测集（尚未下载）
+# 真实论文评测集（3 篇已评测）
 
-本目录用于存放**合法获取**的论文、人工标注与评测结果。当前开发环境的外网被阻断
-（arXiv / IEEE / PyPI 直连失败），因此本仓库**没有**真实论文 PDF，也**没有**真实论文上的
-抽取或检索指标。不要把这些目录中的占位内容当成实验结果。
+本目录用于存放**合法获取**的论文、人工标注与评测结果。PDF 保存在本地
+`workspace/papers/`（已被 Git 忽略），**不随仓库分发**。
 
-## 建议流程
+当前工作区已有：
 
-1. 通过学校/机构订阅或开放获取渠道下载 PDF，保存到你自己的 `workspace/papers/`
-   或本目录的 `pdfs/`（`pdfs/` 已被 Git 忽略）。
-2. 按 `extraction_labels.example.json` 标注标题、方法、数据集、指标、训练比例、页码和
-   原文片段。**只标注你能在原文确认的内容**；找不到就写 `null`。
-3. 按 `rag_queries.example.json` 编写问题、相关文档和页码。
-4. 运行：
+- HybridSN：DOI 10.1109/LGRS.2019.2918719
+- SSRN：DOI 10.1109/TGRS.2017.2755542
+- WFCG：IEEE TIP 2022，Weighted Feature Fusion of CNN and GAT
+- 2 份中文精读笔记（HyperAE、F2HNN）：只作为“非论文输入”的鲁棒性对照，**不计入准确率分母**
+
+标注文件：`real_papers.labels.json`。标注只记录能在原文表格/正文确认的字段；无法确认的写
+`null`。共 24 条指标、8 个实验条件、9 个数据集字段。
+
+## 运行
 
 ```bash
-python scripts/evaluate_pipeline.py      # 合成夹具，验证流水线
-python scripts/evaluate_evidence.py comparison.json
+python scripts/evaluate_real_papers.py
 ```
 
-真实论文评测需要在具备网络的环境中补充脚本参数；不要复用合成夹具的数字作为真实结论。
+脚本会分别运行 heuristic 和 LLM（DeepSeek）抽取，输出：
+
+- `docs/real_paper_runs.json`
+- `docs/real_paper_runs.md`
+
+## 当前结果（3 篇小样本）
+
+| 指标 | heuristic | LLM |
+|---|---|---|
+| title | 0/3 | 3/3 |
+| year | 3/3 | 3/3 |
+| venue | 2/3 | 3/3 |
+| 主方法 | 2/3 | 3/3 |
+| 数据集 | 8/9 | 9/9 |
+| 实验条件 | 0/8 | 4/8 |
+| 指标数值 | 0/24 | 13/24 |
+| 指标→数据集绑定 | 0/24 | 0/24 |
+| 指标→比例/patch 绑定 | 0/24 | 0/24 |
+
+**关键限制**：指标→数据集绑定为 0/24，不能据此做真实论文的跨论文排名；这属于抽取子问题，
+不是“论文结论已被验证”。不要复用合成夹具的数字作为真实结论。
 
 ## 候选论文清单
 
-见 `papers.manifest.json`。清单只记录公开元数据，PDF 未随仓库分发。下载和使用请遵守
-出版商条款与所在机构许可。
+见 `papers.manifest.json`；GCN-HSI 仍未下载。PDF 的下载和使用请遵守出版商条款与所在机构许可。
