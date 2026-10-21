@@ -504,13 +504,16 @@ def parse_text_metric_rows(
     return result
 
 
-TRANSPOSED_METRIC_RE = re.compile(r"^\s*(OA|AA|KAPPA(?:X100|X\s*100|×100)?)\b", re.IGNORECASE)
+TRANSPOSED_METRIC_RE = re.compile(
+    r"^\s*(OA|AA|KAPPA(?:X100|X\s*100|×100)?|[«κK]\s*[X×]\s*100)\b",
+    re.IGNORECASE,
+)
 OCR_DATASET_CAPTIONS = (
-    (re.compile(r"\bIN\s+DATA\s+SET\b", re.IGNORECASE), "Indian Pines"),
-    (re.compile(r"\bINDIAN\s+PINS?\b", re.IGNORECASE), "Indian Pines"),
-    (re.compile(r"\bUP\s+DATA\s+SET\b", re.IGNORECASE), "Pavia University"),
+    (re.compile(r"\bI\s*N\s+D\s*A\s*T\s*A\s+S\s*E\s*T\b", re.IGNORECASE), "Indian Pines"),
+    (re.compile(r"\bINDIAN\s+PIN(?:E)?S?\b", re.IGNORECASE), "Indian Pines"),
+    (re.compile(r"\bU\s*P\s+D\s*A\s*T\s*A\s+S\s*E\s*T\b", re.IGNORECASE), "Pavia University"),
     (re.compile(r"\bUNIVERSITY\s+OF\s+PAV\s*I\s*A\b", re.IGNORECASE), "Pavia University"),
-    (re.compile(r"\bKSC\s+DATA\s+SET\b", re.IGNORECASE), "Kennedy Space Center"),
+    (re.compile(r"\bK\s*S\s*C\s+D\s*A\s*T\s*A\s+S\s*E\s*T\b", re.IGNORECASE), "Kennedy Space Center"),
 )
 
 
@@ -533,11 +536,19 @@ def _ocr_metric_name(line: str) -> str | None:
     return "Kappa"
 
 
+def _is_table_caption_line(line: str) -> bool:
+    upper = line.upper()
+    return len(line) <= 160 and any(
+        marker in upper for marker in ("TABLE", "FOR THE", "DATASET", "DATA SET")
+    )
+
+
 def _method_token_map(methods: list[str]) -> dict[str, str]:
     aliases = {
         "hybridsn": "HybridSN",
         "hybirdsn": "HybridSN",
         "jssan": "JSAN",
+        "jsann": "JSAN",
         "wecg": "WFCG",
         "cnnl": "CNNL",
     }
@@ -580,15 +591,15 @@ def parse_transposed_metric_rows(
         header: list[str] = []
         for line in lines:
             caption_dataset = _ocr_dataset_from_line(line)
-            if caption_dataset and (
-                current_dataset is None
-                or "TABLE" in line.upper()
-                or "DATA SET" in line.upper()
-            ):
+            if caption_dataset and _is_table_caption_line(line):
                 current_dataset = caption_dataset
                 header = []
                 continue
-            tokens = [token.strip(".,;:()_=+-|") for token in line.split()]
+            # OCR often glues two header columns together: SPC__SSRN.
+            tokens = [
+                token.strip(".,;:()_=+-|")
+                for token in line.replace("_", " ").split()
+            ]
             candidate = [method_map[token.casefold()] for token in tokens if token.casefold() in method_map]
             if len(candidate) >= 2 and len(set(candidate)) == len(candidate):
                 header = candidate
