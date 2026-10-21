@@ -3,7 +3,7 @@
   "real_papers": false,
   "embedding_backend": "hash-512",
   "note": "合成两页论文夹具，仅验证抽取/检索/引用流水线；不代表真实论文上的科学正确率或语义检索质量。",
-  "generated_at": "2026-10-20T15:32:32+0800",
+  "generated_at": "2026-10-21T13:19:42+0800",
   "documents": 3,
   "chunks": 5,
   "extraction": {
@@ -70,14 +70,14 @@
         "recall_at_1": 1.0,
         "recall_at_3": 1.0,
         "mrr": 1.0,
-        "median_latency_ms": 3
+        "median_latency_ms": 2
       },
       "hybrid": {
         "queries": 4,
         "recall_at_1": 1.0,
         "recall_at_3": 1.0,
         "mrr": 1.0,
-        "median_latency_ms": 3
+        "median_latency_ms": 2
       }
     },
     "runs": [
@@ -114,13 +114,13 @@
         "page": 2,
         "mode": "hybrid",
         "rank": 1,
-        "latency_ms": 3,
+        "latency_ms": 2,
         "top_hit": "hybridsn.pdf p.2"
       }
     ]
   },
   "citation": {
-    "answer_mode": "extractive",
+    "answer_mode": "extractive_fallback",
     "grounded": true,
     "total_checks": 4,
     "failed_checks": 0,
@@ -130,13 +130,13 @@
     "status": "completed",
     "steps_completed": 7,
     "steps_total": 7,
-    "elapsed_ms": 873
+    "elapsed_ms": 1253
   },
   "latency_ms": {
-    "compare": 123,
+    "compare": 121,
     "index": 18,
-    "search_median": 3,
-    "answer": 20,
-    "workflow": 379
+    "search_median": 2,
+    "answer": 19,
+    "workflow": 380
   }
 }

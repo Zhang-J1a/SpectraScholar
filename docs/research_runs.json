@@ -1,0 +1,452 @@
+{
+  "generated_at": "2026-10-21T05:17:13+00:00",
+  "corpus": "synthetic_fixture",
+  "real_papers": false,
+  "source": "local",
+  "backend": "gptr",
+  "models": {
+    "fast": "deepseek:deepseek-chat",
+    "smart": "deepseek:deepseek-chat",
+    "strategic": "deepseek:deepseek-chat"
+  },
+  "retriever": "duckduckgo",
+  "max_iterations": 1,
+  "note": "10 个本地合成 PDF 任务，验证真实任务可靠性/状态/耗时/引用审计；这不是真实论文质量评测，也不代表 web 检索能力。",
+  "documents": [
+    "279a2c3f-6e68-4b2c-a30e-bf5036b8ccb6",
+    "fa083248-fdda-4220-9d9b-5007d93cfda2",
+    "09ba1961-5edb-4ae6-9829-e49ec1c46bf0"
+  ],
+  "summary": {
+    "total": 10,
+    "completed": 10,
+    "failed": 0,
+    "success_rate": 1.0,
+    "latency_p50_ms": 23993,
+    "latency_p95_ms": 33529,
+    "mean_report_chars": 14742.5,
+    "total_costs": 0.663485,
+    "audit_totals": {
+      "total": 301,
+      "verified_local": 0,
+      "page_only_local": 0,
+      "failed_local": 0,
+      "external_unchecked": 46,
+      "local_file_unverified": 255,
+      "unsupported_claims": 88
+    },
+    "error_types": []
+  },
+  "tasks": [
+    {
+      "index": 1,
+      "job_id": "127580b7-81fb-47e0-8b1b-c5527ea70421",
+      "topic": "Compare dynamic graph GNN and HybridSN on Indian Pines under identical 10% training and 9x9 patches.",
+      "status": "completed",
+      "error_type": null,
+      "error": null,
+      "attempts": 1,
+      "elapsed_ms": 33529,
+      "wall_ms": 32845,
+      "report_chars": 14905,
+      "is_demo": false,
+      "backend": "gptr",
+      "audit": {
+        "total": 6,
+        "verified_local": 0,
+        "page_only_local": 0,
+        "failed_local": 0,
+        "external_unchecked": 0,
+        "local_file_unverified": 6,
+        "unsupported_claims": 20
+      },
+      "metadata": {
+        "context_chars": 4679,
+        "elapsed_seconds": 31.25,
+        "config": {
+          "REPORT_SOURCE": "local",
+          "RETRIEVER": "duckduckgo"
+        },
+        "costs": 0.06183000000000001,
+        "sources": 0,
+        "visited_urls": 0,
+        "agent": "🔬 Academic Research Agent",
+        "role": "You are a rigorous academic research AI assistant specializing in remote sensing and hyperspectral image classification. Your objective is to produce a comprehensive, evidence-based, and well-structured research report comparing methods under explicitly stated experimental conditions, citing verifiable sources and clearly flagging any claims that lack reliable published evidence.",
+        "report_path": "127580b7-81fb-47e0-8b1b-c5527ea70421.md",
+        "backend": "gptr",
+        "is_demo": false
+      },
+      "events": 8,
+      "trace_id": "c26b440046bd4c5b"
+    },
+    {
+      "index": 2,
+      "job_id": "b3dfecb9-4e6a-4342-89cb-1ef51ec7a4c1",
+      "topic": "What OA and Kappa values are reported, and which method do they belong to?",
+      "status": "completed",
+      "error_type": null,
+      "error": null,
+      "attempts": 1,
+      "elapsed_ms": 21888,
+      "wall_ms": 21358,
+      "report_chars": 13677,
+      "is_demo": false,
+      "backend": "gptr",
+      "audit": {
+        "total": 29,
+        "verified_local": 0,
+        "page_only_local": 0,
+        "failed_local": 0,
+        "external_unchecked": 0,
+        "local_file_unverified": 29,
+        "unsupported_claims": 8
+      },
+      "metadata": {
+        "context_chars": 4679,
+        "elapsed_seconds": 21.23,
+        "config": {
+          "REPORT_SOURCE": "local",
+          "RETRIEVER": "duckduckgo"
+        },
+        "costs": 0.06317,
+        "sources": 0,
+        "visited_urls": 0,
+        "agent": "🔬 Academic Research Agent",
+        "role": "You are a meticulous AI academic research assistant specializing in remote sensing and hyperspectral image analysis. Your objective is to produce a rigorous, source-grounded research report that synthesizes reported OA, AA, and Kappa values across spectral-spatial, CNN, Transformer, GNN, and dynamic-graph methods, explicitly attributing each metric to its dataset, train/test split, and sampling protocol, while flagging unverifiable claims and outlining limitations and future directions.",
+        "report_path": "b3dfecb9-4e6a-4342-89cb-1ef51ec7a4c1.md",
+        "backend": "gptr",
+        "is_demo": false
+      },
+      "events": 8,
+      "trace_id": "0d6669d61bcf4f6e"
+    },
+    {
+      "index": 3,
+      "job_id": "9bcb8a97-564a-425f-b580-b7bb952d4480",
+      "topic": "How is the KNN graph constructed and updated during training?",
+      "status": "completed",
+      "error_type": null,
+      "error": null,
+      "attempts": 1,
+      "elapsed_ms": 23993,
+      "wall_ms": 23105,
+      "report_chars": 15363,
+      "is_demo": false,
+      "backend": "gptr",
+      "audit": {
+        "total": 15,
+        "verified_local": 0,
+        "page_only_local": 0,
+        "failed_local": 0,
+        "external_unchecked": 0,
+        "local_file_unverified": 15,
+        "unsupported_claims": 6
+      },
+      "metadata": {
+        "context_chars": 4679,
+        "elapsed_seconds": 22.98,
+        "config": {
+          "REPORT_SOURCE": "local",
+          "RETRIEVER": "duckduckgo"
+        },
+        "costs": 0.06705,
+        "sources": 0,
+        "visited_urls": 0,
+        "agent": "🔬 Academic Research Agent",
+        "role": "You are a meticulous AI academic research assistant specializing in remote sensing and hyperspectral image analysis. Your objective is to produce a rigorous, source-grounded research report on how KNN graphs are constructed and updated during training in hyperspectral image classification, with attention to spectral-spatial modeling, CNN, Transformer, and graph neural network approaches, dynamic graph construction, and careful, dataset-specific reporting of OA/AA/Kappa metrics with explicit provenance and no fabricated numbers.",
+        "report_path": "9bcb8a97-564a-425f-b580-b7bb952d4480.md",
+        "backend": "gptr",
+        "is_demo": false
+      },
+      "events": 8,
+      "trace_id": "611f41eb0a344cbd"
+    },
+    {
+      "index": 4,
+      "job_id": "7bb41e05-3351-4367-b014-cf1f67ddbfdc",
+      "topic": "Compare the static RBF graph baseline and the dynamic graph approach.",
+      "status": "completed",
+      "error_type": null,
+      "error": null,
+      "attempts": 1,
+      "elapsed_ms": 20158,
+      "wall_ms": 20178,
+      "report_chars": 12933,
+      "is_demo": false,
+      "backend": "gptr",
+      "audit": {
+        "total": 25,
+        "verified_local": 0,
+        "page_only_local": 0,
+        "failed_local": 0,
+        "external_unchecked": 0,
+        "local_file_unverified": 25,
+        "unsupported_claims": 8
+      },
+      "metadata": {
+        "context_chars": 4679,
+        "elapsed_seconds": 20.05,
+        "config": {
+          "REPORT_SOURCE": "local",
+          "RETRIEVER": "duckduckgo"
+        },
+        "costs": 0.05604,
+        "sources": 0,
+        "visited_urls": 0,
+        "agent": "🔬 Academic Research Agent",
+        "role": "You are a rigorous academic research AI assistant specializing in remote sensing and hyperspectral image analysis. Your primary goal is to produce comprehensive, evidence-based, and methodologically precise literature reviews and comparative analyses. You must cite specific papers, datasets, and experimental settings, clearly distinguish between reported metrics and unverified claims, and never fabricate quantitative results. Your reports should be structured with clear research questions, representative methods, key differences, limitations, and future research directions.",
+        "report_path": "7bb41e05-3351-4367-b014-cf1f67ddbfdc.md",
+        "backend": "gptr",
+        "is_demo": false
+      },
+      "events": 8,
+      "trace_id": "3edbccb6cde542d9"
+    },
+    {
+      "index": 5,
+      "job_id": "e4198be1-dc24-4726-8979-5806db572bf6",
+      "topic": "Does the table agree with the prose? Identify any conflicts.",
+      "status": "completed",
+      "error_type": null,
+      "error": null,
+      "attempts": 1,
+      "elapsed_ms": 21007,
+      "wall_ms": 20836,
+      "report_chars": 14202,
+      "is_demo": false,
+      "backend": "gptr",
+      "audit": {
+        "total": 34,
+        "verified_local": 0,
+        "page_only_local": 0,
+        "failed_local": 0,
+        "external_unchecked": 0,
+        "local_file_unverified": 34,
+        "unsupported_claims": 10
+      },
+      "metadata": {
+        "context_chars": 4679,
+        "elapsed_seconds": 20.71,
+        "config": {
+          "REPORT_SOURCE": "local",
+          "RETRIEVER": "duckduckgo"
+        },
+        "costs": 0.061000000000000006,
+        "sources": 0,
+        "visited_urls": 0,
+        "agent": "🔬 Academic Research Agent",
+        "role": "You are a meticulous AI academic research assistant specializing in remote sensing and hyperspectral image analysis. Your primary goal is to produce rigorous, evidence-based research reports that critically evaluate claims in scientific literature, verify consistency between tables and prose, identify conflicts, and clearly distinguish metrics by dataset, data split, and training sample ratio. You must never fabricate metrics and must cite sources or explicitly state when evidence is unavailable.",
+        "report_path": "e4198be1-dc24-4726-8979-5806db572bf6.md",
+        "backend": "gptr",
+        "is_demo": false
+      },
+      "events": 8,
+      "trace_id": "5670b798c8b14e5d"
+    },
+    {
+      "index": 6,
+      "job_id": "f50759a6-1e3d-4f5b-8ff5-c6b6aaad45a4",
+      "topic": "What are the limitations of ranking the two methods from these numbers?",
+      "status": "completed",
+      "error_type": null,
+      "error": null,
+      "attempts": 1,
+      "elapsed_ms": 27080,
+      "wall_ms": 27074,
+      "report_chars": 12967,
+      "is_demo": false,
+      "backend": "gptr",
+      "audit": {
+        "total": 0,
+        "verified_local": 0,
+        "page_only_local": 0,
+        "failed_local": 0,
+        "external_unchecked": 0,
+        "local_file_unverified": 0,
+        "unsupported_claims": 15
+      },
+      "metadata": {
+        "context_chars": 4679,
+        "elapsed_seconds": 26.94,
+        "config": {
+          "REPORT_SOURCE": "local",
+          "RETRIEVER": "duckduckgo"
+        },
+        "costs": 0.07535,
+        "sources": 0,
+        "visited_urls": 0,
+        "agent": "Default Agent",
+        "role": "You are an AI critical thinker research assistant. Your sole purpose is to write well written, critically acclaimed, objective and structured reports on given text.",
+        "report_path": "f50759a6-1e3d-4f5b-8ff5-c6b6aaad45a4.md",
+        "backend": "gptr",
+        "is_demo": false
+      },
+      "events": 8,
+      "trace_id": "71d8fd732bb342f6"
+    },
+    {
+      "index": 7,
+      "job_id": "3f83ec57-5b6a-4cd8-8ed4-59b386918f29",
+      "topic": "Summarize the datasets, metrics, and training protocol used.",
+      "status": "completed",
+      "error_type": null,
+      "error": null,
+      "attempts": 1,
+      "elapsed_ms": 25588,
+      "wall_ms": 25512,
+      "report_chars": 15828,
+      "is_demo": false,
+      "backend": "gptr",
+      "audit": {
+        "total": 46,
+        "verified_local": 0,
+        "page_only_local": 0,
+        "failed_local": 0,
+        "external_unchecked": 46,
+        "local_file_unverified": 0,
+        "unsupported_claims": 3
+      },
+      "metadata": {
+        "context_chars": 4679,
+        "elapsed_seconds": 25.38,
+        "config": {
+          "REPORT_SOURCE": "local",
+          "RETRIEVER": "duckduckgo"
+        },
+        "costs": 0.06966,
+        "sources": 0,
+        "visited_urls": 0,
+        "agent": "🔬 Academic Research Agent",
+        "role": "You are a meticulous AI academic research assistant specializing in remote sensing and hyperspectral image analysis. Your objective is to produce a rigorous, source-grounded research report that synthesizes datasets, evaluation metrics, and training protocols for hyperspectral image classification, with explicit attention to spectral-spatial modeling, CNNs, Transformers, graph neural networks, and dynamic graph construction. You must clearly attribute reported OA/AA/Kappa values to their originating papers, distinguish between datasets, split settings, and training-sample ratios, and never fabricate metrics lacking reliable evidence.",
+        "report_path": "3f83ec57-5b6a-4cd8-8ed4-59b386918f29.md",
+        "backend": "gptr",
+        "is_demo": false
+      },
+      "events": 8,
+      "trace_id": "b70a83add45946f1"
+    },
+    {
+      "index": 8,
+      "job_id": "00564a00-3e3f-4e63-83cd-4beee255d7cb",
+      "topic": "What model families are used, and what are their inductive biases?",
+      "status": "completed",
+      "error_type": null,
+      "error": null,
+      "attempts": 1,
+      "elapsed_ms": 24409,
+      "wall_ms": 23817,
+      "report_chars": 13915,
+      "is_demo": false,
+      "backend": "gptr",
+      "audit": {
+        "total": 24,
+        "verified_local": 0,
+        "page_only_local": 0,
+        "failed_local": 0,
+        "external_unchecked": 0,
+        "local_file_unverified": 24,
+        "unsupported_claims": 4
+      },
+      "metadata": {
+        "context_chars": 4679,
+        "elapsed_seconds": 23.69,
+        "config": {
+          "REPORT_SOURCE": "local",
+          "RETRIEVER": "duckduckgo"
+        },
+        "costs": 0.061505000000000004,
+        "sources": 0,
+        "visited_urls": 0,
+        "agent": "🔬 Academic Research Agent",
+        "role": "You are a meticulous AI academic research assistant specializing in remote sensing and hyperspectral image analysis. Your objective is to produce a rigorous, source-grounded research report that surveys model families and their inductive biases for hyperspectral image classification, critically compares representative methods, datasets, and evaluation protocols, and clearly distinguishes verified metrics from unverified claims, while identifying limitations and future research directions.",
+        "report_path": "00564a00-3e3f-4e63-83cd-4beee255d7cb.md",
+        "backend": "gptr",
+        "is_demo": false
+      },
+      "events": 8,
+      "trace_id": "2283b0867243456b"
+    },
+    {
+      "index": 9,
+      "job_id": "fd774eb0-146f-470f-9631-4580cf3764f8",
+      "topic": "Create a reproducibility checklist for these experiments.",
+      "status": "completed",
+      "error_type": null,
+      "error": null,
+      "attempts": 1,
+      "elapsed_ms": 23199,
+      "wall_ms": 22786,
+      "report_chars": 15513,
+      "is_demo": false,
+      "backend": "gptr",
+      "audit": {
+        "total": 44,
+        "verified_local": 0,
+        "page_only_local": 0,
+        "failed_local": 0,
+        "external_unchecked": 0,
+        "local_file_unverified": 44,
+        "unsupported_claims": 6
+      },
+      "metadata": {
+        "context_chars": 4679,
+        "elapsed_seconds": 22.65,
+        "config": {
+          "REPORT_SOURCE": "local",
+          "RETRIEVER": "duckduckgo"
+        },
+        "costs": 0.06663500000000001,
+        "sources": 0,
+        "visited_urls": 0,
+        "agent": "🔬 Academic Research Agent",
+        "role": "You are a meticulous academic research AI assistant specializing in remote sensing and machine learning. Your primary goal is to produce rigorous, well-sourced, and methodologically transparent research reports. You prioritize reproducibility, clearly distinguish between verified evidence and unverified claims, and never fabricate metrics or citations. You structure reports with explicit research questions, representative methods, comparative analysis, limitations, and future directions, always noting dataset-specific and protocol-specific conditions.",
+        "report_path": "fd774eb0-146f-470f-9631-4580cf3764f8.md",
+        "backend": "gptr",
+        "is_demo": false
+      },
+      "events": 8,
+      "trace_id": "4c951f228cb944bd"
+    },
+    {
+      "index": 10,
+      "job_id": "7ef589cd-aa92-44a2-9c5b-af1e0192d097",
+      "topic": "What should a human verify before citing the reported OA numbers?",
+      "status": "completed",
+      "error_type": null,
+      "error": null,
+      "attempts": 1,
+      "elapsed_ms": 26198,
+      "wall_ms": 26014,
+      "report_chars": 18122,
+      "is_demo": false,
+      "backend": "gptr",
+      "audit": {
+        "total": 78,
+        "verified_local": 0,
+        "page_only_local": 0,
+        "failed_local": 0,
+        "external_unchecked": 0,
+        "local_file_unverified": 78,
+        "unsupported_claims": 8
+      },
+      "metadata": {
+        "context_chars": 4679,
+        "elapsed_seconds": 25.88,
+        "config": {
+          "REPORT_SOURCE": "local",
+          "RETRIEVER": "duckduckgo"
+        },
+        "costs": 0.081245,
+        "sources": 0,
+        "visited_urls": 0,
+        "agent": "🔬 Academic Research Agent",
+        "role": "You are a meticulous AI academic research assistant specializing in remote sensing and hyperspectral image classification. Your objective is to produce a rigorous, source-grounded research report that critically examines how Overall Accuracy (OA), Average Accuracy (AA), and Kappa coefficients are reported in hyperspectral image classification literature. You must trace each reported metric to its specific dataset, train/test split, and sampling protocol (e.g., per-class sample counts), explicitly flag any claims lacking verifiable evidence, and never fabricate numbers. You should compare representative spectral-spatial, CNN, Transformer, GNN, and dynamic-graph methods across Indian Pines, Pavia University, Salinas, Houston, and Berlin datasets, and structure the report with research questions, representative methods, key differences, limitations, and future directions.",
+        "report_path": "7ef589cd-aa92-44a2-9c5b-af1e0192d097.md",
+        "backend": "gptr",
+        "is_demo": false
+      },
+      "events": 8,
+      "trace_id": "627595b6271f462f"
+    }
+  ]
+}

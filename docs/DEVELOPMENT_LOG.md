@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  3498 statements  466 missed  87%
+TOTAL  3500 statements  466 missed  87%
 ```
 
 ### 8.4 合成夹具评测
@@ -416,7 +416,7 @@ $env:WORKSPACE_DIR="$PWD\.smoke-workspace"
 
 | 事项 | 原因 | 影响 |
 |---|---|---|
-| GPT Researcher 真实本地 PDF | 已用 DeepSeek 完成 2/2 | 报告 14.8k–15.3k 字符；无页级引用 |
+| GPT Researcher 真实本地 PDF | 已用 DeepSeek 完成 10/10 | 报告均值 14.7k 字符；p50 24.0s；无页级引用 |
 | GPT Researcher 真实网页检索 | 无 Tavily Key/网络 | 未验证 |
 | 真实 LLM 抽取 | 已用 DeepSeek 完成夹具 12/12 | 真实论文未验证 |
 | 真实论文评测 | 无法下载 PDF | 只有合成夹具 |
@@ -523,7 +523,7 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 
 ```text
 pytest -q                         → 68 passed
-pytest --cov                      → 87% (3498 / 466)
+pytest --cov                      → 87% (3500 / 466)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -556,6 +556,13 @@ Workflow                          → 7/7
    - 第 1 次：completed，15,263 字符，28,770 ms，`backend=gptr`、`is_demo=false`；
    - 第 2 次：completed，14,861 字符，32,411 ms；
    - 两次都只读本地合成 PDF；没有真实网页检索（无 Tavily Key）。
+5. **10 任务可靠性评测**（2026-10-21，`scripts/evaluate_research.py`）：
+   - 10/10 completed，成功率 1.0；
+   - 报告均值 14,742 字符；p50 23,993 ms，p95 33,529 ms；
+   - 上游 `costs` 合计 0.663485（上游估算，不是账单）；
+   - 引用标记 301 条：页级通过 0、本地 PDF 文件链接 255、外部链接 46、缺引用数值结论 88；
+   - 结果写入 `docs/research_runs.json` / `docs/research_runs.md`；
+   - 这是任务可靠性评测，不是真实论文质量评测。
 
 联调中发现并修复的 Bug：
 
@@ -565,6 +572,8 @@ Workflow                          → 7/7
 - **测试读取真实 `.env`**：用户加入 Key 后，pytest 可能加载真实 Key。修复：新增 `SPECTRASCHOLAR_SKIP_DOTENV=1`，conftest 在导入 app 前设置，测试永不读取真实 `.env`。
 - **上游报告引用格式不可页级核验**：GPT Researcher 使用 `[filename](xxx.pdf)` 或作者-年份，不是 `[[doc:id p.N]]`。修复：新增 `local_file_unverified` 状态与统计，识别相对 PDF 链接；审计明确写“未做页级核验”，不把链接当已验证。
 - **段末引用误报**：`"OA 98.4%。[[doc:d1 p.1]]"` 的引用标记被拆成独立句，导致数值句误报缺引用。修复：将 marker-only 片段合并到上一句。
+- **真实运行元数据未持久化**：任务详情拿不到 `costs/sources/elapsed`，评测无法记录成本。修复：`jobs.metadata` 列 + `JobDetails.metadata`，`finish_job` 保存上游元数据。
+- **评测脚本与测试工厂耦合**：`tests/conftest.py` 导入即设置测试工作区/跳过 `.env`，无法用于真实评测。修复：新增无副作用 `tests/pdf_factory.py`，评测脚本单独使用。
 
 真实结果边界：
 

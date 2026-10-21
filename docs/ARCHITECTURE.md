@@ -295,7 +295,7 @@ SQLite 表：
 
 ## 11. 已知限制
 
-1. 真实 GPT Researcher **本地 PDF** 模式已用 DeepSeek 完成 2 次任务；真实**网页检索**未验证（无 Tavily Key/网络）。
+1. 真实 GPT Researcher **本地 PDF** 模式已用 DeepSeek 完成 10/10 任务；真实**网页检索**未验证（无 Tavily Key/网络）。
 2. 真实论文抽取/检索未评测；合成夹具分数不代表真实质量。
 3. hash embedding 非语义；语义检索质量未验证。
 4. 表格解析只覆盖带线结构表；复杂跨页表、多级表头、合并单元格、图片表格仍需人工或 OCR。

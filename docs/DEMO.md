@@ -71,7 +71,7 @@ python scripts\make_demo_pdfs.py --out demo_assets
 1. 研究任务页提交“比较高光谱动态图与 HybridSN”。
 2. 展示 queued → running → completed、事件时间线、Trace ID。
 3. 报告头显示“演示模式、不是调研结果”。
-4. 说明真实 GPT Researcher 本地 PDF 模式已用 DeepSeek 完成 2 次任务；网页模式仍需 Tavily Key。
+4. 说明真实 GPT Researcher 本地 PDF 模式已用 DeepSeek 完成 10/10 任务；网页模式仍需 Tavily Key。
 
 ## 3. 演示时必须主动说明的边界
 

@@ -38,7 +38,7 @@ SpectraScholar 把这三件事做成了显式契约：
 | FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 68 个 pytest |
 | Demo 调研任务（不调用搜索/LLM） | ✅ 已实现 | 报告中明确“不是调研结果” |
 | GPT Researcher Adapter | ✅ 代码完成，API 签名按 **0.16.1** 源码核对 | Mock 集成测试 + 真实本地任务 |
-| GPT Researcher 真实本地 PDF 调研（DeepSeek） | ✅ **已完成 2 次真实任务** | `backend=gptr`、`is_demo=false`、14.8k–15.3k 字符、28.8–32.4s |
+| GPT Researcher 真实本地 PDF 调研（DeepSeek） | ✅ **10/10 真实任务完成** | `backend=gptr`、`is_demo=false`、报告均值 14.7k 字符、p50 24.0s / p95 33.5s、上游 costs 合计 $0.663 |
 | GPT Researcher 真实网页检索 | ⚠️ **未验证** | 没有 Tavily Key；当前网络也无法访问 `api.tavily.com` |
 | 规则结构化抽取（方法/数据集/指标/图构建/实验条件） | ✅ 已实现 | 三份合成夹具 20/20 字段命中、23/23 原文证据通过 |
 | PDF 表格结构解析（OA/AA/Kappa 行列） | ✅ 已实现 | pdfplumber + 带线表格夹具；无表格时自动降级 |
@@ -287,7 +287,7 @@ python scripts/check_gptr_api.py
 python scripts/smoke_gptr.py --topic "graph neural networks for hyperspectral image classification" --source web
 ```
 
-> 已使用 DeepSeek 在 `source=local` 模式完成 2 次真实 GPT Researcher 任务（`backend=gptr`、`is_demo=false`）。真实网页检索仍需要 Tavily Key；`scripts/smoke_gptr.py` 失败时会明确打印错误并以非零码退出，不会伪造成功。
+> 已使用 DeepSeek 在 `source=local` 模式完成 **10/10** 个真实 GPT Researcher 任务（`backend=gptr`、`is_demo=false`）。真实网页检索仍需要 Tavily Key；`scripts/smoke_gptr.py` 失败时会明确打印错误并以非零码退出，不会伪造成功。
 
 #### 使用 DeepSeek（聊天模型）
 
@@ -420,19 +420,20 @@ docker compose build
 
 ## 10. 测试与评测（真实结果）
 
-测试环境：Windows 11，Python 3.12.8，2026-10-20。
+测试环境：Windows 11，Python 3.12.8，2026-10-21。
 
 ```bash
 pytest -q
 ruff check spectrascholar tests scripts
 python scripts/evaluate_pipeline.py
+python scripts/evaluate_research.py   # 需要 .env 中的真实聊天 Key；只跑本地 PDF
 ```
 
 实际结果：
 
 - **68 passed**（pytest）
 - **ruff：All checks passed**
-- **coverage：87%**（3498 statements，466 missed）
+- **coverage：87%**（3500 statements，466 missed）
 - 三份合成夹具（两篇正文 + 一张带线 OA/AA/Kappa 表格）：
   - 抽取字段命中 **20/20**
   - 原文证据接受 **23/23**
@@ -441,7 +442,8 @@ python scripts/evaluate_pipeline.py
   - 7/7 工作流节点完成
   - 对比 123 ms、索引 18 ms、检索中位 3 ms、回答 20 ms、工作流 379 ms
 - HTTP 端到端冒烟：上传 PDF → Demo 研究 → 对比 → 索引 → 检索 → 问答 → 工作流 → 报告下载均成功（2 篇正文夹具；表格夹具已通过独立 API 测试）。
-- **真实 DeepSeek + GPT Researcher 本地 PDF 调研**：2 次任务 `completed`，`backend=gptr`、`is_demo=false`，报告 14,861 / 15,263 字符，耗时 28.8s / 32.4s。
+- **真实 DeepSeek + GPT Researcher 本地 PDF 调研**：`scripts/evaluate_research.py` 跑 **10/10 completed**，`backend=gptr`、`is_demo=false`；报告均值 14,742 字符，p50 24.0s、p95 33.5s，上游 costs 合计 $0.663。
+- **引用审计真实结果**：10 个任务共 301 条引用标记，页级通过 0 条，本地 PDF 文件链接 255 条（未页级核验），外部链接 46 条，缺引用数值结论 88 条；报告正确标注这些边界，没有把“有链接”当成“已核验”。
 - **真实 DeepSeek LLM 抽取**：夹具 12/12 候选通过逐字核验（OA 98.4%、Kappa 0.977）；但数据集/方法关联缺失，仍不可直接排名。
 - **真实 DeepSeek RAG 回答**：返回 3 条 page-only 引用；`grounded=false`，因为回答未提供逐句引用/原文片段，审计保持严格。
 

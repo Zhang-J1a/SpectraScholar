@@ -8,7 +8,7 @@
 | 指标 | 结果 | 数据来源 | 能否用于简历 |
 |---|---|---|---|
 | 自动化测试 | **68 passed** | `pytest -q` | ✅ 可以 |
-| 代码覆盖率 | **87%**（3498 stmts / 466 miss） | `pytest --cov` | ✅ 可以 |
+| 代码覆盖率 | **87%**（3500 stmts / 466 miss） | `pytest --cov` | ✅ 可以 |
 | Lint | **All checks passed** | `ruff check` | ✅ 可以 |
 | 合成夹具抽取字段命中 | **20/20** | `scripts/evaluate_pipeline.py` | ✅ 可写“合成夹具” |
 | 合成夹具原文证据接受 | **23/23** | 同上 | ✅ 可写“合成夹具” |
@@ -17,7 +17,9 @@
 | BM25 / 向量 / 混合 MRR | **1.0 / 1.0 / 1.0** | 同上 | ⚠️ 同上 |
 | 合成夹具引用有效率 | **4/4** | 同上 | ✅ 可写“合成夹具” |
 | 工作流完成 | **7/7 节点** | 同上 | ✅ 可以 |
-| 真实 GPT Researcher 本地 PDF 任务 | **2/2 completed** | DeepSeek + 本地合成 PDF | ✅ 可写“本地 PDF 模式 2 次” |
+| 真实 GPT Researcher 本地 PDF 任务 | **10/10 completed** | `scripts/evaluate_research.py`，DeepSeek + 本地合成 PDF | ✅ 可写“本地 PDF 模式 10 次” |
+| 真实任务延迟 | **p50 24.0s / p95 33.5s** | 同上，10 个任务 | ✅ 可写“约 24–34s” |
+| 真实任务成本（上游元数据） | **$0.663 / 10 任务** | 同上，`costs` 字段 | ⚠️ 仅上游估算，非账单 |
 | 真实 GPT Researcher 网页检索任务 | **未验证** | 无 Tavily Key，网络不可达 | ❌ 不能写 |
 | 真实 DeepSeek LLM 抽取（夹具） | **12/12 候选通过逐字核验** | 2026-10-20 真实调用 | ✅ 可写“夹具、非真实论文” |
 | 真实 DeepSeek RAG 回答（夹具） | **3 条 page-only 引用；grounded=false** | 同上 | ✅ 可写“回答可用但未达逐句引用” |
@@ -88,12 +90,12 @@ spectrascholar\rag\embeddings.py            85     27    68%
 spectrascholar\rag\index.py                204     38    81%
 spectrascholar\rag\service.py              195     53    73%
 spectrascholar\research.py                 218     35    84%
-spectrascholar\schemas.py                  386      2    99%
+spectrascholar\schemas.py                  387      2    99%
 spectrascholar\settings.py                 111      6    95%
-spectrascholar\store.py                    219     22    90%
+spectrascholar\store.py                    220     22    90%
 spectrascholar\workflow.py                 214     36    83%
 ------------------------------------------------------------
-TOTAL                                     3498    466    87%
+TOTAL                                     3500    466    87%
 ```
 
 未覆盖部分主要是：真实 provider 客户端、PDF 加密/损坏、部分索引持久化分支、表格解析的异常分支。
@@ -241,11 +243,37 @@ usage = 10 tokens
 - 审计明确写出“本地文件链接/作者-年份引用未做页级核验”，不伪造验证成功；
 - 两次任务都只使用本地合成 PDF，**没有真实网页检索**；真实 web 模式仍需要 Tavily Key 与可达网络。
 
-### 5.1.5 可复现命令
+### 5.1.6 10 任务可靠性评测（`evaluate_research.py`）
+
+2026-10-21 用 DeepSeek 跑 10 个本地 PDF 任务（3 篇合成夹具），结果写入
+[`research_runs.json`](research_runs.json) 和 [`research_runs.md`](research_runs.md)。
+
+| 指标 | 结果 |
+|---|---|
+| 任务完成 | **10/10**（成功率 1.0） |
+| 报告字符 | 平均 14,742；范围 12,933–18,122 |
+| 延迟 | p50 **23,993 ms**；p95 **33,529 ms** |
+| 上游 costs 元数据合计 | **0.663485**（上游估算，不是账单） |
+| 引用标记总数 | **301** |
+| 页级引用通过 | **0** |
+| 本地 PDF 文件链接（未页级核验） | **255** |
+| 外部链接（未联网核验） | **46** |
+| 缺引用数值结论 | **88** |
+
+结论：
+
+- 任务状态机、真实 GPT Researcher、DeepSeek 和报告落盘在 10 次运行中稳定；
+- 上游报告几乎不提供 `[[doc:id p.N]]` 页级引用，主要是本地 PDF 文件名链接或作者-年份；
+- 因此引用审计的“页级通过”为 0，并标记 88 条数值结论缺引用；这是真实输出边界，不是评测失败；
+- 该评测只证明**任务可靠性**，不证明真实论文准确率或 web 检索质量。
+
+### 5.1.7 可复现命令
 
 ```powershell
-# 真实聊天冒烟（脚本不在仓库中，避免密钥；可用 OpenAI SDK 直接调用）
-# 真实 GPT Researcher 本地模式：
+# 10 个本地任务，自动写 docs/research_runs.json
+python scripts/evaluate_research.py
+
+# 或手动启动真实本地模式
 $env:WORKSPACE_DIR="$PWD\.smoke-workspace\gptr-api"
 $env:RESEARCH_BACKEND="gptr"
 $env:GPTR_RETRIEVER="duckduckgo"
