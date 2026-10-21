@@ -228,7 +228,7 @@ SQLite 表：
 
 | 场景 | 策略 |
 |---|---|
-| HTTP 后台任务 | FastAPI `BackgroundTasks`，单进程；限制同时 queued+running 数 |
+| 任务执行 | `QUEUE_BACKEND=sqlite`：`job_queue` + 独立 `scripts/run_worker.py`；`inline` 仅供测试 |
 | 外部 API | 总超时 + 阶段超时；有限重试 + 退避 |
 | 429 / 网络 | 可重试 |
 | 缺 Key / 缺依赖 / 空输出 | 不可重试 |
@@ -296,12 +296,12 @@ SQLite 表：
 ## 11. 已知限制
 
 1. 真实 GPT Researcher **本地 PDF** 模式已用 DeepSeek 完成 10/10 任务；真实**网页检索**完成 10/10（Tavily，当前代理环境需临时 `ALLOW_PRIVATE_URLS=true`）。
-2. 3 篇真实论文已完成抽取评测（LLM 元数据/方法/数据集强，指标→数据集绑定 0/24）；真实论文检索评测仍未完成。
+2. 3 篇真实论文已完成抽取评测（LLM 元数据/方法/数据集强，文本表格绑定 12/24；图片表未 OCR）；真实论文检索评测仍未完成。
 3. hash embedding 非语义；语义检索质量未验证。
 4. 表格解析只覆盖带线结构表；复杂跨页表、多级表头、合并单元格、图片表格仍需人工或 OCR。
 5. 检索消融在 hash 词法嵌入下三模式并列，尚未证明语义/混合检索收益。
 6. 外部链接不联网核验。
-7. 单进程 `BackgroundTasks` 不适合生产并发。
+7. SQLite worker 解决单机可靠队列；跨机器并发仍需 Redis/RQ。
 8. 无 OCR、无病毒扫描、无多租户。
 9. Docker 构建未验证（无 Docker CLI）。
 10. 页面截图未生成（浏览器 IPC 被沙箱阻断）。

@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 68 个）。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 72 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -348,7 +348,7 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 
 ```text
 .............................................................            [100%]
-68 passed, 1 warning in 7.88s
+72 passed, 1 warning in 11.38s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  3500 statements  466 missed  87%
+TOTAL  3621 statements  491 missed  86%
 ```
 
 ### 8.4 合成夹具评测
@@ -418,7 +418,7 @@ $env:WORKSPACE_DIR="$PWD\.smoke-workspace"
 |---|---|---|
 | GPT Researcher 真实本地 PDF | 已用 DeepSeek 完成 10/10 | 报告均值 14.7k 字符；p50 24.0s；无页级引用 |
 | GPT Researcher 真实网页检索 | 已完成 10/10（Tavily） | 均值 20.2k 字符、62 来源；代理环境需临时放行 |
-| 真实 LLM 抽取 | 夹具 12/12；真实论文 3 篇已评测 | 指标→数据集绑定 0/24 |
+| 真实 LLM 抽取 | 夹具 12/12；真实论文 3 篇已评测 | 指标→数据集绑定 12/24；图片表未 OCR |
 | 真实论文评测 | 3 篇 PDF 已评测 | 只评抽取，不评真实检索/RAG |
 | Docker 构建 | 无 Docker CLI | Dockerfile/compose 仅静态审查 |
 | 浏览器截图 | Chrome IPC 被沙箱阻断 | UI 只做 HTTP/JS 语法验证 |
@@ -522,8 +522,8 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 ### 10.6 本轮真实结果
 
 ```text
-pytest -q                         → 68 passed
-pytest --cov                      → 87% (3500 / 466)
+pytest -q                         → 72 passed
+pytest --cov                      → 86% (3621 / 491)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -602,38 +602,47 @@ Workflow                          → 7/7
 | venue | 2/3 | 3/3 |
 | 主方法 | 2/3 | 3/3 |
 | 数据集 | 8/9 | 9/9 |
-| 实验条件 | 0/8 | 4/8 |
-| 指标数值 | 0/24 | 13/24 |
-| 指标→数据集绑定 | 0/24 | **0/24** |
-| 指标→比例/patch 绑定 | 0/24 | **0/24** |
-| 证据接受率 | 43/43 | 70/75 |
+| 实验条件 | 0/8 | 5/8 |
+| 指标数值 | 12/24 | 13/24 |
+| 指标→数据集绑定 | 12/24 | **12/24** |
+| 指标→比例/patch 绑定 | 0/24 | **6/24** |
+| 证据接受率 | 133/133 | 159/164 |
 
 关键发现：
 
-- LLM 对元数据/方法/数据集很强，但**指标没有绑定到数据集**，因此不能做严格排名；
-- heuristic 对真实论文表格几乎无效（指标 0/24）；
-- PDF 表格不是带线表格，`pdfplumber` 无法稳定恢复行列，当前主要靠 LLM 正文理解；
+- LLM 对元数据/方法/数据集很强；
+- 新增文本表格行解析器后，HybridSN 的 9 列结果表按表头绑定到 3 个数据集，指标→数据集从 0/24 提升到 **12/24**；
+- SSRN/WFCG 的结果表是图片，当前无 OCR，保持缺失，不伪造数值；
+- heuristic 借文本行解析拿到 HybridSN 指标，但条件化仍为 0/24；图片表无效；
 - 证据接受率高只说明引文存在，不证明引文支持数值或实验条件。
 
 结果文件：`docs/real_paper_runs.json`、`docs/real_paper_runs.md`；
 标注：`eval/real_papers.labels.json`；脚本：`scripts/evaluate_real_papers.py`。
 
-### 10.10 仍未完成
+### 10.10 V1.5 SQLite 队列与 V1.4 对照报告
 
-- 指标→数据集/方法/训练比例/patch 的绑定（当前 P4.3 最大缺口）；
+- 新增 `spectrascholar/job_queue.py`：`BEGIN IMMEDIATE` 认领、stale lock 恢复、独立 worker。
+- API 默认可用 `QUEUE_BACKEND=sqlite`；测试用 `inline` 保持旧路径。
+- 跨进程验收：API 提交后进程退出 → `scripts/run_worker.py --once` 认领 → completed。
+- 新增 `scripts/generate_real_comparison.py`：3 篇真实论文、46,987 字符报告、82 个页级引用、0 个可比组（不强行排名）。
+- Dockerfile 复制 `scripts/`，compose 增加 `worker` 服务；但当前无 Docker CLI，未构建。
+
+### 10.11 仍未完成
+
+- SSRN/WFCG 图片表格 OCR；当前指标绑定只到 12/24；
 - 真实论文上的检索/RAG 评测（P4.3 只评抽取）；
 - 无代理放行/生产网络下的 web 稳定性评测；
 - 真实 embedding 的 ablation；
-- 复杂跨页表、多级表头、合并单元格、OCR；
-- 真实论文表格上的行列准确率。
+- Docker Compose 真实构建与第二台机器验证。
 
 ---
 
 ## 11. 下一步
 
-1. 实现指标行绑定：dataset/method/train_ratio/patch_size 必填，增加页内表格/上下文解析。
+1. 安装 OCR，补齐 SSRN/WFCG 图片表格；目标把指标→数据集绑定从 12/24 继续提升。
 2. 在 3 篇真实论文上做检索/RAG 评测（Recall@K、引用有效性、回答 grounded）。
-3. OpenAI embedding 对照 hash，做真实 ablation。
+3. 在有 Docker 的机器上执行 `docker compose up --build`，完成 V1.6。
+4. OpenAI embedding 对照 hash，做真实 ablation。
 4. 多级表头/跨页表/OCR。
 5. Redis/RQ 队列与取消/预算。
 6. 多用户与 PostgreSQL/pgvector。

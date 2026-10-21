@@ -7,8 +7,8 @@
 
 | 指标 | 结果 | 数据来源 | 能否用于简历 |
 |---|---|---|---|
-| 自动化测试 | **68 passed** | `pytest -q` | ✅ 可以 |
-| 代码覆盖率 | **87%**（3500 stmts / 466 miss） | `pytest --cov` | ✅ 可以 |
+| 自动化测试 | **72 passed** | `pytest -q` | ✅ 可以 |
+| 代码覆盖率 | **86%**（3621 stmts / 491 miss） | `pytest --cov` | ✅ 可以 |
 | Lint | **All checks passed** | `ruff check` | ✅ 可以 |
 | 合成夹具抽取字段命中 | **20/20** | `scripts/evaluate_pipeline.py` | ✅ 可写“合成夹具” |
 | 合成夹具原文证据接受 | **23/23** | 同上 | ✅ 可写“合成夹具” |
@@ -24,11 +24,11 @@
 | 真实 DeepSeek LLM 抽取（夹具） | **12/12 候选通过逐字核验** | 2026-10-20 真实调用 | ✅ 可写“夹具、非真实论文” |
 | 真实 DeepSeek RAG 回答（夹具） | **3 条 page-only 引用；grounded=false** | 同上 | ✅ 可写“回答可用但未达逐句引用” |
 | 真实论文元数据/方法/数据集（LLM） | **title/year/venue/method 3/3；datasets 9/9** | 3 篇真实 PDF，人工标注 | ✅ 可写“3 篇小样本” |
-| 真实论文实验条件（LLM） | **4/8** | 同上 | ⚠️ 条件绑定不稳定 |
+| 真实论文实验条件（LLM） | **5/8** | 同上 | ⚠️ 条件绑定部分完成 |
 | 真实论文指标数值（LLM） | **13/24** | 同上 | ⚠️ 只测数值命中 |
-| 真实论文指标→数据集绑定 | **0/24** | 同上 | ❌ 不能写“可直接排名” |
-| 真实论文指标→比例/patch 绑定 | **0/24** | 同上 | ❌ 不能写“条件化对比” |
-| 真实论文抽取证据接受 | **70/75（93.3%）** | 同上 | ✅ 可写“证据过滤” |
+| 真实论文指标→数据集绑定 | **12/24** | 文本表格行解析后 | ⚠️ 仅 HybridSN 文本表；图片表未 OCR |
+| 真实论文指标→比例/patch 绑定 | **6/24** | 同上 | ⚠️ 条件化仍不完整 |
+| 真实论文抽取证据接受 | **159/164（96.9%）** | 同上 | ✅ 可写“证据过滤” |
 | 真实语义 Recall@K | **未验证** | 未用真实 embedding | ❌ 不能写 |
 | Token / API 成本 | **未完整统计** | 只记录单次 chat usage | ❌ 不能写完整成本 |
 | Docker 构建 | **未验证** | 无 Docker CLI | ❌ 不能写 |
@@ -77,16 +77,17 @@ Name                                     Stmts   Miss  Cover
 spectrascholar\api\comparison.py            65     12    82%
 spectrascholar\api\documents.py            110     17    85%
 spectrascholar\api\knowledge.py             36      5    86%
-spectrascholar\api\research.py              64     10    84%
+spectrascholar\api\research.py              67     11    84%
 spectrascholar\api\system.py                32      4    88%
 spectrascholar\api\workflows.py             45      4    91%
 spectrascholar\citations.py                113      5    96%
 spectrascholar\compare.py                  263     23    91%
 spectrascholar\evidence.py                 102     27    74%
 spectrascholar\extraction\heuristic.py     253     27    89%
-spectrascholar\extraction\llm.py           215     41    81%
-spectrascholar\extraction\service.py        50      2    96%
-spectrascholar\extraction\tables.py        235     40    83%
+spectrascholar\extraction\llm.py           236     55    77%
+spectrascholar\extraction\service.py        55      4    93%
+spectrascholar\extraction\tables.py        289     76    74%
+spectrascholar\job_queue.py                 33      0   100%
 spectrascholar\llm_config.py                23      0   100%
 spectrascholar\main.py                      91      6    93%
 spectrascholar\rag\bm25.py                  50      5    90%
@@ -96,11 +97,11 @@ spectrascholar\rag\index.py                204     38    81%
 spectrascholar\rag\service.py              195     53    73%
 spectrascholar\research.py                 218     35    84%
 spectrascholar\schemas.py                  387      2    99%
-spectrascholar\settings.py                 111      6    95%
-spectrascholar\store.py                    220     22    90%
+spectrascholar\settings.py                 114      6    95%
+spectrascholar\store.py                    222     22    90%
 spectrascholar\workflow.py                 214     36    83%
 ------------------------------------------------------------
-TOTAL                                     3500    466    87%
+TOTAL                                     3621    491    86%
 ```
 
 未覆盖部分主要是：真实 provider 客户端、PDF 加密/损坏、部分索引持久化分支、表格解析的异常分支。
@@ -332,26 +333,26 @@ PDF：HybridSN（2019）、SSRN（2018）、WFCG（2022）。工作区另有 2 �
 | venue | 2/3 | **3/3** |
 | 主方法 | 2/3 | **3/3** |
 | 数据集 | 8/9 | **9/9** |
-| 实验条件（dataset + ratio + patch） | 0/8 | **4/8** |
-| 指标数值命中 | 0/24 | **13/24** |
-| 指标→数据集绑定 | 0/24 | **0/24** |
-| 指标→比例/patch 绑定 | 0/24 | **0/24** |
-| 证据接受/（接受+拒绝） | 43/43 | **70/75（93.3%）** |
+| 实验条件（dataset + ratio + patch） | 0/8 | **5/8** |
+| 指标数值命中 | 12/24 | **13/24** |
+| 指标→数据集绑定 | 12/24 | **12/24** |
+| 指标→比例/patch 绑定 | 0/24 | **6/24** |
+| 证据接受/（接受+拒绝） | 133/133 | **159/164（96.9%）** |
 
 ### 6.2 关键发现
 
 - **LLM 的元数据/方法/数据集识别很好**：title/year/venue/主方法 3/3，数据集 9/9。
-- **heuristic 几乎不能处理真实论文表格**：title 0/3，条件 0/8，指标 0/24；它只会抽取正文里少量候选。
+- **heuristic 只能借文本行解析拿到 HybridSN 指标**：title 0/3、条件 0/8；文本表指标 12/24，条件化 0/24；图片表无法解析。
 - **LLM 能读出部分表格数值**：13/24，主要来自 HybridSN 的表格；但 `dataset`/`method` 字段为空。
-- **指标→数据集绑定为 0/24**：这是最关键的缺陷。当前 LLM 输出“OA=99.19”时没有把它绑定到 Indian Pines，因此无法做严格可比性排名。
-- **条件绑定只有 4/8**：HybridSN 4 条中实际命中 2 条，SSRN 1/2，WFCG 1/2；LLM 输出存在运行间波动。
-- **证据接受率高不等于语义正确**：70/75 说明引文确实出现在 PDF 文本中，但不证明引文支持该数值或实验条件。
+- **指标→数据集绑定提升到 12/24**：HybridSN 的文本表格行可由表头列顺序绑定，从 0/24 提升到 12/24；SSRN/WFCG 的结果表是图片，当前没有 OCR，仍保持缺失。
+- **条件绑定只有 6/24**：HybridSN 的 30%/10% 表能部分绑定；图片表格无法确认比例。
+- **证据接受率高不等于语义正确**：159/164 说明引文确实出现在 PDF 文本中，但不证明引文支持该数值或实验条件。
 - 这些 PDF 的表格不是带线表格，`pdfplumber` 结构解析无法稳定恢复行列；当前结果主要来自 LLM 正文理解。
 
 ### 6.3 结论与限制
 
 - 可以写：**3 篇真实论文上，LLM 的元数据/方法/数据集抽取 3/3、9/9；指标数值 13/24。**
-- 不能写：**真实论文指标可直接排名**，因为指标→数据集绑定是 0/24。
+- 不能写：**真实论文指标可直接排名**；指标→数据集绑定仅 12/24，且 0 个可比组。
 - 不能写：**真实论文抽取准确率 90%+**；小样本、单次运行、3 篇论文，不足以支撑。
 - 下一步应优先做“指标行绑定”（dataset/method/train_ratio/patch_size 必填 + 表格结构/页内上下文），而不是继续增加论文数量。
 
