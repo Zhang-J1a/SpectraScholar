@@ -88,7 +88,7 @@
 - [x] 幂等键
 - [x] 统一错误/Trace/限流/安全头
 - [x] 可选 API Key
-- [x] 72 tests / 86% coverage / ruff
+- [x] 75 tests / 86% coverage / ruff
 - [x] Dockerfile + compose + healthcheck（静态检查）
 - [ ] Docker 构建与另一台机器部署
 - [ ] Redis/RQ 队列与取消

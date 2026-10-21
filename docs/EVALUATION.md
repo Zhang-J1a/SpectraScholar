@@ -7,8 +7,8 @@
 
 | 指标 | 结果 | 数据来源 | 能否用于简历 |
 |---|---|---|---|
-| 自动化测试 | **72 passed** | `pytest -q` | ✅ 可以 |
-| 代码覆盖率 | **86%**（3621 stmts / 491 miss） | `pytest --cov` | ✅ 可以 |
+| 自动化测试 | **75 passed** | `pytest -q` | ✅ 可以 |
+| 代码覆盖率 | **86%**（3706 stmts / 528 miss） | `pytest --cov` | ✅ 可以 |
 | Lint | **All checks passed** | `ruff check` | ✅ 可以 |
 | 合成夹具抽取字段命中 | **20/20** | `scripts/evaluate_pipeline.py` | ✅ 可写“合成夹具” |
 | 合成夹具原文证据接受 | **23/23** | 同上 | ✅ 可写“合成夹具” |
@@ -85,6 +85,7 @@ spectrascholar\compare.py                  263     23    91%
 spectrascholar\evidence.py                 102     27    74%
 spectrascholar\extraction\heuristic.py     253     27    89%
 spectrascholar\extraction\llm.py           236     55    77%
+spectrascholar\extraction\ocr.py            72     35    51%
 spectrascholar\extraction\service.py        55      4    93%
 spectrascholar\extraction\tables.py        289     76    74%
 spectrascholar\job_queue.py                 33      0   100%
@@ -97,11 +98,11 @@ spectrascholar\rag\index.py                204     38    81%
 spectrascholar\rag\service.py              195     53    73%
 spectrascholar\research.py                 218     35    84%
 spectrascholar\schemas.py                  387      2    99%
-spectrascholar\settings.py                 114      6    95%
+spectrascholar\settings.py                 120      6    95%
 spectrascholar\store.py                    222     22    90%
 spectrascholar\workflow.py                 214     36    83%
 ------------------------------------------------------------
-TOTAL                                     3621    491    86%
+TOTAL                                     3706    528    86%
 ```
 
 未覆盖部分主要是：真实 provider 客户端、PDF 加密/损坏、部分索引持久化分支、表格解析的异常分支。
@@ -344,7 +345,7 @@ PDF：HybridSN（2019）、SSRN（2018）、WFCG（2022）。工作区另有 2 �
 - **LLM 的元数据/方法/数据集识别很好**：title/year/venue/主方法 3/3，数据集 9/9。
 - **heuristic 只能借文本行解析拿到 HybridSN 指标**：title 0/3、条件 0/8；文本表指标 12/24，条件化 0/24；图片表无法解析。
 - **LLM 能读出部分表格数值**：13/24，主要来自 HybridSN 的表格；但 `dataset`/`method` 字段为空。
-- **指标→数据集绑定提升到 12/24**：HybridSN 的文本表格行可由表头列顺序绑定，从 0/24 提升到 12/24；SSRN/WFCG 的结果表是图片，当前没有 OCR，仍保持缺失。
+- **指标→数据集绑定提升到 12/24**：HybridSN 的文本表格行可由表头列顺序绑定，从 0/24 提升到 12/24；SSRN/WFCG 的结果表是图片，已加入可选 Tesseract OCR，但当前环境没有可执行文件，未真实运行，仍保持缺失。
 - **条件绑定只有 6/24**：HybridSN 的 30%/10% 表能部分绑定；图片表格无法确认比例。
 - **证据接受率高不等于语义正确**：159/164 说明引文确实出现在 PDF 文本中，但不证明引文支持该数值或实验条件。
 - 这些 PDF 的表格不是带线表格，`pdfplumber` 结构解析无法稳定恢复行列；当前结果主要来自 LLM 正文理解。

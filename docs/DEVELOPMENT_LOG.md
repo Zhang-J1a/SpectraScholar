@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 72 个）。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 75 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -348,7 +348,7 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 
 ```text
 .............................................................            [100%]
-72 passed, 1 warning in 11.38s
+75 passed, 1 warning in 11.36s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  3621 statements  491 missed  86%
+TOTAL  3706 statements  528 missed  86%
 ```
 
 ### 8.4 合成夹具评测
@@ -522,8 +522,8 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 ### 10.6 本轮真实结果
 
 ```text
-pytest -q                         → 72 passed
-pytest --cov                      → 86% (3621 / 491)
+pytest -q                         → 75 passed
+pytest --cov                      → 86% (3706 / 528)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -629,7 +629,7 @@ Workflow                          → 7/7
 
 ### 10.11 仍未完成
 
-- SSRN/WFCG 图片表格 OCR；当前指标绑定只到 12/24；
+- 安装 Tesseract 后真实跑 SSRN/WFCG 图片表格 OCR；当前代码已加但未真实验证，指标绑定只到 12/24；
 - 真实论文上的检索/RAG 评测（P4.3 只评抽取）；
 - 无代理放行/生产网络下的 web 稳定性评测；
 - 真实 embedding 的 ablation；
