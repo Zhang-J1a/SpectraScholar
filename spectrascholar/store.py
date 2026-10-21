@@ -126,6 +126,24 @@ def init_store() -> None:
             "CREATE INDEX IF NOT EXISTS idx_job_events_job ON job_events(job_id, event_id)"
         )
         connection.execute(
+            """CREATE TABLE IF NOT EXISTS job_queue (
+                job_id TEXT PRIMARY KEY,
+                trace_id TEXT NOT NULL,
+                request_json TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'queued',
+                attempts INTEGER NOT NULL DEFAULT 0,
+                available_at TEXT NOT NULL,
+                locked_at TEXT,
+                worker_id TEXT,
+                last_error TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )"""
+        )
+        connection.execute(
+            "CREATE INDEX IF NOT EXISTS idx_job_queue_claim ON job_queue(status, available_at)"
+        )
+        connection.execute(
             """CREATE TABLE IF NOT EXISTS documents (
                 document_id TEXT PRIMARY KEY,
                 filename TEXT NOT NULL,

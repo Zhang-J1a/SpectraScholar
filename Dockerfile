@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && if [ "$INSTALL_GPT_RESEARCHER" = "1" ]; then pip install --no-cache-dir -r requirements-live.txt; fi
 
 COPY spectrascholar ./spectrascholar
+COPY scripts ./scripts
 COPY web ./web
 
 RUN groupadd --system app \

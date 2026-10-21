@@ -129,6 +129,13 @@ class Settings:
     workflow_max_retries: int = _env_int("WORKFLOW_MAX_RETRIES", 1, 0)
     workflow_step_timeout_seconds: int = _env_int("WORKFLOW_STEP_TIMEOUT_SECONDS", 600, 5)
 
+    # -- durable job queue (V1.5) -------------------------------------------
+    # inline keeps the simple BackgroundTasks path for tests/dev; sqlite uses
+    # scripts/run_worker.py and survives API restarts.
+    queue_backend: str = os.getenv("QUEUE_BACKEND", "inline").strip().lower()
+    queue_poll_seconds: float = _env_float("QUEUE_POLL_SECONDS", 1.0)
+    queue_lock_timeout_seconds: int = _env_int("QUEUE_LOCK_TIMEOUT_SECONDS", 900, 30)
+
     # -- derived paths -------------------------------------------------------
     @property
     def paper_dir(self) -> Path:

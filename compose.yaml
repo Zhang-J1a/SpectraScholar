@@ -23,5 +23,24 @@ services:
       retries: 3
       start_period: 15s
 
+  worker:
+    build:
+      context: .
+      args:
+        INSTALL_GPT_RESEARCHER: ${INSTALL_GPT_RESEARCHER:-0}
+    command: ["python", "scripts/run_worker.py"]
+    env_file:
+      - .env
+    environment:
+      WORKSPACE_DIR: /data/workspace
+      QUEUE_BACKEND: sqlite
+    volumes:
+      - spectrascholar_workspace:/data/workspace
+    depends_on:
+      api:
+        condition: service_healthy
+    init: true
+    restart: unless-stopped
+
 volumes:
   spectrascholar_workspace:

@@ -23,6 +23,7 @@ os.environ["SPECTRASCHOLAR_SKIP_DOTENV"] = "1"
 os.environ.update(
     {
         "RESEARCH_BACKEND": "demo",
+        "QUEUE_BACKEND": "inline",
         "EXTRACTOR_BACKEND": "heuristic",
         "EMBEDDING_BACKEND": "hash",
         "ANSWER_BACKEND": "extractive",

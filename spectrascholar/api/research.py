@@ -4,6 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from fastapi.responses import FileResponse, PlainTextResponse
 
+from ..job_queue import enqueue_job
 from ..logging_utils import new_trace_id
 from ..research import run_research_job
 from ..schemas import JobDetails, JobEvent, JobStatus, JobSubmitted, JobSummary, ResearchRequest
@@ -29,7 +30,10 @@ def _submit(req: ResearchRequest, tasks: BackgroundTasks) -> JobSubmitted:
     trace_id = new_trace_id()
     backend = settings.research_backend
     job_id = create_job(req, backend=backend, trace_id=trace_id)
-    tasks.add_task(run_research_job, job_id, req, trace_id)
+    if settings.queue_backend == "sqlite":
+        enqueue_job(job_id, trace_id, req)
+    else:
+        tasks.add_task(run_research_job, job_id, req, trace_id)
     return JobSubmitted(
         job_id=job_id,
         status="queued",
