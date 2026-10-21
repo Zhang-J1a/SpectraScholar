@@ -13,8 +13,9 @@ from pathlib import Path
 from ..settings import settings
 
 TABLE_CAPTION_RE = re.compile(r"\b(?:table|tab\.)\s+[ivx\d]", re.IGNORECASE)
-NUMERIC_RE = re.compile(r"\d{1,3}(?:\.\d+)?")
-MIN_TEXT_NUMBERS = 6
+# Count decimal metric values, not table row labels/class indices (1..16).
+NUMERIC_RE = re.compile(r"\d{1,3}\.\d+")
+MIN_TEXT_NUMBERS = 3
 
 
 class OCRError(RuntimeError):

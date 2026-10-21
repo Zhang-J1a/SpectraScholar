@@ -504,6 +504,148 @@ def parse_text_metric_rows(
     return result
 
 
+TRANSPOSED_METRIC_RE = re.compile(r"^\s*(OA|AA|KAPPA(?:X100|X\s*100|×100)?)\b", re.IGNORECASE)
+OCR_DATASET_CAPTIONS = (
+    (re.compile(r"\bIN\s+DATA\s+SET\b", re.IGNORECASE), "Indian Pines"),
+    (re.compile(r"\bINDIAN\s+PINS?\b", re.IGNORECASE), "Indian Pines"),
+    (re.compile(r"\bUP\s+DATA\s+SET\b", re.IGNORECASE), "Pavia University"),
+    (re.compile(r"\bUNIVERSITY\s+OF\s+PAV\s*I\s*A\b", re.IGNORECASE), "Pavia University"),
+    (re.compile(r"\bKSC\s+DATA\s+SET\b", re.IGNORECASE), "Kennedy Space Center"),
+)
+
+
+def _ocr_dataset_from_line(line: str) -> str | None:
+    for pattern, name in OCR_DATASET_CAPTIONS:
+        if pattern.search(line):
+            return name
+    return _dataset_in(line)
+
+
+def _ocr_metric_name(line: str) -> str | None:
+    match = TRANSPOSED_METRIC_RE.match(line)
+    if not match:
+        return None
+    raw = match.group(1).upper().replace(" ", "")
+    if raw.startswith("OA"):
+        return "OA"
+    if raw.startswith("AA"):
+        return "AA"
+    return "Kappa"
+
+
+def _method_token_map(methods: list[str]) -> dict[str, str]:
+    aliases = {
+        "hybridsn": "HybridSN",
+        "hybirdsn": "HybridSN",
+        "jssan": "JSAN",
+        "wecg": "WFCG",
+        "cnnl": "CNNL",
+    }
+    mapping: dict[str, str] = {}
+    for name in methods:
+        key = normalized(name).replace(" ", "")
+        if key:
+            mapping[key] = name
+            mapping[key.replace("-", "")] = name
+    for key, canonical in aliases.items():
+        mapping.setdefault(key, canonical)
+    return mapping
+
+
+def parse_transposed_metric_rows(
+    pages: list[str],
+    document_id: str,
+    method_names: list[str],
+    conditions: list[ExperimentCondition] | None = None,
+) -> TableExtractionResult:
+    """Parse OCR output where methods are columns and OA/AA/Kappa are rows.
+
+    Example::
+
+        TABLE VI ... INDIAN PINES DATA SET
+        SVM SAE CNN SSRN
+        OA(%) 81.0 85.0 97.0 99.0
+        AA(%) ...
+        kappa x100 ...
+
+    Dataset comes from the nearest preceding table caption. If the caption
+    lacks a dataset or multiple datasets are present, the row is skipped.
+    """
+    result = TableExtractionResult()
+    method_map = _method_token_map(method_names)
+    condition_rows = conditions or []
+    for page_number, page in enumerate(pages, 1):
+        lines = [line.strip() for line in page.splitlines() if line.strip()]
+        current_dataset: str | None = None
+        header: list[str] = []
+        for line in lines:
+            caption_dataset = _ocr_dataset_from_line(line)
+            if caption_dataset and (
+                current_dataset is None
+                or "TABLE" in line.upper()
+                or "DATA SET" in line.upper()
+            ):
+                current_dataset = caption_dataset
+                header = []
+                continue
+            tokens = [token.strip(".,;:()_=+-|") for token in line.split()]
+            candidate = [method_map[token.casefold()] for token in tokens if token.casefold() in method_map]
+            if len(candidate) >= 2 and len(set(candidate)) == len(candidate):
+                header = candidate
+                continue
+            metric = _ocr_metric_name(line)
+            if metric is None or not header:
+                continue
+            if current_dataset is None:
+                current_dataset = _ocr_dataset_from_line(page)
+            if current_dataset is None:
+                continue
+            values = re.findall(r"\d{1,3}(?:\.\d+)", line)
+            if len(values) < len(header):
+                continue
+            values = values[: len(header)]
+            condition = next(
+                (
+                    item
+                    for item in condition_rows
+                    if normalized(item.dataset or "") == normalized(current_dataset)
+                ),
+                None,
+            )
+            for method, value in zip(header, values, strict=False):
+                evidence = make_evidence_ref(document_id, pages, page_number, line, value=value)
+                if not evidence.accepted:
+                    result.rejections.append(
+                        RejectionRecord(
+                            field="metrics",
+                            value=value,
+                            page=page_number,
+                            reason=evidence.status,
+                            note=evidence.note,
+                        )
+                    )
+                    continue
+                result.metrics.append(
+                    MetricRecord(
+                        dataset=current_dataset,
+                        method=method,
+                        metric=metric,
+                        value=value,
+                        train_ratio=condition.train_ratio if condition else None,
+                        patch_size=condition.patch_size if condition else None,
+                        protocol=condition.protocol if condition else None,
+                        source="table",
+                        evidence=[evidence],
+                        note="OCR 转置表解析；dataset 来自表题，需人工抽样核对",
+                    )
+                )
+            if current_dataset and current_dataset not in {d.name for d in result.datasets}:
+                result.datasets.append(DatasetRecord(name=current_dataset))
+    if result.metrics:
+        result.notes.append(f"OCR 转置表解析：绑定 {len(result.metrics)} 条指标。")
+    return result
+
+
 def _metric_key(metric: MetricRecord) -> tuple[str | None, str, str, int | None]:
     page = metric.evidence[0].page if metric.evidence else None
     return (metric.dataset, metric.metric, metric.value, page)

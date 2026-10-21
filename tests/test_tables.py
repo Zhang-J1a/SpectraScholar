@@ -11,6 +11,7 @@ from spectrascholar.extraction.tables import (
     parse_pdf_tables,
     parse_table_rows,
     parse_text_metric_rows,
+    parse_transposed_metric_rows,
 )
 from spectrascholar.schemas import (
     EvidenceRef,
@@ -60,6 +61,33 @@ def test_text_table_rows_bind_datasets_and_metrics():
     assert result.metrics[0].train_ratio == "30%"
     assert result.metrics[0].patch_size == "25x25"
     assert result.metrics[0].source == "table"
+
+
+def test_transposed_ocr_table_binds_methods_and_dataset():
+    page = (
+        "TABLE VI\n"
+        "CLASSIFICATION RESULTS FOR THE INDIAN PINES DATA SET\n"
+        "SVM SAE CNN SSRN\n"
+        "OA(%) 81.0 85.0 97.0 99.0\n"
+        "AA(%) 80.0 84.0 96.0 98.0\n"
+        "kappa x100 78.0 82.0 95.0 97.0\n"
+    )
+    result = parse_transposed_metric_rows(
+        [page],
+        "doc-transposed",
+        ["SVM", "SAE", "CNN", "SSRN"],
+        [ExperimentCondition(dataset="Indian Pines", train_ratio="20%", patch_size="7x7")],
+    )
+    assert len(result.metrics) == 12
+    ssrn_oa = next(
+        metric
+        for metric in result.metrics
+        if metric.method == "SSRN" and metric.metric == "OA"
+    )
+    assert ssrn_oa.dataset == "Indian Pines"
+    assert ssrn_oa.value == "99.0"
+    assert ssrn_oa.train_ratio == "20%"
+    assert ssrn_oa.patch_size == "7x7"
 
 
 def test_table_pdf_extracts_method_level_metrics():
