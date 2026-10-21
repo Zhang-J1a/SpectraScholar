@@ -1,7 +1,7 @@
 # 个人贡献说明
 
 > 目的：在简历、GitHub 和面试中准确区分 **GPT Researcher 上游能力** 与 **本人新增实现**。
-> 统计口径：`spectrascholar/` 下 Python 源文件共 6,362 行（含注释/空行，2026-10-21）；测试 1,575 行；脚本 1,388 行；Web 897 行。
+> 统计口径：`spectrascholar/` 下 Python 源文件共 6,504 行（含注释/空行，2026-10-21）；测试 1,601 行；脚本 1,388 行；Web 897 行。
 
 ## 1. 上游：GPT Researcher（Apache-2.0）
 
@@ -74,7 +74,7 @@
 | `spectrascholar/api/documents.py`（141 行） | 上传安全、去重、页查看、删除联动索引 |
 | `spectrascholar/api/system.py` | health、config、单条证据核验 |
 | `web/index.html`（897 行） | 中文单页 UI、轮询、Markdown、引用跳转、工作流 |
-| `tests/`（1,575 行） | 75 个测试、PDF/表格工厂、Mock GPT Researcher/LLM、队列、OCR 降级 |
+| `tests/`（1,601 行） | 76 个测试、PDF/表格工厂、Mock GPT Researcher/LLM、队列、OCR 降级 |
 | `scripts/`（1,388 行） | 合成夹具评测、10 任务本地/网页真实研究评测、3 篇真实论文评测、真实对照报告、队列 worker、BM25/向量/混合消融、GPT Researcher 检查/真实冒烟 |
 | `Dockerfile` / `compose.yaml` / `.env.example` | 部署与配置（Docker 构建未验证） |
 
@@ -87,7 +87,7 @@
 
 ## 4. 可验证的个人成果
 
-- 75 个 pytest 通过，覆盖率 86%；
+- 76 个 pytest 通过，覆盖率 86%；
 - `ruff` 全绿；
 - 真实 Uvicorn HTTP 冒烟：上传→研究→对比→索引→问答→工作流→下载均成功；
 - 合成夹具：字段 20/20、证据 23/23、引用 4/4、工作流 7/7；
@@ -96,14 +96,14 @@
 - 真实 DeepSeek：聊天、LLM 抽取（12/12 候选）、RAG 回答均完成；
 - 真实 GPT Researcher 本地 PDF 模式：10/10 任务 completed，报告均值 14.7k 字符，p50 24.0s / p95 33.5s，上游估算 $0.663；
 - 真实 Tavily 网页任务：10/10 completed，均值 20.2k 字符、p50 36.9s、62 个来源、上游估算 $1.078；
-- 3 篇真实论文抽取：LLM 的 title/year/venue/方法 3/3、datasets 9/9、指标数值 13/24、条件 5/8；指标→数据集绑定 12/24、条件化绑定 6/24；
+- 3 篇真实论文抽取：LLM 的 title/year/venue/方法 3/3、datasets 9/9、指标数值 20/24、条件 3/8；文本表 + Tesseract OCR 后指标→数据集 17/24、条件化绑定 8/24；
 - SQLite 持久队列 + 独立 worker：跨进程 queued→completed；
 - 明确记录的失败路径：缺 Key、超时、空报告、幻觉引用、不可比条件、空知识库、表格多值单元格、指标未绑定数据集。
 
 ## 5. 不能声称的成果
 
 - 真实 GPT Researcher **网页引用正确或生产稳定**（10 次任务完成，但 443 条外部链接未核验，且代理环境需临时放行）；
-- 真实论文**指标可直接排名**（指标→数据集绑定仅 12/24；图片表未 OCR）；完整 token 成本未统计；
+- 真实论文**指标可直接排名**（指标→数据集绑定仅 17/24；OCR 有误读/列错位）；完整 token 成本未统计；
 - Docker 部署验证通过（无 Docker CLI）；
 - 浏览器视觉截图（被沙箱阻断）；
 - 上游搜索/报告能力为本人原创。

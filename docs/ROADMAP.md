@@ -8,7 +8,7 @@
 |---|---|---|
 | V0 | 参考骨架：FastAPI/SQLite/上传/极简 UI/5 测试 | ✅ 已导入并保留 |
 | P0 | 真实 Agent 适配、状态机、日志、超时重试 | ✅ 代码 + Mock + 10/10 本地 PDF + 10/10 Tavily 网页任务；⚠️ 网页依赖代理放行 |
-| P1-A | 结构化论文抽取 | ✅ 规则/LLM + 真实 3 篇论文评测；⚠️ 指标→数据集绑定 12/24，图片表未 OCR |
+| P1-A | 结构化论文抽取 | ✅ 规则/LLM + 真实 3 篇论文评测；⚠️ 指标→数据集绑定 17/24，OCR 仍有误读 |
 | P1-B | 多论文对比/可比性/Markdown | ✅ 完成并有测试 |
 | P1-C | 可信引用校验 | ✅ 完成并有测试 |
 | P2 | 混合 RAG（BM25+向量+RRF） | ✅ 代码 + 合成夹具评测；⚠️ 语义质量未验证 |
@@ -88,7 +88,7 @@
 - [x] 幂等键
 - [x] 统一错误/Trace/限流/安全头
 - [x] 可选 API Key
-- [x] 75 tests / 86% coverage / ruff
+- [x] 76 tests / 86% coverage / ruff
 - [x] Dockerfile + compose + healthcheck（静态检查）
 - [ ] Docker 构建与另一台机器部署
 - [ ] Redis/RQ 队列与取消

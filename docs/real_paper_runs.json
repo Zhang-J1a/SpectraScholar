@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-21T14:46:16+00:00",
+  "generated_at": "2026-10-21T15:28:38+00:00",
   "corpus": "real_papers",
   "papers": [
     "hybridsn",
@@ -129,10 +129,10 @@
             ]
           },
           "evidence": {
-            "evidence_total": 12,
-            "evidence_verified": 12,
+            "evidence_total": 17,
+            "evidence_verified": 17,
             "rejected": 0,
-            "missing_fields": 2
+            "missing_fields": 1
           },
           "extracted": {
             "title": "IEEE TRANSACTIONS ON GEOSCIENCE AND REMOTE SENSING, VOL. 56, NO. 2, FEBRUARY 2018 847",
@@ -147,7 +147,7 @@
               "Kennedy Space Center"
             ],
             "conditions": 4,
-            "metrics": 0,
+            "metrics": 5,
             "rejections": 0
           }
         },
@@ -195,10 +195,10 @@
             ]
           },
           "evidence": {
-            "evidence_total": 19,
-            "evidence_verified": 19,
+            "evidence_total": 49,
+            "evidence_verified": 49,
             "rejected": 0,
-            "missing_fields": 1
+            "missing_fields": 0
           },
           "extracted": {
             "title": "IEEE TRANSACTIONS ON IMAGE PROCESSING, VOL. 31, 2022 1559",
@@ -218,7 +218,7 @@
               "WHU-Hi"
             ],
             "conditions": 3,
-            "metrics": 0,
+            "metrics": 30,
             "rejections": 0
           }
         }
@@ -270,8 +270,8 @@
           "accuracy": 0.0
         },
         "evidence_acceptance": {
-          "accepted": 133,
-          "total": 133,
+          "accepted": 168,
+          "total": 168,
           "rate": 1.0
         }
       }
@@ -304,7 +304,7 @@
               3
             ],
             "conditions": [
-              2,
+              1,
               4
             ]
           },
@@ -323,8 +323,8 @@
             ]
           },
           "evidence": {
-            "evidence_total": 121,
-            "evidence_verified": 121,
+            "evidence_total": 95,
+            "evidence_verified": 95,
             "rejected": 1,
             "missing_fields": 2
           },
@@ -343,8 +343,8 @@
               "Pavia University",
               "Salinas Scene"
             ],
-            "conditions": 6,
-            "metrics": 105,
+            "conditions": 2,
+            "metrics": 83,
             "rejections": 1
           }
         },
@@ -373,28 +373,28 @@
               3
             ],
             "conditions": [
-              2,
+              1,
               2
             ]
           },
           "metrics": {
             "value": [
-              0,
+              2,
               6
             ],
             "dataset_association": [
-              0,
+              2,
               6
             ],
             "conditioned": [
-              0,
+              2,
               6
             ]
           },
           "evidence": {
-            "evidence_total": 18,
-            "evidence_verified": 18,
-            "rejected": 1,
+            "evidence_total": 30,
+            "evidence_verified": 30,
+            "rejected": 4,
             "missing_fields": 2
           },
           "extracted": {
@@ -403,18 +403,21 @@
             "venue": "IEEE Transactions on Geoscience and Remote Sensing",
             "methods": [
               "SSRN",
-              "3-D CNN",
+              "SVM",
               "SAE",
-              "SVM"
+              "CNN",
+              "CNNL",
+              "SPA",
+              "SPC"
             ],
             "datasets": [
               "Indian Pines",
               "Kennedy Space Center",
               "University of Pavia"
             ],
-            "conditions": 6,
-            "metrics": 2,
-            "rejections": 1
+            "conditions": 3,
+            "metrics": 14,
+            "rejections": 4
           }
         },
         {
@@ -448,11 +451,11 @@
           },
           "metrics": {
             "value": [
-              1,
+              6,
               6
             ],
             "dataset_association": [
-              0,
+              3,
               6
             ],
             "conditioned": [
@@ -461,8 +464,8 @@
             ]
           },
           "evidence": {
-            "evidence_total": 20,
-            "evidence_verified": 20,
+            "evidence_total": 96,
+            "evidence_verified": 96,
             "rejected": 3,
             "missing_fields": 1
           },
@@ -474,6 +477,7 @@
               "WFCG",
               "GAT",
               "CNN",
+              "SLIC",
               "SVM",
               "1D-CNN",
               "JSAN",
@@ -485,10 +489,11 @@
             "datasets": [
               "Indian Pines",
               "University of Pavia",
-              "WHU-Hi-HongHu"
+              "WHU-Hi-HongHu",
+              "Pavia University"
             ],
             "conditions": 2,
-            "metrics": 1,
+            "metrics": 76,
             "rejections": 3
           }
         }
@@ -520,29 +525,29 @@
           "accuracy": 1.0
         },
         "fields.conditions": {
-          "hit": 5,
+          "hit": 3,
           "total": 8,
-          "accuracy": 0.625
+          "accuracy": 0.375
         },
         "metrics.value": {
-          "hit": 13,
+          "hit": 20,
           "total": 24,
-          "accuracy": 0.5417
+          "accuracy": 0.8333
         },
         "metrics.dataset_association": {
-          "hit": 12,
+          "hit": 17,
           "total": 24,
-          "accuracy": 0.5
+          "accuracy": 0.7083
         },
         "metrics.conditioned": {
-          "hit": 6,
+          "hit": 8,
           "total": 24,
-          "accuracy": 0.25
+          "accuracy": 0.3333
         },
         "evidence_acceptance": {
-          "accepted": 159,
-          "total": 164,
-          "rate": 0.9695
+          "accepted": 221,
+          "total": 229,
+          "rate": 0.9651
         }
       }
     }
