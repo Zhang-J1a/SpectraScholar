@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .api import comparison, documents, knowledge, research, system, workflows
+from .api import comparison, documents, knowledge, research, system, tools, workflows
 from .logging_utils import configure_logging, get_trace_id, new_trace_id, set_trace_id
 from .settings import settings
 from .store import init_store
@@ -144,6 +144,7 @@ def create_app() -> FastAPI:
     app.include_router(comparison.router)
     app.include_router(knowledge.router)
     app.include_router(workflows.router)
+    app.include_router(tools.router)
 
     @app.get("/", include_in_schema=False)
     def index():

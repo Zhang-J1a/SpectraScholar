@@ -144,6 +144,11 @@ class Settings:
     queue_poll_seconds: float = _env_float("QUEUE_POLL_SECONDS", 1.0)
     queue_lock_timeout_seconds: int = _env_int("QUEUE_LOCK_TIMEOUT_SECONDS", 900, 30)
 
+    # -- tools / arxiv search (V2.1) -----------------------------------------
+    arxiv_max_results: int = _env_int("ARXIV_MAX_RESULTS", 50, 1)
+    arxiv_max_attempts: int = _env_int("ARXIV_MAX_ATTEMPTS", 2, 1)
+    arxiv_timeout_seconds: int = _env_int("ARXIV_TIMEOUT_SECONDS", 30, 5)
+
     # -- derived paths -------------------------------------------------------
     @property
     def paper_dir(self) -> Path:

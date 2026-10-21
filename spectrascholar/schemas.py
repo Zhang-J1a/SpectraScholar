@@ -551,3 +551,39 @@ class HealthResponse(BaseModel):
     demo_mode: bool
     knowledge_chunks: int = 0
     documents: int = 0
+
+
+# ---------------------------------------------------------------------------
+# Tool calling (V2.1)
+# ---------------------------------------------------------------------------
+class ArxivPaper(BaseModel):
+    arxiv_id: str
+    title: str
+    authors: list[str] = Field(default_factory=list)
+    published: str
+    year: int | None = None
+    doi: str | None = None
+    abstract: str = ""
+    pdf_url: str | None = None
+    entry_url: str
+    categories: list[str] = Field(default_factory=list)
+    primary_category: str | None = None
+    journal_ref: str | None = None
+    task_topic_match: bool = False
+
+
+class ArxivSearchResponse(BaseModel):
+    tool: Literal["arxiv_search"] = "arxiv_search"
+    query: str
+    effective_query: str
+    year_from: int | None = None
+    year_to: int | None = None
+    task_topic: str | None = None
+    start: int = 0
+    max_results: int
+    returned: int
+    has_more: bool = False
+    duplicates_filtered: int = 0
+    attempts: int = 1
+    provider: str = "arxiv"
+    papers: list[ArxivPaper] = Field(default_factory=list)
