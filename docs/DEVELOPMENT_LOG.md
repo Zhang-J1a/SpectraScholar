@@ -417,7 +417,7 @@ $env:WORKSPACE_DIR="$PWD\.smoke-workspace"
 | 事项 | 原因 | 影响 |
 |---|---|---|
 | GPT Researcher 真实本地 PDF | 已用 DeepSeek 完成 10/10 | 报告均值 14.7k 字符；p50 24.0s；无页级引用 |
-| GPT Researcher 真实网页检索 | 已完成 1 次（Tavily） | 17,953 字符、6 来源；代理环境需临时放行 |
+| GPT Researcher 真实网页检索 | 已完成 10/10（Tavily） | 均值 20.2k 字符、62 来源；代理环境需临时放行 |
 | 真实 LLM 抽取 | 已用 DeepSeek 完成夹具 12/12 | 真实论文未验证 |
 | 真实论文评测 | 无法下载 PDF | 只有合成夹具 |
 | Docker 构建 | 无 Docker CLI | Dockerfile/compose 仅静态审查 |
@@ -555,7 +555,7 @@ Workflow                          → 7/7
 4. **真实 GPT Researcher API 任务**（`source=local`）：
    - 第 1 次：completed，15,263 字符，28,770 ms，`backend=gptr`、`is_demo=false`；
    - 第 2 次：completed，14,861 字符，32,411 ms；
-   - 这两次只读本地合成 PDF；真实网页检索在后续第 6 点完成 1 次。
+   - 这两次只读本地合成 PDF；真实网页检索在后续第 6 点完成 10 次。
 5. **10 任务可靠性评测**（2026-10-21，`scripts/evaluate_research.py`）：
    - 10/10 completed，成功率 1.0；
    - 报告均值 14,742 字符；p50 23,993 ms，p95 33,529 ms；
@@ -563,13 +563,15 @@ Workflow                          → 7/7
    - 引用标记 301 条：页级通过 0、本地 PDF 文件链接 255、外部链接 46、缺引用数值结论 88；
    - 结果写入 `docs/research_runs.json` / `docs/research_runs.md`；
    - 这是任务可靠性评测，不是真实论文质量评测。
-6. **真实网页检索（Tavily，1 次）**（2026-10-21）：
+6. **真实网页检索（Tavily，10 次）**（2026-10-21）：
    - Tavily `/search` 返回 HTTP 200、3 条结果；
    - 首次完整网页研究因当前网络把公网域名解析到 `198.18.0.x`，被上游 SSRF 防护判为内网，`empty_context` 失败；
    - 仅对本次进程设置 `ALLOW_PRIVATE_URLS=true` 后成功；
-   - API 任务：completed、17,953 字符、48,754 ms、6 个来源、costs 0.102055；
-   - 审计：53 条外部链接未核验、2 条数值结论缺引用；
-   - **不是** 10 次 web 稳定性评测；`ALLOW_PRIVATE_URLS=true` 关闭 SSRF 防护，不能用于生产。
+   - 新增 `scripts/evaluate_web_research.py`，跑 10/10 completed；
+   - 报告均值 20,179.5 字符；p50 36,861 ms、p95 42,714 ms；62 个来源；costs 合计 1.078075；
+   - 审计：443 条外部链接未核验、页级通过 0、31 条数值结论缺引用；
+   - 结果写入 `docs/web_research_runs.json` / `docs/web_research_runs.md`；
+   - **不是生产稳定性结论**；`ALLOW_PRIVATE_URLS=true` 关闭 SSRF 防护，不能用于生产。
 
 联调中发现并修复的 Bug：
 
@@ -584,13 +586,13 @@ Workflow                          → 7/7
 
 真实结果边界：
 
-- 真实 web 检索只完成 1 次，且需要代理放行；不能宣称 10/10 或生产可用；
+- 真实 web 检索完成 10/10，但需要代理放行；外部链接未核验，不能宣称“引用正确”或生产可用；
 - 上游报告没有页级引用，所以“引用核验通过”仍为 0；
 - 真实论文仍未下载，抽取质量只代表合成夹具。
 
 ### 10.9 仍未完成
 
-- 10 次真实 web 检索稳定性评测（当前仅 1 次）；
+- 无代理放行/生产网络下的 web 稳定性评测（当前 10 次依赖 `ALLOW_PRIVATE_URLS`）；
 - 真实论文 PDF 与标注评测；
 - 真实 embedding 的 ablation；
 - 复杂跨页表、多级表头、合并单元格、OCR；

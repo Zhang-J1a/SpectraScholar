@@ -71,7 +71,7 @@ python scripts\make_demo_pdfs.py --out demo_assets
 1. 研究任务页提交“比较高光谱动态图与 HybridSN”。
 2. 展示 queued → running → completed、事件时间线、Trace ID。
 3. 报告头显示“演示模式、不是调研结果”。
-4. 说明真实 GPT Researcher 本地 PDF 模式已用 DeepSeek 完成 10/10 任务；网页模式完成 1 次 Tavily 任务，代理环境需临时放行。
+4. 说明真实 GPT Researcher 本地 PDF 模式已用 DeepSeek 完成 10/10 任务；网页模式完成 10/10 Tavily 任务，代理环境需临时放行。
 
 ## 3. 演示时必须主动说明的边界
 
@@ -80,7 +80,7 @@ python scripts\make_demo_pdfs.py --out demo_assets
 - hash 不是语义模型；
 - 原文匹配 ≠ 事实正确 ≠ 实验可比；
 - 合成夹具 100% 只证明流水线；
-- Docker/真实网页检索/真实论文评测在当前环境未验证；本地 PDF + DeepSeek 已完成。
+- Docker/真实论文评测在当前环境未验证；本地 PDF 10/10、Tavily 网页 10/10 已完成（网页依赖代理放行）。
 
 ## 4. 当前环境未完成的可视化
 

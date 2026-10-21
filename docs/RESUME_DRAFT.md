@@ -1,6 +1,6 @@
 # 简历项目描述（只使用已验证事实）
 
-> 当前可用的真实数字：68 tests / 87% coverage / 合成夹具 20/20 字段、23/23 证据、4/4 引用、7/7 工作流；真实 GPT Researcher 本地 PDF 模式 + DeepSeek 完成 10/10 任务（报告均值 14.7k 字符，p50 24.0s / p95 33.5s，上游估算 $0.663）；Tavily 网页任务完成 1 次（17,953 字符、6 个来源，当前代理环境需临时放行）；BM25/向量/混合在 hash 下并列 1.0，不能宣称语义提升。真实论文、Docker、浏览器截图未验证。
+> 当前可用的真实数字：68 tests / 87% coverage / 合成夹具 20/20 字段、23/23 证据、4/4 引用、7/7 工作流；真实 GPT Researcher 本地 PDF 模式 + DeepSeek 完成 10/10 任务（报告均值 14.7k 字符，p50 24.0s / p95 33.5s，上游估算 $0.663）；Tavily 网页任务完成 10/10（均值 20.2k 字符、62 个来源、p50 36.9s，当前代理环境需临时放行）；BM25/向量/混合在 hash 下并列 1.0，不能宣称语义提升。真实论文、Docker、浏览器截图未验证。
 
 **SpectraScholar — 科研文献调研与分析 Agent（个人二次开发）**
 
@@ -11,7 +11,7 @@
 个人工作：
 
 - 设计 `ResearchBackend` 适配层与任务状态机，加入 Trace ID、执行事件、超时、有限重试与可重试/不可重试错误分类；Demo 模式在 API/报告/页面显式标注，不冒充真实研究。
-- 为 GPT Researcher 设计每任务隔离配置，正确处理 web/local、DOC_PATH、模型与检索器；用假引擎覆盖失败路径，并完成 10 次 DeepSeek 本地 PDF 真实任务（10/10，p50 24.0s）和 1 次 Tavily 网页任务（17,953 字符、6 个来源）。
+- 为 GPT Researcher 设计每任务隔离配置，正确处理 web/local、DOC_PATH、模型与检索器；用假引擎覆盖失败路径，并完成 10 次 DeepSeek 本地 PDF 真实任务（10/10，p50 24.0s）和 10 次 Tavily 网页任务（10/10，均值 20.2k 字符、62 个来源）。
 - 抽象 OpenAI/DeepSeek 兼容聊天凭据与 provider 密钥检查；DeepSeek-only 时自动切换 `deepseek-chat` 并设置 `CONTEXT_FILTER=keyword`，避免隐式调用不存在的 embedding 服务。
 - 设计 Pydantic 证据契约，将方法/模型家族/数据集/OA/AA/Kappa/训练比例/图构建绑定到 PDF 页码与连续原文片段；LLM 候选不匹配即拒绝，缺失字段返回 null。
 - 使用 pdfplumber 解析带线 OA/AA/Kappa 表格，把行识别为方法、列识别为指标；数值仍回页文本核验，多值单元格拒绝；表格指标与正文指标去重合并。

@@ -1,7 +1,7 @@
 # 个人贡献说明
 
 > 目的：在简历、GitHub 和面试中准确区分 **GPT Researcher 上游能力** 与 **本人新增实现**。
-> 统计口径：`spectrascholar/` 下 Python 源文件共 5,965 行（含注释/空行，2026-10-21）；测试 1,463 行；脚本 711 行；Web 897 行。
+> 统计口径：`spectrascholar/` 下 Python 源文件共 5,965 行（含注释/空行，2026-10-21）；测试 1,463 行；脚本 959 行；Web 897 行。
 
 ## 1. 上游：GPT Researcher（Apache-2.0）
 
@@ -75,7 +75,7 @@
 | `spectrascholar/api/system.py` | health、config、单条证据核验 |
 | `web/index.html`（897 行） | 中文单页 UI、轮询、Markdown、引用跳转、工作流 |
 | `tests/`（1,463 行） | 68 个测试、PDF/表格工厂、Mock GPT Researcher/LLM |
-| `scripts/`（711 行） | 合成夹具评测、10 任务真实研究评测、BM25/向量/混合消融、GPT Researcher 检查/真实冒烟、证据统计 |
+| `scripts/`（959 行） | 合成夹具评测、10 任务本地/网页真实研究评测、BM25/向量/混合消融、GPT Researcher 检查/真实冒烟、证据统计 |
 | `Dockerfile` / `compose.yaml` / `.env.example` | 部署与配置（Docker 构建未验证） |
 
 ## 3. 明确不属于本人的工作
@@ -95,12 +95,12 @@
 - BM25/向量/混合消融均跑通；hash 词法嵌入下三模式并列 1.0，不宣称语义提升；
 - 真实 DeepSeek：聊天、LLM 抽取（12/12 候选）、RAG 回答均完成；
 - 真实 GPT Researcher 本地 PDF 模式：10/10 任务 completed，报告均值 14.7k 字符，p50 24.0s / p95 33.5s，上游估算 $0.663；
-- 真实 Tavily 网页任务：1 次 completed，17,953 字符、48.7s、6 个来源、上游估算 $0.102；
+- 真实 Tavily 网页任务：10/10 completed，均值 20.2k 字符、p50 36.9s、62 个来源、上游估算 $1.078；
 - 明确记录的失败路径：缺 Key、超时、空报告、幻觉引用、不可比条件、空知识库、表格多值单元格。
 
 ## 5. 不能声称的成果
 
-- 真实 GPT Researcher **网页检索 10/10 或生产稳定**（当前只完成 1 次，且代理环境需临时放行）；
+- 真实 GPT Researcher **网页引用正确或生产稳定**（10 次任务完成，但 443 条外部链接未核验，且代理环境需临时放行）；
 - 真实论文字段正确率 / 语义 Recall@K / 完整 token 成本（未验证）；
 - Docker 部署验证通过（无 Docker CLI）；
 - 浏览器视觉截图（被沙箱阻断）；

@@ -20,7 +20,7 @@
 | 真实 GPT Researcher 本地 PDF 任务 | **10/10 completed** | `scripts/evaluate_research.py`，DeepSeek + 本地合成 PDF | ✅ 可写“本地 PDF 模式 10 次” |
 | 真实任务延迟 | **p50 24.0s / p95 33.5s** | 同上，10 个任务 | ✅ 可写“约 24–34s” |
 | 真实任务成本（上游元数据） | **$0.663 / 10 任务** | 同上，`costs` 字段 | ⚠️ 仅上游估算，非账单 |
-| 真实 GPT Researcher 网页检索任务 | **1/1 completed** | Tavily + DeepSeek；17,953 字符、48.7s、6 sources、$0.102 | ⚠️ 仅 1 次，代理放行；不能写稳定成功率 |
+| 真实 GPT Researcher 网页检索任务 | **10/10 completed** | Tavily + DeepSeek；均值 20,180 字符、p50 36.9s / p95 42.7s、62 sources、$1.078 | ✅ 可写“10 次 web 任务完成”；⚠️ 代理放行，外部链接未核验 |
 | 真实 DeepSeek LLM 抽取（夹具） | **12/12 候选通过逐字核验** | 2026-10-20 真实调用 | ✅ 可写“夹具、非真实论文” |
 | 真实 DeepSeek RAG 回答（夹具） | **3 条 page-only 引用；grounded=false** | 同上 | ✅ 可写“回答可用但未达逐句引用” |
 | 真实论文字段正确率 | **未验证** | PDF 未下载 | ❌ 不能写 |
@@ -241,7 +241,7 @@ usage = 10 tokens
 - `backend=gptr`、`is_demo=false`、`attempts=1`；
 - 报告由上游生成，引用风格不是本项目的 `[[doc:id p.N]]`，因此**不能算作页级引用通过**；
 - 审计明确写出“本地文件链接/作者-年份引用未做页级核验”，不伪造验证成功；
-- 两次任务都只使用本地合成 PDF，**没有真实网页检索**；真实 web 模式仍需要 Tavily Key 与可达网络。
+- 这两次任务只使用本地合成 PDF；真实 web 模式后来在 5.1.8 用 Tavily 完成 10 次。
 
 ### 5.1.6 10 任务可靠性评测（`evaluate_research.py`）
 
@@ -273,6 +273,9 @@ usage = 10 tokens
 # 10 个本地任务，自动写 docs/research_runs.json
 python scripts/evaluate_research.py
 
+# 10 个真实网页任务（当前代理环境需 --allow-private）
+python scripts/evaluate_web_research.py --limit 10 --allow-private
+
 # 或手动启动真实本地模式
 $env:WORKSPACE_DIR="$PWD\.smoke-workspace\gptr-api"
 $env:RESEARCH_BACKEND="gptr"
@@ -281,17 +284,31 @@ $env:GPTR_MAX_ITERATIONS="1"
 uvicorn spectrascholar.main:app --port 8015
 ```
 
-### 5.1.8 真实网页检索（Tavily，1 次）
+### 5.1.8 真实网页检索（Tavily，10 次）
 
 2026-10-21 配置 `TAVILY_API_KEY` 后完成：
 
 - Tavily `/search` 直接调用返回 HTTP 200、3 条结果；
 - 第一次完整网页研究失败：当前网络把公网域名解析到 `198.18.0.x`，上游 SSRF 防护判定为内网并跳过所有 URL，最终 `empty_context`；
 - 仅为本次进程设置 `ALLOW_PRIVATE_URLS=true` 后重新运行成功；
-- `source=web` API 任务：**completed**、`backend=gptr`、`is_demo=false`、**17,953 字符**、**48,754 ms**、**6 个来源**、上游 costs **0.102055**；
-- 引用审计：53 条外部链接（未联网核验）、0 条页级引用、2 条数值结论缺引用。
+- `scripts/evaluate_web_research.py --limit 10 --allow-private`：
 
-> 安全边界：`ALLOW_PRIVATE_URLS=true` 会关闭上游的 SSRF/内网地址防护，只应在你信任的本地代理环境临时使用，**不要写入生产 `.env`**。这次是 1 次网页任务，不是 10 次稳定性评测。
+| 指标 | 结果 |
+|---|---|
+| 任务完成 | **10/10**（成功率 1.0） |
+| 报告字符 | 平均 20,179.5；范围 16,695–25,427 |
+| 延迟 | p50 **36,861 ms**；p95 **42,714 ms** |
+| 搜索来源总数 | **62**（平均 6.2/任务） |
+| 上游 costs 合计 | **1.078075**（上游估算，不是账单） |
+| 外部链接（未联网核验） | **443** |
+| 页级引用通过 | **0** |
+| 缺引用数值结论 | **31** |
+
+- 结果文件：[`web_research_runs.json`](web_research_runs.json)、[`web_research_runs.md`](web_research_runs.md)；
+- 网络不稳定：部分抓取出现 403/SSL/反爬，但 10 个任务都完成；
+- 外部链接没有做内容核验，**不能把“10/10 completed”写成“10/10 引用正确”或“生产稳定”**。
+
+> 安全边界：`ALLOW_PRIVATE_URLS=true` 会关闭上游的 SSRF/内网地址防护，只应在你信任的本地代理环境临时使用，**不要写入生产 `.env`**。
 
 ---
 
