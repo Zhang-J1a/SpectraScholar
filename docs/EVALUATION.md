@@ -7,8 +7,8 @@
 
 | 指标 | 结果 | 数据来源 | 能否用于简历 |
 |---|---|---|---|
-| 自动化测试 | **84 passed** | `pytest -q` | ✅ 可以 |
-| 代码覆盖率 | **86%**（3992 stmts / 568 miss） | `pytest --cov` | ✅ 可以 |
+| 自动化测试 | **87 passed** | `pytest -q` | ✅ 可以 |
+| 代码覆盖率 | **86%**（4054 stmts / 569 miss） | `pytest --cov` | ✅ 可以 |
 | Lint | **All checks passed** | `ruff check` | ✅ 可以 |
 | 合成夹具抽取字段命中 | **20/20** | `scripts/evaluate_pipeline.py` | ✅ 可写“合成夹具” |
 | 合成夹具原文证据接受 | **23/23** | 同上 | ✅ 可写“合成夹具” |
@@ -30,6 +30,8 @@
 | 真实论文指标→数据集绑定 | **21/24** | 文本表 + Tesseract OCR 转置表 | ⚠️ 仍有 OCR/列错位 |
 | 真实论文指标→比例/patch 绑定 | **9/24** | 同上 | ⚠️ 条件化仍不完整 |
 | 真实论文抽取证据接受 | **271/277（97.8%）** | 同上 | ✅ 可写“证据过滤” |
+| 真实论文检索（30 题） | **BM25 R@5 30.0%；hash 26.7%；hybrid 33.3%** | 3 篇 PDF、人工 gold page | ⚠️ 基线偏低，不能写语义提升 |
+| Claim-level 引用核验 | **已实现；未做全量人工语义抽检** | `citations.py` + 单测 | ⚠️ 只能写“citation mapping”，不能写“事实正确” |
 | 真实语义 Recall@K | **未验证** | 未用真实 embedding | ❌ 不能写 |
 | Token / API 成本 | **未完整统计** | 只记录单次 chat usage | ❌ 不能写完整成本 |
 | Docker 构建/启动 | **本机通过，第二台机器未验证** | Docker 29.9.2；api healthy；worker completed | ⚠️ 可写“本机 Compose 验证”，不能写跨机器 |
@@ -103,7 +105,7 @@ spectrascholar\settings.py                 120      6    95%
 spectrascholar\store.py                    222     22    90%
 spectrascholar\workflow.py                 214     36    83%
 ------------------------------------------------------------
-TOTAL                                     3992    568    86%
+TOTAL                                     4054    569    86%
 ```
 
 未覆盖部分主要是：真实 provider 客户端、PDF 加密/损坏、部分索引持久化分支、表格解析的异常分支。

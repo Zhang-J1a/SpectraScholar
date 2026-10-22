@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 84 个）。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 87 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -348,7 +348,7 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 
 ```text
 .............................................................            [100%]
-84 passed, 1 warning in 12.34s
+87 passed, 1 warning in 12.34s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  3992 statements  568 missed  86%
+TOTAL  4054 statements  569 missed  86%
 ```
 
 ### 8.4 合成夹具评测
@@ -522,8 +522,8 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 ### 10.6 本轮真实结果
 
 ```text
-pytest -q                         → 84 passed
-pytest --cov                      → 86% (3992 / 568)
+pytest -q                         → 87 passed
+pytest --cov                      → 86% (4054 / 569)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -690,6 +690,26 @@ arxiv_max_results
 这是**显式工具调用**，不是 LLM 自主选择。
 
 2026-10-22 真实 workflow 验证（两篇本地 PDF）：workflow 完成，`arxiv_search` 因网络超时写入 `status=failed`，报告仍生成；离线假客户端覆盖成功路径。
+
+### 10.15 真实检索评测与 Claim-level 核验
+
+新增：
+
+- `eval/research_eval.json`：30 条真实论文检索题，gold 为 document/page/quote；
+- `scripts/evaluate_retrieval.py`：BM25 / hash / hybrid RRF 的 Recall@1/3/5 与 MRR；
+- `citations.py` 的 `audit_claims`：逐句映射 supported_quote / page_only / external_unchecked / no_citation / citation_failed；
+- `CitationAudit` 新增 claim 计数字段，报告自动附加 claim-level 统计。
+
+真实基线：
+
+```text
+BM25   Recall@5 30.0%  MRR@5 0.158
+hash   Recall@5 26.7%  MRR@5 0.135
+hybrid Recall@5 33.3%  MRR@5 0.197
+```
+
+结论：基线偏低，不能宣称语义检索提升；hash 仍是词法哈希。  
+Claim-level 只证明引文可追溯/句子有引用，不证明语义蕴含。
 
 ---
 

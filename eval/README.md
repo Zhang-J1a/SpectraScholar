@@ -13,6 +13,16 @@
 标注文件：`real_papers.labels.json`。标注只记录能在原文表格/正文确认的字段；无法确认的写
 `null`。共 24 条指标、8 个实验条件、9 个数据集字段。
 
+检索题集：`research_eval.json`，共 30 题（9 条元数据、3 条条件、18 条指标），
+gold 为 `document_id/page/quote`，来自同一份人工标注。  
+运行：
+
+```bash
+python scripts/evaluate_retrieval.py
+```
+
+输出 `docs/retrieval_runs.md/json`；只评 document/page 命中，不评回答语义。
+
 ## 运行
 
 ```bash
