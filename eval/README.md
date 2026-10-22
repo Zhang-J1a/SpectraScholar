@@ -18,7 +18,7 @@ gold 为 `document_id/page/quote`，来自同一份人工标注。
 运行：
 
 ```bash
-python scripts/evaluate_retrieval.py
+python scripts/evaluate_retrieval.py --ocr
 ```
 
 输出 `docs/retrieval_runs.md/json`；只评 document/page 命中，不评回答语义。

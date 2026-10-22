@@ -100,7 +100,7 @@
 - 真实 GPT Researcher 本地 PDF 模式：10/10 任务 completed，报告均值 14.7k 字符，p50 24.0s / p95 33.5s，上游估算 $0.663；
 - 真实 Tavily 网页任务：10/10 completed，均值 20.2k 字符、p50 36.9s、62 个来源、上游估算 $1.078；
 - 3 篇真实论文抽取：LLM 的 title/year/venue/方法 3/3、datasets 9/9、指标数值 21/24、条件 5/8；文本表 + Tesseract OCR 后指标→数据集 21/24、条件化绑定 9/24；
-- 建立 30 题真实论文检索基线：BM25/hash/hybrid Recall@5 30.0%/26.7%/33.3%，不宣称语义提升；
+- 建立 30 题真实论文检索基线：Answer-level Recall@5 BM25/hash/hybrid 33.3%/40.0%/36.7%，严格 page-level 仍≤30%，不宣称语义提升；
 - 实现 claim-level 引用映射：逐句 supported/page-only/external/no-citation/failed；
 - SQLite 持久队列 + 独立 worker：跨进程 queued→completed；
 - 明确记录的失败路径：缺 Key、超时、空报告、幻觉引用、不可比条件、空知识库、表格多值单元格、指标未绑定数据集。

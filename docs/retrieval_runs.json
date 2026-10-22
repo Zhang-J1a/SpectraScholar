@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-10-22T05:18:47+00:00",
+  "generated_at": "2026-10-22T05:28:12+00:00",
   "corpus": "real_papers_retrieval",
   "questions": 30,
-  "chunks": 212,
+  "chunks": 250,
   "page_counts": {
     "hybridsn": 5,
     "ssrn": 12,
@@ -17,14 +17,76 @@
         "total": 30
       },
       "k=3": {
+        "recall@3": 0.3,
+        "mrr@3": 0.1611,
+        "hits": 9,
+        "total": 30
+      },
+      "k=5": {
+        "recall@5": 0.3333,
+        "mrr@5": 0.1694,
+        "hits": 10,
+        "total": 30
+      }
+    },
+    "hash": {
+      "k=1": {
+        "recall@1": 0.2333,
+        "mrr@1": 0.2333,
+        "hits": 7,
+        "total": 30
+      },
+      "k=3": {
         "recall@3": 0.2667,
-        "mrr@3": 0.15,
+        "mrr@3": 0.25,
+        "hits": 8,
+        "total": 30
+      },
+      "k=5": {
+        "recall@5": 0.4,
+        "mrr@5": 0.2783,
+        "hits": 12,
+        "total": 30
+      }
+    },
+    "hybrid": {
+      "k=1": {
+        "recall@1": 0.2,
+        "mrr@1": 0.2,
+        "hits": 6,
+        "total": 30
+      },
+      "k=3": {
+        "recall@3": 0.3,
+        "mrr@3": 0.2389,
+        "hits": 9,
+        "total": 30
+      },
+      "k=5": {
+        "recall@5": 0.3667,
+        "mrr@5": 0.2539,
+        "hits": 11,
+        "total": 30
+      }
+    }
+  },
+  "page_summary": {
+    "bm25": {
+      "k=1": {
+        "recall@1": 0.0,
+        "mrr@1": 0.0,
+        "hits": 0,
+        "total": 30
+      },
+      "k=3": {
+        "recall@3": 0.2667,
+        "mrr@3": 0.1,
         "hits": 8,
         "total": 30
       },
       "k=5": {
         "recall@5": 0.3,
-        "mrr@5": 0.1583,
+        "mrr@5": 0.1083,
         "hits": 9,
         "total": 30
       }
@@ -43,9 +105,9 @@
         "total": 30
       },
       "k=5": {
-        "recall@5": 0.2667,
-        "mrr@5": 0.135,
-        "hits": 8,
+        "recall@5": 0.2333,
+        "mrr@5": 0.1283,
+        "hits": 7,
         "total": 30
       }
     },
@@ -58,14 +120,14 @@
       },
       "k=3": {
         "recall@3": 0.2,
-        "mrr@3": 0.1667,
+        "mrr@3": 0.1556,
         "hits": 6,
         "total": 30
       },
       "k=5": {
-        "recall@5": 0.3333,
-        "mrr@5": 0.1967,
-        "hits": 10,
+        "recall@5": 0.2667,
+        "mrr@5": 0.1689,
+        "hits": 8,
         "total": 30
       }
     }
@@ -93,40 +155,40 @@
     },
     "metadata": {
       "bm25": {
-        "recall@5": 0.3333,
-        "mrr@5": 0.1111,
-        "hits": 3,
+        "recall@5": 0.4444,
+        "mrr@5": 0.2963,
+        "hits": 4,
         "total": 9
       },
       "hash": {
-        "recall@5": 0.1111,
-        "mrr@5": 0.0278,
-        "hits": 1,
+        "recall@5": 0.6667,
+        "mrr@5": 0.5278,
+        "hits": 6,
         "total": 9
       },
       "hybrid": {
-        "recall@5": 0.4444,
-        "mrr@5": 0.1833,
-        "hits": 4,
+        "recall@5": 0.5556,
+        "mrr@5": 0.4167,
+        "hits": 5,
         "total": 9
       }
     },
     "metric": {
       "bm25": {
         "recall@5": 0.3333,
-        "mrr@5": 0.2083,
+        "mrr@5": 0.1343,
         "hits": 6,
         "total": 18
       },
       "hash": {
-        "recall@5": 0.3889,
-        "mrr@5": 0.2111,
-        "hits": 7,
+        "recall@5": 0.3333,
+        "mrr@5": 0.2,
+        "hits": 6,
         "total": 18
       },
       "hybrid": {
         "recall@5": 0.3333,
-        "mrr@5": 0.2361,
+        "mrr@5": 0.2148,
         "hits": 6,
         "total": 18
       }
@@ -149,6 +211,11 @@
         "bm25": 3,
         "hash": 4,
         "hybrid": 1
+      },
+      "page_ranks": {
+        "bm25": 3,
+        "hash": 4,
+        "hybrid": 1
       }
     },
     {
@@ -164,6 +231,11 @@
       "must_cite": false,
       "source_type": "local_pdf",
       "ranks": {
+        "bm25": 3,
+        "hash": 2,
+        "hybrid": 2
+      },
+      "page_ranks": {
         "bm25": 3,
         "hash": 19,
         "hybrid": 5
@@ -182,9 +254,14 @@
       "must_cite": false,
       "source_type": "local_pdf",
       "ranks": {
+        "bm25": 1,
+        "hash": 1,
+        "hybrid": 1
+      },
+      "page_ranks": {
         "bm25": 3,
-        "hash": 12,
-        "hybrid": 8
+        "hash": 14,
+        "hybrid": 9
       }
     },
     {
@@ -200,9 +277,14 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 6,
+        "bm25": 7,
         "hash": null,
-        "hybrid": 15
+        "hybrid": 14
+      },
+      "page_ranks": {
+        "bm25": 7,
+        "hash": null,
+        "hybrid": 14
       }
     },
     {
@@ -218,9 +300,14 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 1,
-        "hash": 9,
-        "hybrid": 2
+        "bm25": 2,
+        "hash": 12,
+        "hybrid": 3
+      },
+      "page_ranks": {
+        "bm25": 2,
+        "hash": 12,
+        "hybrid": 3
       }
     },
     {
@@ -236,9 +323,14 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 2,
-        "hash": 12,
-        "hybrid": 4
+        "bm25": 3,
+        "hash": 15,
+        "hybrid": 5
+      },
+      "page_ranks": {
+        "bm25": 3,
+        "hash": 15,
+        "hybrid": 5
       }
     },
     {
@@ -255,8 +347,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
-        "hash": 5,
-        "hybrid": 2
+        "hash": 6,
+        "hybrid": 3
+      },
+      "page_ranks": {
+        "bm25": 3,
+        "hash": 6,
+        "hybrid": 3
       }
     },
     {
@@ -275,6 +372,11 @@
         "bm25": 4,
         "hash": 1,
         "hybrid": 1
+      },
+      "page_ranks": {
+        "bm25": 4,
+        "hash": 1,
+        "hybrid": 1
       }
     },
     {
@@ -290,7 +392,12 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 2,
+        "bm25": 3,
+        "hash": 1,
+        "hybrid": 1
+      },
+      "page_ranks": {
+        "bm25": 3,
         "hash": 1,
         "hybrid": 1
       }
@@ -308,7 +415,12 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 1,
+        "bm25": 2,
+        "hash": 1,
+        "hybrid": 1
+      },
+      "page_ranks": {
+        "bm25": 2,
         "hash": 1,
         "hybrid": 1
       }
@@ -326,9 +438,14 @@
       "must_cite": false,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 18,
+        "bm25": 17,
+        "hash": 1,
+        "hybrid": 6
+      },
+      "page_ranks": {
+        "bm25": null,
         "hash": 8,
-        "hybrid": 4
+        "hybrid": 17
       }
     },
     {
@@ -344,9 +461,14 @@
       "must_cite": false,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 18,
+        "bm25": 17,
+        "hash": 1,
+        "hybrid": 4
+      },
+      "page_ranks": {
+        "bm25": null,
         "hash": 8,
-        "hybrid": 5
+        "hybrid": 18
       }
     },
     {
@@ -362,9 +484,14 @@
       "must_cite": false,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 18,
+        "bm25": 1,
+        "hash": 1,
+        "hybrid": 1
+      },
+      "page_ranks": {
+        "bm25": null,
         "hash": 7,
-        "hybrid": 6
+        "hybrid": 12
       }
     },
     {
@@ -380,8 +507,13 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 18,
-        "hash": 17,
+        "bm25": null,
+        "hash": null,
+        "hybrid": null
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": null,
         "hybrid": null
       }
     },
@@ -398,9 +530,14 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": null,
+        "bm25": 20,
         "hash": 5,
-        "hybrid": 13
+        "hybrid": 8
+      },
+      "page_ranks": {
+        "bm25": 20,
+        "hash": 5,
+        "hybrid": 8
       }
     },
     {
@@ -418,7 +555,12 @@
       "ranks": {
         "bm25": null,
         "hash": 5,
-        "hybrid": 11
+        "hybrid": 12
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": 5,
+        "hybrid": 12
       }
     },
     {
@@ -436,7 +578,12 @@
       "ranks": {
         "bm25": null,
         "hash": 5,
-        "hybrid": 12
+        "hybrid": 13
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": 5,
+        "hybrid": 13
       }
     },
     {
@@ -453,8 +600,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 10,
-        "hybrid": 17
+        "hash": 9,
+        "hybrid": 19
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": 9,
+        "hybrid": 19
       }
     },
     {
@@ -471,7 +623,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 14,
+        "hash": 17,
+        "hybrid": null
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": 17,
         "hybrid": null
       }
     },
@@ -490,7 +647,12 @@
       "ranks": {
         "bm25": null,
         "hash": 11,
-        "hybrid": 19
+        "hybrid": null
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": 11,
+        "hybrid": null
       }
     },
     {
@@ -506,6 +668,11 @@
       "must_cite": false,
       "source_type": "local_pdf",
       "ranks": {
+        "bm25": null,
+        "hash": null,
+        "hybrid": null
+      },
+      "page_ranks": {
         "bm25": null,
         "hash": null,
         "hybrid": null
@@ -527,6 +694,11 @@
         "bm25": null,
         "hash": null,
         "hybrid": null
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": null,
+        "hybrid": null
       }
     },
     {
@@ -542,6 +714,11 @@
       "must_cite": false,
       "source_type": "local_pdf",
       "ranks": {
+        "bm25": null,
+        "hash": null,
+        "hybrid": null
+      },
+      "page_ranks": {
         "bm25": null,
         "hash": null,
         "hybrid": null
@@ -563,6 +740,11 @@
         "bm25": null,
         "hash": null,
         "hybrid": null
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": null,
+        "hybrid": null
       }
     },
     {
@@ -578,6 +760,11 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
+        "bm25": null,
+        "hash": null,
+        "hybrid": null
+      },
+      "page_ranks": {
         "bm25": null,
         "hash": null,
         "hybrid": null
@@ -599,6 +786,11 @@
         "bm25": null,
         "hash": null,
         "hybrid": null
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": null,
+        "hybrid": null
       }
     },
     {
@@ -614,6 +806,11 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
+        "bm25": null,
+        "hash": null,
+        "hybrid": null
+      },
+      "page_ranks": {
         "bm25": null,
         "hash": null,
         "hybrid": null
@@ -635,6 +832,11 @@
         "bm25": null,
         "hash": null,
         "hybrid": null
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": null,
+        "hybrid": null
       }
     },
     {
@@ -650,6 +852,11 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
+        "bm25": null,
+        "hash": null,
+        "hybrid": null
+      },
+      "page_ranks": {
         "bm25": null,
         "hash": null,
         "hybrid": null
@@ -671,8 +878,13 @@
         "bm25": null,
         "hash": null,
         "hybrid": null
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": null,
+        "hybrid": null
       }
     }
   ],
-  "note": "Gold is document/page from manual labels. Hash vectors are lexical hashing, not semantic embeddings."
+  "note": "Answer hit = same document and (gold page or gold answer string in chunk); page hit is stricter. Hash vectors are lexical hashing, not semantic embeddings."
 }

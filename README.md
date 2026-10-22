@@ -46,7 +46,7 @@ SpectraScholar 把这三件事做成了显式契约：
 | 真实 LLM 抽取的字段关联 | ⚠️ 部分 | OA/Kappa 可抽取，但数据集/方法关联仍缺失，不能直接排名 |
 | 真实论文抽取评测（3 篇） | ✅ **已完成小样本** | LLM：title/year/venue/method 3/3、datasets 9/9、指标数值 21/24、指标→数据集绑定 **21/24** |
 | 真实论文上的条件化指标 | ⚠️ **部分完成** | 条件 5/8；指标→比例/patch 绑定 9/24；OCR 已真实运行，但仍不能直接排名 |
-| 真实论文检索评测（30 题） | ⚠️ **基线偏低** | BM25 Recall@5 30.0%、hash 26.7%、hybrid 33.3%；尚不能宣称语义检索 |
+| 真实论文检索评测（30 题） | ⚠️ **基线偏低** | Answer-level Recall@5：BM25 33.3%、hash 40.0%、hybrid 36.7%；严格 page-level 仍≤30%；不能宣称语义检索 |
 | Claim-level 引用核验 | ✅ 已实现 | 逐句映射 supported/page-only/external/no-citation；见 `citations.py` |
 | 可靠任务队列 | ✅ 完成（SQLite worker） | 跨进程 queued→completed；`scripts/run_worker.py` |
 | Tool Calling（arXiv） | ✅ 端点 + 真实调用 + workflow 显式接入 | 年份/主题过滤、DOI 去重、分页、重试、超时；见 [`docs/TOOLS.md`](docs/TOOLS.md) |
@@ -484,7 +484,7 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 
 - **87 passed**（pytest）
 - **ruff：All checks passed**
-- **coverage：86%**（4054 statements，569 missed）
+- **coverage：86%**（4061 statements，571 missed）
 - 三份合成夹具（两篇正文 + 一张带线 OA/AA/Kappa 表格）：
   - 抽取字段命中 **20/20**
   - 原文证据接受 **23/23**
@@ -498,7 +498,7 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 - **真实 Tavily 网页任务**：`scripts/evaluate_web_research.py` 跑 **10/10 completed**，`source=web`、`backend=gptr`、`is_demo=false`；报告均值 20,180 字符，p50 36.9s、p95 42.7s，62 个来源，上游 costs 合计 $1.078。
 - **网页引用审计真实结果**：443 条外部链接均标记为未联网核验，页级通过 0 条，31 条数值结论缺引用。当前沙箱需 `ALLOW_PRIVATE_URLS=true` 放行代理地址，不能把这次结果当成通用网络环境下的生产稳定性结论；完整结果见 [`docs/web_research_runs.md`](docs/web_research_runs.md)。
 - **真实论文抽取（3 篇）**：LLM 的 title/year/venue/主方法 **3/3**、datasets **9/9**、指标数值 **21/24**、实验条件 **5/8**；文本表格 + Tesseract OCR 转置表解析把指标→数据集从 **0/24 提升到 21/24**，条件化绑定 **9/24**。证据接受 271/277（97.8%）。仍不能直接排名。详见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)。
-- **真实论文检索（30 题）**：BM25 Recall@5 **30.0%**、hash **26.7%**、hybrid **33.3%**，MRR@5 分别 0.158/0.135/0.197。这是基线，不宣称语义提升；详见 [`docs/retrieval_runs.md`](docs/retrieval_runs.md)。
+- **真实论文检索（30 题）**：Answer-level Recall@5：BM25 **33.3%**、hash **40.0%**、hybrid **36.7%**，MRR@5 分别 0.169/0.278/0.254；严格 page-level Recall@5 只有 30.0%/23.3%/26.7%。hash 仍是词法哈希，不能宣称语义提升；详见 [`docs/retrieval_runs.md`](docs/retrieval_runs.md)。
 - **V1 结构化对照**：3 篇真实论文生成 46,987 字符报告，82 个 `[[doc:... p.N "quote"]]` 页级引用；`comparable_groups=0` 时不强行排名。见 [`docs/real_paper_comparison.md`](docs/real_paper_comparison.md) 和 [`docs/V1_ACCEPTANCE.md`](docs/V1_ACCEPTANCE.md)。
 - **真实 DeepSeek LLM 抽取**：夹具 12/12 候选通过逐字核验（OA 98.4%、Kappa 0.977）；但数据集/方法关联缺失，仍不可直接排名。
 - **真实 DeepSeek RAG 回答**：返回 3 条 page-only 引用；`grounded=false`，因为回答未提供逐句引用/原文片段，审计保持严格。

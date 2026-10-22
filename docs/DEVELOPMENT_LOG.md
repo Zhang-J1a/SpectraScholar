@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  4054 statements  569 missed  86%
+TOTAL  4061 statements  571 missed  86%
 ```
 
 ### 8.4 合成夹具评测
@@ -523,7 +523,7 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 
 ```text
 pytest -q                         → 87 passed
-pytest --cov                      → 86% (4054 / 569)
+pytest --cov                      → 86% (4061 / 571)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -696,20 +696,27 @@ arxiv_max_results
 新增：
 
 - `eval/research_eval.json`：30 条真实论文检索题，gold 为 document/page/quote；
-- `scripts/evaluate_retrieval.py`：BM25 / hash / hybrid RRF 的 Recall@1/3/5 与 MRR；
+- `scripts/evaluate_retrieval.py --ocr`：BM25 / hash / hybrid RRF 的 Recall@1/3/5 与 MRR；索引时追加可选 OCR 表格文本；
 - `citations.py` 的 `audit_claims`：逐句映射 supported_quote / page_only / external_unchecked / no_citation / citation_failed；
 - `CitationAudit` 新增 claim 计数字段，报告自动附加 claim-level 统计。
 
 真实基线：
 
 ```text
-BM25   Recall@5 30.0%  MRR@5 0.158
-hash   Recall@5 26.7%  MRR@5 0.135
-hybrid Recall@5 33.3%  MRR@5 0.197
+Answer-level:
+BM25   Recall@5 33.3%  MRR@5 0.169
+hash   Recall@5 40.0%  MRR@5 0.278
+hybrid Recall@5 36.7%  MRR@5 0.254
+严格 page-level:
+BM25/hash/hybrid Recall@5 30.0%/23.3%/26.7%
 ```
 
-结论：基线偏低，不能宣称语义检索提升；hash 仍是词法哈希。  
-Claim-level 只证明引文可追溯/句子有引用，不证明语义蕴含。
+说明：
+
+- PDF 索引会追加可选 OCR 文本，图片表中的 WFCG/SSRN 数值可被检索；
+- Answer-level 允许命中“包含 gold answer 的另一页”，page-level 仍要求精确 gold page；
+- 基线仍偏低，不能宣称语义检索提升；hash 仍是词法哈希。
+- Claim-level 只证明引文可追溯/句子有引用，不证明语义蕴含。
 
 ---
 
