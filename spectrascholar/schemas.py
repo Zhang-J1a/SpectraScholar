@@ -463,7 +463,7 @@ class SearchRequest(BaseModel):
     query: str = Field(min_length=2, max_length=500)
     top_k: int = Field(default=6, ge=1, le=20)
     document_ids: list[str] | None = None
-    mode: Literal["hybrid", "vector", "bm25"] = "hybrid"
+    mode: Literal["hybrid", "vector", "bm25", "auto"] = "hybrid"
 
     @field_validator("query")
     @classmethod

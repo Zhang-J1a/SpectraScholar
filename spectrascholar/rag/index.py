@@ -22,6 +22,8 @@ from pathlib import Path
 
 from .bm25 import BM25, tokenize
 from .chunking import Chunk
+from .embeddings import HashEmbedder
+from .router import route_question
 from .table_meta import table_boost
 
 
@@ -253,6 +255,8 @@ class KnowledgeIndex:
             self.load()
             if not self.chunks:
                 return []
+            if mode == "auto":
+                mode = route_question(query)
             allowed = self._allowed_indices(document_ids)
             indices = range(len(self.chunks)) if allowed is None else allowed
             if not indices:
@@ -265,6 +269,16 @@ class KnowledgeIndex:
             bm25_scores = [
                 score if index in indices else 0.0 for index, score in enumerate(bm25_scores)
             ]
+            hash_scores = [0.0] * len(self.chunks)
+            if mode == "hash":
+                hash_embedder = HashEmbedder()
+                query_hash = hash_embedder._embed_one(query)
+                hash_scores = [
+                    _cosine(query_hash, hash_embedder._embed_one(chunk.text))
+                    if index in indices
+                    else 0.0
+                    for index, chunk in enumerate(self.chunks)
+                ]
 
             pool_size = max(top_k * 8, 40)
             vector_ranked = sorted(
@@ -277,10 +291,17 @@ class KnowledgeIndex:
                 key=lambda item: item[1],
                 reverse=True,
             )[:pool_size]
+            hash_ranked = sorted(
+                ((index, hash_scores[index]) for index in indices if hash_scores[index] > 0),
+                key=lambda item: item[1],
+                reverse=True,
+            )[:pool_size]
             if mode == "vector":
                 candidates = {index for index, _ in vector_ranked}
             elif mode == "bm25":
                 candidates = {index for index, _ in bm25_ranked}
+            elif mode == "hash":
+                candidates = {index for index, _ in hash_ranked}
             else:
                 candidates = {index for index, _ in vector_ranked} | {index for index, _ in bm25_ranked}
             if not candidates:
@@ -291,6 +312,7 @@ class KnowledgeIndex:
             query_terms = set(tokenize(query))
             max_vector = max((vector_scores[index] for index in candidates), default=1.0) or 1.0
             max_bm25 = max((bm25_scores[index] for index in candidates), default=1.0) or 1.0
+            max_hash = max((hash_scores[index] for index in candidates), default=1.0) or 1.0
             page_texts: dict[tuple[str, int], list[str]] = {}
             for chunk in self.chunks:
                 page_texts.setdefault((chunk.document_id, chunk.page), []).append(chunk.text)
@@ -309,13 +331,15 @@ class KnowledgeIndex:
                     score = vector_score
                 elif mode == "bm25":
                     score = bm25_score
+                elif mode == "hash":
+                    score = hash_scores[index]
                 else:
                     score = 0.5 * (vector_score / max_vector) + 0.5 * (bm25_score / max_bm25)
                     if rerank == "lexical" and query_terms:
                         coverage = len(query_terms & set(tokenize(chunk.text))) / len(query_terms)
                         score += 0.1 * coverage
                 page_text = "\n".join(page_texts.get((chunk.document_id, chunk.page), []))
-                score += table_boost(query, page_text) * max(max_vector, max_bm25)
+                score += table_boost(query, page_text) * max(max_vector, max_bm25, max_hash)
                 scored.append(
                     {
                         "chunk": chunk,

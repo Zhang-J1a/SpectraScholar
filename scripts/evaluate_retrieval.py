@@ -37,7 +37,7 @@ from spectrascholar.evidence import read_pdf_pages  # noqa: E402
 from spectrascholar.extraction.ocr import augment_pages_with_ocr  # noqa: E402
 from spectrascholar.rag.bm25 import BM25, tokenize  # noqa: E402
 from spectrascholar.rag.chunking import chunk_page  # noqa: E402
-from spectrascholar.rag.embeddings import EmbeddingError, get_embedder  # noqa: E402
+from spectrascholar.rag.embeddings import EmbeddingError, HashEmbedder, get_embedder  # noqa: E402
 from spectrascholar.rag.table_meta import table_boost  # noqa: E402
 from spectrascholar.settings import settings  # noqa: E402
 
@@ -46,7 +46,18 @@ PAPER_FILES = {
     "ssrn": "spectral-spatial_residual_networks_for_hyperspectral_image_classification_a_3d_deep_learning_framework_0.pdf",
     "wfcg": "Weighted_Feature_Fusion_of_Convolutional_Neural_Network_and_Graph_Attention_Network_for_Hyperspectral_Image_Classification.pdf",
 }
-MODES = ("bm25", "vector", "hybrid")
+MODES = ("bm25", "hash", "vector", "hybrid", "router")
+METADATA_RE = re.compile(r"年份|发表|期刊|会议|作者|主方法|标题|DOI|venue|year|author", re.I)
+METRIC_RE = re.compile(r"\bOA\b|\bAA\b|Kappa|accuracy|准确率|精度|指标|训练比例|patch|补丁", re.I)
+
+
+def _route_question(query: str) -> str:
+    """Small deterministic router; the eval and product share this policy."""
+    if METADATA_RE.search(query):
+        return "hash"
+    if METRIC_RE.search(query):
+        return "vector"
+    return "hybrid"
 
 
 def _cosine(left: list[float], right: list[float]) -> float:
@@ -63,13 +74,33 @@ def _rank(
     query: str,
     chunks: list,
     bm25: BM25,
+    hash_vectors: list[list[float]],
     vectors: list[list[float]],
     embedder,
     page_texts: dict[tuple[str, int], str],
     limit: int = 20,
 ) -> list[int]:
+    if mode == "router":
+        return _rank(
+            _route_question(query),
+            query,
+            chunks,
+            bm25,
+            hash_vectors,
+            vectors,
+            embedder,
+            page_texts,
+            limit,
+        )
     if mode == "bm25":
         ranked = [index for index, _ in bm25.top_k(query, limit)]
+        return _table_rerank(ranked, query, chunks, page_texts)
+    if mode == "hash":
+        hash_query = asyncio.run(HashEmbedder().embed([query]))[0]
+        hash_scores = [_cosine(hash_query, vector) for vector in hash_vectors]
+        ranked = sorted(
+            range(len(chunks)), key=lambda index: hash_scores[index], reverse=True
+        )[:limit]
         return _table_rerank(ranked, query, chunks, page_texts)
     query_vector = asyncio.run(embedder.embed([query]))[0]
     vector_scores = [_cosine(query_vector, vector) for vector in vectors]
@@ -173,6 +204,7 @@ def run() -> dict:
     payload = json.loads((ROOT / "eval" / "research_eval.json").read_text(encoding="utf-8"))
     chunks, page_counts = _load_chunks()
     bm25 = BM25([tokenize(chunk.text) for chunk in chunks])
+    hash_vectors = asyncio.run(HashEmbedder().embed([chunk.text for chunk in chunks]))
     embedder = get_embedder(EMBEDDING_BACKEND)
     try:
         vectors = asyncio.run(embedder.embed([chunk.text for chunk in chunks]))
@@ -189,7 +221,14 @@ def run() -> dict:
         page_ranks = {}
         for mode in MODES:
             ranked = _rank(
-                mode, item["question"], chunks, bm25, vectors, embedder, page_texts
+                mode,
+                item["question"],
+                chunks,
+                bm25,
+                hash_vectors,
+                vectors,
+                embedder,
+                page_texts,
             )
             first = None
             page_first = None
