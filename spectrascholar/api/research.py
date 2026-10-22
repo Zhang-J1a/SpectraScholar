@@ -16,6 +16,7 @@ from ..store import (
     list_documents,
     list_job_events,
     recent_jobs,
+    request_job_cancel,
 )
 from .dependencies import require_api_key
 
@@ -101,6 +102,19 @@ def research_events(job_id: str, limit: int = Query(200, ge=1, le=1000)):
     return [JobEvent(**row) for row in list_job_events(job_id, limit=limit)]
 
 
+@router.post("/{job_id}/cancel", response_model=JobDetails)
+def cancel_research(job_id: str):
+    job = get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="任务不存在")
+    if job["status"] in {"completed", "failed", "cancelled"}:
+        raise HTTPException(status_code=409, detail="只有 queued/running 任务可以取消")
+    updated = request_job_cancel(job_id)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="任务不存在")
+    return _details(updated)
+
+
 @router.post("/{job_id}/retry", response_model=JobSubmitted, status_code=202)
 async def retry_research(job_id: str, tasks: BackgroundTasks):
     job = get_job(job_id)
@@ -113,6 +127,8 @@ async def retry_research(job_id: str, tasks: BackgroundTasks):
         source=job["source"],
         domain=job["domain"],
         language=job.get("language") or "zh",
+        max_elapsed_seconds=job.get("max_elapsed_seconds"),
+        max_cost_usd=job.get("max_cost_usd"),
     )
     active = job_count("queued") + job_count("running")
     if active >= settings.max_concurrent_jobs:

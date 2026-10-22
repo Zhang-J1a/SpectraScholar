@@ -25,7 +25,14 @@ from .domains import build_research_query
 from .evidence import PDFExtractionError, read_pdf_pages
 from .schemas import ResearchRequest
 from .settings import settings
-from .store import add_job_event, finish_job, get_document, get_job, mark_job_running
+from .store import (
+    add_job_event,
+    finish_job,
+    get_document,
+    get_job,
+    is_cancel_requested,
+    mark_job_running,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -291,6 +298,28 @@ class GPTResearcherBackend:
         )
 
 
+def _effective_timeout(req: ResearchRequest) -> float:
+    requested = req.max_elapsed_seconds or settings.research_timeout_seconds
+    return float(min(requested, settings.research_timeout_seconds))
+
+
+def _extract_cost(metadata: dict | None) -> float | None:
+    """Best-effort extraction of upstream cost; never invent a cost."""
+    if not metadata:
+        return None
+    costs = metadata.get("costs")
+    if isinstance(costs, (int, float)):
+        return float(costs)
+    if isinstance(costs, dict):
+        for key in ("total_cost", "total", "cost", "cost_usd"):
+            value = costs.get(key)
+            if isinstance(value, (int, float)):
+                return float(value)
+    text = json.dumps(costs, ensure_ascii=False) if costs is not None else ""
+    numbers = re.findall(r"\d+(?:\.\d+)?", text)
+    return max((float(number) for number in numbers), default=None)
+
+
 def get_backend(name: str | None = None) -> ResearchBackend:
     backend = (name or settings.research_backend).lower()
     if backend == "demo":
@@ -336,6 +365,9 @@ async def run_research_job(job_id: str, req: ResearchRequest, trace_id: str | No
         return
     trace_id = trace_id or job.get("trace_id") or job_id
     backend_name = job.get("backend") or settings.research_backend
+    if is_cancel_requested(job_id):
+        finish_job(job_id, "cancelled", error="用户取消（尚未执行）", error_type="cancelled")
+        return
 
     async def emit(level: str, step: str, message: str, duration_ms: int | None = None) -> None:
         add_job_event(job_id, level, step, message, duration_ms)
@@ -354,15 +386,45 @@ async def run_research_job(job_id: str, req: ResearchRequest, trace_id: str | No
         return
 
     last_error: ResearchError | None = None
+    job_started = time.perf_counter()
+    total_budget_seconds = min(
+        req.max_elapsed_seconds or settings.research_timeout_seconds,
+        settings.research_timeout_seconds,
+    )
     for attempt in range(1, settings.research_max_attempts + 1):
+        if time.perf_counter() - job_started >= total_budget_seconds:
+            finish_job(
+                job_id,
+                "failed",
+                error=f"任务超过总时间预算 {total_budget_seconds}s",
+                error_type="budget_exceeded",
+            )
+            await emit("error", "budget_exceeded", "任务超过总时间预算")
+            return
+        if is_cancel_requested(job_id):
+            finish_job(job_id, "cancelled", error="用户取消", error_type="cancelled")
+            await emit("warning", "cancelled", "任务在重试前被取消")
+            return
         mark_job_running(job_id, attempt)
         await emit("info", "running", f"开始执行（第 {attempt}/{settings.research_max_attempts} 次尝试）")
         started = time.perf_counter()
         try:
             outcome = await asyncio.wait_for(
                 backend.run(job_id, req, emit),
-                timeout=settings.research_timeout_seconds,
+                timeout=_effective_timeout(req),
             )
+            if is_cancel_requested(job_id):
+                finish_job(job_id, "cancelled", error="用户取消", error_type="cancelled")
+                await emit("warning", "cancelled", "任务在完成后、审计前被取消")
+                return
+            if req.max_cost_usd is not None:
+                cost = _extract_cost(outcome.metadata)
+                if cost is not None and cost > req.max_cost_usd:
+                    raise ResearchError(
+                        "budget_exceeded",
+                        f"上游成本 {cost:.6f} USD 超过预算 {req.max_cost_usd:.6f} USD",
+                        retryable=False,
+                    )
             await emit(
                 "info",
                 "audit",
@@ -378,6 +440,12 @@ async def run_research_job(job_id: str, req: ResearchRequest, trace_id: str | No
             metadata["report_path"] = report_path.name
             metadata["backend"] = outcome.backend
             metadata["is_demo"] = outcome.is_demo
+            metadata["budget"] = {
+                "max_elapsed_seconds": req.max_elapsed_seconds,
+                "effective_timeout_seconds": _effective_timeout(req),
+                "max_cost_usd": req.max_cost_usd,
+                "observed_cost_usd": _extract_cost(outcome.metadata),
+            }
             finish_job(
                 job_id,
                 "completed",

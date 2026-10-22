@@ -42,6 +42,8 @@ class ResearchRequest(BaseModel):
     source: Literal["web", "local"] = "web"
     domain: Literal["hyperspectral", "general"] = "hyperspectral"
     language: Literal["zh", "en"] = "zh"
+    max_elapsed_seconds: int | None = Field(default=None, ge=30, le=7200)
+    max_cost_usd: float | None = Field(default=None, ge=0.0, le=100.0)
 
     @field_validator("topic")
     @classmethod
@@ -89,6 +91,9 @@ class JobSummary(BaseModel):
     started_at: str | None = None
     finished_at: str | None = None
     elapsed_ms: int | None = None
+    max_elapsed_seconds: int | None = None
+    max_cost_usd: float | None = None
+    cancel_requested: bool = False
 
 
 class JobDetails(JobSummary):

@@ -92,7 +92,10 @@ def init_store() -> None:
                 created_at TEXT NOT NULL,
                 started_at TEXT,
                 finished_at TEXT,
-                elapsed_ms INTEGER
+                elapsed_ms INTEGER,
+                max_elapsed_seconds INTEGER,
+                max_cost_usd REAL,
+                cancel_requested INTEGER NOT NULL DEFAULT 0
             )"""
         )
         _ensure_columns(
@@ -109,6 +112,9 @@ def init_store() -> None:
                 "attempts": "INTEGER NOT NULL DEFAULT 0",
                 "started_at": "TEXT",
                 "elapsed_ms": "INTEGER",
+                "max_elapsed_seconds": "INTEGER",
+                "max_cost_usd": "REAL",
+                "cancel_requested": "INTEGER NOT NULL DEFAULT 0",
             },
         )
         connection.execute(
@@ -228,8 +234,9 @@ def create_job(req: ResearchRequest, backend: str, trace_id: str) -> str:
     with connect() as connection:
         connection.execute(
             """INSERT INTO jobs(
-                job_id,topic,source,domain,language,status,backend,is_demo,trace_id,attempts,created_at
-            ) VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+                job_id,topic,source,domain,language,status,backend,is_demo,trace_id,attempts,created_at,
+                max_elapsed_seconds,max_cost_usd
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 job_id,
                 req.topic,
@@ -242,6 +249,8 @@ def create_job(req: ResearchRequest, backend: str, trace_id: str) -> str:
                 trace_id,
                 0,
                 now_iso(),
+                req.max_elapsed_seconds,
+                req.max_cost_usd,
             ),
         )
     return job_id
@@ -251,7 +260,8 @@ def mark_job_running(job_id: str, attempt: int) -> None:
     with connect() as connection:
         connection.execute(
             """UPDATE jobs SET status='running', attempts=?,
-               started_at=COALESCE(started_at, ?) WHERE job_id=?""",
+               started_at=COALESCE(started_at, ?)
+               WHERE job_id=? AND status!='cancelled'""",
             (attempt, now_iso(), job_id),
         )
 
@@ -267,8 +277,18 @@ def finish_job(
 ) -> None:
     with connect() as connection:
         row = connection.execute(
-            "SELECT started_at FROM jobs WHERE job_id=?", (job_id,)
+            "SELECT started_at, status, cancel_requested FROM jobs WHERE job_id=?",
+            (job_id,),
         ).fetchone()
+        if row is not None and row["status"] == "cancelled" and status != "cancelled":
+            # Never overwrite a user cancellation with a late worker result.
+            return
+        if row is not None and row["cancel_requested"] and status != "cancelled":
+            # A running job may finish just after the user clicked cancel.
+            status = "cancelled"
+            report = None
+            error = "用户取消"
+            error_type = "cancelled"
         elapsed_ms = None
         if row and row["started_at"]:
             try:
@@ -291,6 +311,49 @@ def finish_job(
                 job_id,
             ),
         )
+
+
+def request_job_cancel(job_id: str) -> dict | None:
+    """Cooperative cancel: queued jobs are cancelled immediately; running jobs
+    get a cancel flag checked by the worker at phase boundaries.
+    """
+    with connect() as connection:
+        connection.execute("BEGIN IMMEDIATE")
+        row = connection.execute(
+            "SELECT status FROM jobs WHERE job_id=?", (job_id,)
+        ).fetchone()
+        if row is None:
+            return None
+        if row["status"] in {"completed", "failed", "cancelled"}:
+            connection.rollback()
+            return get_job(job_id)
+        if row["status"] == "queued":
+            connection.execute(
+                """UPDATE jobs SET status='cancelled', cancel_requested=1,
+                   finished_at=?, error=?, error_type='cancelled'
+                   WHERE job_id=? AND status='queued'""",
+                (now_iso(), "用户取消（尚未执行）", job_id),
+            )
+            connection.execute(
+                """UPDATE job_queue SET status='cancelled', updated_at=?
+                   WHERE job_id=? AND status='queued'""",
+                (now_iso(), job_id),
+            )
+        else:
+            connection.execute(
+                "UPDATE jobs SET cancel_requested=1 WHERE job_id=?",
+                (job_id,),
+            )
+        connection.commit()
+    return get_job(job_id)
+
+
+def is_cancel_requested(job_id: str) -> bool:
+    with connect() as connection:
+        row = connection.execute(
+            "SELECT cancel_requested FROM jobs WHERE job_id=?", (job_id,)
+        ).fetchone()
+    return bool(row and row["cancel_requested"])
 
 
 def add_job_event(
@@ -320,6 +383,7 @@ def list_job_events(job_id: str, limit: int = 200) -> list[dict]:
 def _job_row(row: sqlite3.Row) -> dict:
     data = dict(row)
     data["is_demo"] = bool(data.get("is_demo"))
+    data["cancel_requested"] = bool(data.get("cancel_requested"))
     data["citation_audit"] = _loads(data.get("citation_audit"))
     data["metadata"] = _loads(data.get("metadata"))
     return data
@@ -336,7 +400,8 @@ def recent_jobs(limit: int = 20, status: str | None = None, offset: int = 0) -> 
     offset = max(offset, 0)
     columns = (
         "job_id,topic,source,domain,language,status,backend,is_demo,error,error_type,"
-        "trace_id,attempts,created_at,started_at,finished_at,elapsed_ms"
+        "trace_id,attempts,created_at,started_at,finished_at,elapsed_ms,"
+        "max_elapsed_seconds,max_cost_usd,cancel_requested"
     )
     with connect() as connection:
         if status:

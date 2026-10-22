@@ -95,7 +95,7 @@ def mark_done(job_id: str, status: str, error: str | None = None) -> None:
         connection.execute(
             """UPDATE job_queue
                SET status=?, locked_at=NULL, worker_id=NULL, last_error=?, updated_at=?
-               WHERE job_id=?""",
+               WHERE job_id=? AND status!='cancelled'""",
             (status, error, now_iso(), job_id),
         )
 

@@ -21,13 +21,22 @@ from spectrascholar.job_queue import claim_next, mark_done, recover_stale  # noq
 from spectrascholar.research import run_research_job  # noqa: E402
 from spectrascholar.schemas import ResearchRequest  # noqa: E402
 from spectrascholar.settings import settings  # noqa: E402
-from spectrascholar.store import finish_job, get_job, init_store  # noqa: E402
+from spectrascholar.store import (  # noqa: E402
+    finish_job,
+    get_job,
+    init_store,
+    is_cancel_requested,
+)
 
 
 def _run_one(item: dict) -> str:
     job_id = item["job_id"]
     trace_id = item["trace_id"]
     request = ResearchRequest.model_validate_json(item["request_json"])
+    if is_cancel_requested(job_id):
+        finish_job(job_id, "cancelled", error="用户取消", error_type="cancelled")
+        mark_done(job_id, "cancelled", "用户取消")
+        return "cancelled"
     try:
         asyncio.run(run_research_job(job_id, request, trace_id))
         job = get_job(job_id)
@@ -36,6 +45,10 @@ def _run_one(item: dict) -> str:
         return status
     except Exception as exc:
         message = f"worker exception: {type(exc).__name__}: {exc}"
+        if is_cancel_requested(job_id):
+            finish_job(job_id, "cancelled", error="用户取消", error_type="cancelled")
+            mark_done(job_id, "cancelled", "用户取消")
+            return "cancelled"
         finish_job(job_id, "failed", error=message, error_type="worker_exception")
         mark_done(job_id, "failed", message)
         return "failed"
