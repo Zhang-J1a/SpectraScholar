@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-22T09:21:27+00:00",
+  "generated_at": "2026-10-22T09:29:15+00:00",
   "corpus": "real_papers_retrieval",
   "questions": 30,
   "chunks": 250,
@@ -27,6 +27,26 @@
         "recall@5": 0.3667,
         "mrr@5": 0.2056,
         "hits": 11,
+        "total": 30
+      }
+    },
+    "hash": {
+      "k=1": {
+        "recall@1": 0.2667,
+        "mrr@1": 0.2667,
+        "hits": 8,
+        "total": 30
+      },
+      "k=3": {
+        "recall@3": 0.3667,
+        "mrr@3": 0.3167,
+        "hits": 11,
+        "total": 30
+      },
+      "k=5": {
+        "recall@5": 0.4667,
+        "mrr@5": 0.3417,
+        "hits": 14,
         "total": 30
       }
     },
@@ -69,6 +89,26 @@
         "hits": 11,
         "total": 30
       }
+    },
+    "router": {
+      "k=1": {
+        "recall@1": 0.2333,
+        "mrr@1": 0.2333,
+        "hits": 7,
+        "total": 30
+      },
+      "k=3": {
+        "recall@3": 0.3667,
+        "mrr@3": 0.2944,
+        "hits": 11,
+        "total": 30
+      },
+      "k=5": {
+        "recall@5": 0.5,
+        "mrr@5": 0.3278,
+        "hits": 15,
+        "total": 30
+      }
     }
   },
   "page_summary": {
@@ -89,6 +129,26 @@
         "recall@5": 0.3333,
         "mrr@5": 0.1194,
         "hits": 10,
+        "total": 30
+      }
+    },
+    "hash": {
+      "k=1": {
+        "recall@1": 0.1333,
+        "mrr@1": 0.1333,
+        "hits": 4,
+        "total": 30
+      },
+      "k=3": {
+        "recall@3": 0.2,
+        "mrr@3": 0.1667,
+        "hits": 6,
+        "total": 30
+      },
+      "k=5": {
+        "recall@5": 0.3,
+        "mrr@5": 0.1917,
+        "hits": 9,
         "total": 30
       }
     },
@@ -131,6 +191,26 @@
         "hits": 7,
         "total": 30
       }
+    },
+    "router": {
+      "k=1": {
+        "recall@1": 0.1,
+        "mrr@1": 0.1,
+        "hits": 3,
+        "total": 30
+      },
+      "k=3": {
+        "recall@3": 0.1333,
+        "mrr@3": 0.1111,
+        "hits": 4,
+        "total": 30
+      },
+      "k=5": {
+        "recall@5": 0.3333,
+        "mrr@5": 0.1594,
+        "hits": 10,
+        "total": 30
+      }
     }
   },
   "by_category": {
@@ -139,6 +219,12 @@
         "recall@5": 0.3333,
         "mrr@5": 0.0833,
         "hits": 1,
+        "total": 3
+      },
+      "hash": {
+        "recall@5": 0.0,
+        "mrr@5": 0.0,
+        "hits": 0,
         "total": 3
       },
       "vector": {
@@ -152,6 +238,12 @@
         "mrr@5": 0.1111,
         "hits": 1,
         "total": 3
+      },
+      "router": {
+        "recall@5": 0.3333,
+        "mrr@5": 0.0833,
+        "hits": 1,
+        "total": 3
       }
     },
     "metadata": {
@@ -159,6 +251,12 @@
         "recall@5": 0.4444,
         "mrr@5": 0.2963,
         "hits": 4,
+        "total": 9
+      },
+      "hash": {
+        "recall@5": 0.6667,
+        "mrr@5": 0.5278,
+        "hits": 6,
         "total": 9
       },
       "vector": {
@@ -172,6 +270,12 @@
         "mrr@5": 0.3333,
         "hits": 4,
         "total": 9
+      },
+      "router": {
+        "recall@5": 0.6667,
+        "mrr@5": 0.5278,
+        "hits": 6,
+        "total": 9
       }
     },
     "metric": {
@@ -179,6 +283,12 @@
         "recall@5": 0.3333,
         "mrr@5": 0.1806,
         "hits": 6,
+        "total": 18
+      },
+      "hash": {
+        "recall@5": 0.4444,
+        "mrr@5": 0.3056,
+        "hits": 8,
         "total": 18
       },
       "vector": {
@@ -191,6 +301,12 @@
         "recall@5": 0.3333,
         "mrr@5": 0.2917,
         "hits": 6,
+        "total": 18
+      },
+      "router": {
+        "recall@5": 0.4444,
+        "mrr@5": 0.2685,
+        "hits": 8,
         "total": 18
       }
     }
@@ -210,13 +326,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 3,
+        "hash": 4,
         "vector": 5,
-        "hybrid": 2
+        "hybrid": 2,
+        "router": 4
       },
       "page_ranks": {
         "bm25": 3,
+        "hash": 4,
         "vector": 11,
-        "hybrid": 7
+        "hybrid": 7,
+        "router": 4
       }
     },
     {
@@ -233,13 +353,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 3,
+        "hash": 2,
         "vector": 3,
-        "hybrid": 2
+        "hybrid": 2,
+        "router": 2
       },
       "page_ranks": {
         "bm25": 3,
+        "hash": 19,
         "vector": 6,
-        "hybrid": 7
+        "hybrid": 7,
+        "router": 19
       }
     },
     {
@@ -256,13 +380,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 1,
+        "hash": 1,
         "vector": 1,
-        "hybrid": 1
+        "hybrid": 1,
+        "router": 1
       },
       "page_ranks": {
         "bm25": 3,
+        "hash": 14,
         "vector": 10,
-        "hybrid": 7
+        "hybrid": 7,
+        "router": 14
       }
     },
     {
@@ -279,13 +407,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 4,
+        "hash": null,
         "vector": 4,
-        "hybrid": 3
+        "hybrid": 3,
+        "router": 4
       },
       "page_ranks": {
         "bm25": 4,
+        "hash": null,
         "vector": 4,
-        "hybrid": 3
+        "hybrid": 3,
+        "router": 4
       }
     },
     {
@@ -302,13 +434,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
+        "hash": 4,
         "vector": 1,
-        "hybrid": 1
+        "hybrid": 1,
+        "router": 1
       },
       "page_ranks": {
         "bm25": 2,
+        "hash": 4,
         "vector": 1,
-        "hybrid": 1
+        "hybrid": 1,
+        "router": 1
       }
     },
     {
@@ -325,13 +461,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
+        "hash": 4,
         "vector": 1,
-        "hybrid": 1
+        "hybrid": 1,
+        "router": 1
       },
       "page_ranks": {
         "bm25": 2,
+        "hash": 4,
         "vector": 1,
-        "hybrid": 1
+        "hybrid": 1,
+        "router": 1
       }
     },
     {
@@ -348,13 +488,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 1,
+        "hash": 2,
         "vector": 1,
-        "hybrid": 1
+        "hybrid": 1,
+        "router": 1
       },
       "page_ranks": {
         "bm25": 2,
+        "hash": 2,
         "vector": 1,
-        "hybrid": 1
+        "hybrid": 1,
+        "router": 1
       }
     },
     {
@@ -371,13 +515,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
+        "hash": 1,
         "vector": 2,
-        "hybrid": 1
+        "hybrid": 1,
+        "router": 2
       },
       "page_ranks": {
         "bm25": 4,
+        "hash": 1,
         "vector": 5,
-        "hybrid": 4
+        "hybrid": 4,
+        "router": 5
       }
     },
     {
@@ -394,13 +542,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 4,
+        "hash": 2,
         "vector": 4,
-        "hybrid": 4
+        "hybrid": 4,
+        "router": 4
       },
       "page_ranks": {
         "bm25": 4,
+        "hash": 2,
         "vector": 4,
-        "hybrid": 4
+        "hybrid": 4,
+        "router": 4
       }
     },
     {
@@ -417,13 +569,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
+        "hash": 1,
         "vector": 2,
-        "hybrid": 1
+        "hybrid": 1,
+        "router": 2
       },
       "page_ranks": {
         "bm25": 3,
+        "hash": 1,
         "vector": 4,
-        "hybrid": 4
+        "hybrid": 4,
+        "router": 4
       }
     },
     {
@@ -440,13 +596,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 17,
+        "hash": 1,
         "vector": 20,
-        "hybrid": 28
+        "hybrid": 28,
+        "router": 1
       },
       "page_ranks": {
         "bm25": null,
+        "hash": 8,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": 8
       }
     },
     {
@@ -463,13 +623,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 17,
+        "hash": 1,
         "vector": 9,
-        "hybrid": 22
+        "hybrid": 22,
+        "router": 1
       },
       "page_ranks": {
         "bm25": null,
+        "hash": 8,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": 8
       }
     },
     {
@@ -486,13 +650,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 1,
+        "hash": 1,
         "vector": 1,
-        "hybrid": 1
+        "hybrid": 1,
+        "router": 1
       },
       "page_ranks": {
         "bm25": null,
+        "hash": 7,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": 7
       }
     },
     {
@@ -509,13 +677,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": null,
         "vector": 18,
-        "hybrid": 29
+        "hybrid": 29,
+        "router": 18
       },
       "page_ranks": {
         "bm25": null,
+        "hash": null,
         "vector": 18,
-        "hybrid": 29
+        "hybrid": 29,
+        "router": 18
       }
     },
     {
@@ -532,13 +704,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 11,
+        "hash": 1,
         "vector": 3,
-        "hybrid": 9
+        "hybrid": 9,
+        "router": 3
       },
       "page_ranks": {
         "bm25": 11,
+        "hash": 1,
         "vector": 3,
-        "hybrid": 9
+        "hybrid": 9,
+        "router": 3
       }
     },
     {
@@ -555,13 +731,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": 1,
         "vector": 4,
-        "hybrid": 11
+        "hybrid": 11,
+        "router": 4
       },
       "page_ranks": {
         "bm25": null,
+        "hash": 1,
         "vector": 4,
-        "hybrid": 11
+        "hybrid": 11,
+        "router": 4
       }
     },
     {
@@ -578,13 +758,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": 7,
         "vector": 13,
-        "hybrid": 21
+        "hybrid": 21,
+        "router": 13
       },
       "page_ranks": {
         "bm25": null,
+        "hash": 7,
         "vector": 13,
-        "hybrid": 21
+        "hybrid": 21,
+        "router": 13
       }
     },
     {
@@ -601,13 +785,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": 13,
         "vector": 13,
-        "hybrid": 24
+        "hybrid": 24,
+        "router": 13
       },
       "page_ranks": {
         "bm25": null,
+        "hash": 13,
         "vector": 13,
-        "hybrid": 24
+        "hybrid": 24,
+        "router": 13
       }
     },
     {
@@ -624,13 +812,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": 16,
         "vector": 9,
-        "hybrid": 21
+        "hybrid": 21,
+        "router": 9
       },
       "page_ranks": {
         "bm25": null,
+        "hash": 16,
         "vector": 9,
-        "hybrid": 21
+        "hybrid": 21,
+        "router": 9
       }
     },
     {
@@ -647,13 +839,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": 14,
         "vector": 13,
-        "hybrid": 29
+        "hybrid": 29,
+        "router": 13
       },
       "page_ranks": {
         "bm25": null,
+        "hash": 14,
         "vector": 13,
-        "hybrid": 29
+        "hybrid": 29,
+        "router": 13
       }
     },
     {
@@ -670,13 +866,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       }
     },
     {
@@ -693,13 +893,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       }
     },
     {
@@ -716,13 +920,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       }
     },
     {
@@ -739,13 +947,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       }
     },
     {
@@ -762,13 +974,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       }
     },
     {
@@ -785,13 +1001,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       }
     },
     {
@@ -808,13 +1028,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       }
     },
     {
@@ -831,13 +1055,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       }
     },
     {
@@ -854,13 +1082,17 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       }
     },
     {
@@ -877,15 +1109,19 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
+        "hash": null,
         "vector": null,
-        "hybrid": null
+        "hybrid": null,
+        "router": null
       }
     }
   ],
-  "note": "Answer hit = same document and (gold page or gold answer string in chunk); page hit is stricter. Table-page metadata rerank is applied. Hash vectors are lexical hashing, not semantic embeddings."
+  "note": "Answer hit = same document and (gold page or gold answer string in chunk); page hit is stricter. Table-page metadata rerank is applied. Vector mode uses the configured embedding backend; hash is a separate baseline."
 }

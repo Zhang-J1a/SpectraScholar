@@ -105,24 +105,22 @@ DeepSeek 只提供 chat，不提供 embedding，不能用它代替。
 ```text
 Answer-level Recall@5:
 BM25          36.7%
+hash          46.7%
 Ollama vector 43.3%
 hybrid        36.7%
+router        50.0%
 
 严格 page-level Recall@5:
 BM25          33.3%
+hash          30.0%
 Ollama vector 30.0%
 hybrid        23.3%
+router        33.3%
 ```
 
-历史 hash 基线：
-
-```text
-Answer-level: 46.7% / 40.0%
-page-level:   33.3% / 30.0% / 30.0%
-```
-
-结论：**Ollama 真实 embedding 没有超过 hash 基线**，不能宣称语义提升。  
-这不代表 embedding 没用；当前评测只有 30 题、表格页/OCR 噪声大，需要继续做 rerank 和更大评测集。
+路由：metadata → hash，metric/condition → Ollama vector，其余 hybrid。  
+结论：**路由 Answer-level 比 hash 高 3.3 点，但严格 page-level 仍为 33.3%，没有解决跨语言和表格页问题**；不能宣称语义检索已解决。  
+当前评测只有 30 题、表格页/OCR 噪声大，需要更大评测集和更强的多语言模型。
 
 ## 有 Ollama/Key 后要补的记录
 

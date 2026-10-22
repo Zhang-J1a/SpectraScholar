@@ -25,7 +25,7 @@
 - [真实论文结构化对照](real_paper_comparison.md)：3 篇论文、46,987 字符、82 个 `[[doc:... p.N "quote"]]`、91 个页码引用。
 - [对照摘要](real_paper_comparison.json)：`comparable_groups=0`，说明没有在条件不一致时强行排名。
 - [真实论文抽取评测](real_paper_runs.md)：LLM title/year/venue/method 3/3、datasets 9/9、指标数值 21/24、指标→数据集绑定 **21/24**、条件化绑定 **9/24**。
-- [真实论文检索评测](retrieval_runs.md)：30 题、3 篇 PDF；Answer-level Recall@5 为 BM25 36.7%、Ollama vector 43.3%、hybrid 36.7%；严格 page-level 33.3%/30.0%/23.3%；hash 基线 46.7%/40.0% 未提升。
+- [真实论文检索评测](retrieval_runs.md)：30 题、3 篇 PDF；Answer-level Recall@5 为 BM25 36.7%、Ollama vector 43.3%、hybrid 36.7%、题型路由 50.0%；严格 page-level 33.3%/30.0%/23.3%/33.3%；路由仅比 hash 46.7% 高 3.3 点。
 - [真实研究任务评测](research_runs.md)：10/10 completed。
 - [真实网页评测](web_research_runs.md)：10/10 completed。
 

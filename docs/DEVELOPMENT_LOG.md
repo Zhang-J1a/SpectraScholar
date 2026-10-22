@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 101 个）。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 102 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -348,7 +348,7 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 
 ```text
 .............................................................            [100%]
-101 passed, 1 warning in 12.34s
+102 passed, 1 warning in 12.34s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  4434 statements  671 missed  85%
+TOTAL  4459 statements  677 missed  85%
 ```
 
 ### 8.4 合成夹具评测
@@ -522,8 +522,8 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 ### 10.6 本轮真实结果
 
 ```text
-pytest -q                         → 101 passed
-pytest --cov                      → 85% (4434 / 671)
+pytest -q                         → 102 passed
+pytest --cov                      → 85% (4459 / 677)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -739,13 +739,16 @@ arxiv_max_results
 ```text
 Answer-level:
 BM25          Recall@5 36.7%  MRR@5 0.206
+hash          Recall@5 46.7%  MRR@5 0.342
 Ollama vector Recall@5 43.3%  MRR@5 0.254
 hybrid        Recall@5 36.7%  MRR@5 0.286
+router        Recall@5 50.0%  MRR@5 0.328
 严格 page-level:
-BM25/Ollama/hybrid Recall@5 33.3%/30.0%/23.3%
+router        Recall@5 33.3%  MRR@5 0.159
 ```
 
-历史 hash 基线为 Answer-level 46.7%/40.0%、page-level 33.3%/30.0%/30.0%；Ollama 没有超过，不能写“语义提升”。
+路由：metadata → hash，metric/condition → Ollama vector，其余 hybrid。  
+路由 Answer-level 比 hash 高 3.3 点，但严格 page-level 仍为 33.3%，没有解决跨语言和表格页问题；不能写“语义检索已解决”。
 
 说明：
 

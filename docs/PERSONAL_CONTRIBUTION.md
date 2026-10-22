@@ -1,7 +1,7 @@
 # 个人贡献说明
 
 > 目的：在简历、GitHub 和面试中准确区分 **GPT Researcher 上游能力** 与 **本人新增实现**。
-> 统计口径：`spectrascholar/` 下 Python 源文件共 7,776 行（含注释/空行，2026-10-21）；测试 2,059 行；脚本 1,388 行；Web 897 行。
+> 统计口径：`spectrascholar/` 下 Python 源文件共 7,815 行（含注释/空行，2026-10-21）；测试 2,064 行；脚本 1,388 行；Web 897 行。
 
 ## 1. 上游：GPT Researcher（Apache-2.0）
 
@@ -77,7 +77,7 @@
 | `spectrascholar/api/documents.py`（141 行） | 上传安全、去重、页查看、删除联动索引 |
 | `spectrascholar/api/system.py` | health、config、单条证据核验 |
 | `web/index.html`（897 行） | 中文单页 UI、轮询、Markdown、引用跳转、工作流 |
-| `tests/`（2,059 行） | 101 个测试、PDF/表格工厂、Mock GPT Researcher/LLM、队列、OCR 降级、arXiv 工具 |
+| `tests/`（2,064 行） | 102 个测试、PDF/表格工厂、Mock GPT Researcher/LLM、队列、OCR 降级、arXiv 工具 |
 | `scripts/`（1,388 行） | 合成夹具评测、10 任务本地/网页真实研究评测、3 篇真实论文评测、真实对照报告、队列 worker、BM25/向量/混合消融、GPT Researcher 检查/真实冒烟 |
 | `Dockerfile` / `compose.yaml` / `.env.example` | 部署与配置（本机 build/up/worker 已验证；第二台机器未验证） |
 
@@ -90,7 +90,7 @@
 
 ## 4. 可验证的个人成果
 
-- 101 个 pytest 通过，覆盖率 85%；
+- 102 个 pytest 通过，覆盖率 85%；
 - `ruff` 全绿；
 - 真实 Uvicorn HTTP 冒烟：上传→研究→对比→索引→问答→工作流→下载均成功；
 - 合成夹具：字段 20/20、证据 23/23、引用 4/4、工作流 7/7；
@@ -100,7 +100,7 @@
 - 真实 GPT Researcher 本地 PDF 模式：10/10 任务 completed，报告均值 14.7k 字符，p50 24.0s / p95 33.5s，上游估算 $0.663；
 - 真实 Tavily 网页任务：10/10 completed，均值 20.2k 字符、p50 36.9s、62 个来源、上游估算 $1.078；
 - 3 篇真实论文抽取：LLM 的 title/year/venue/方法 3/3、datasets 9/9、指标数值 21/24、条件 5/8；文本表 + Tesseract OCR 后指标→数据集 21/24、条件化绑定 9/24；
-- 建立 30 题真实论文检索基线：Answer-level Recall@5 BM25/Ollama-vector/hybrid 36.7%/43.3%/36.7%，严格 page-level 33.3%/30.0%/23.3%；hash 基线为 46.7%/40.0%，Ollama 未超过，不宣称语义提升；
+- 建立 30 题真实论文检索基线：Answer-level Recall@5 BM25/Ollama-vector/hybrid/路由 36.7%/43.3%/36.7%/50.0%，严格 page-level 33.3%/30.0%/23.3%/33.3%；路由仅比 hash 46.7% 高 3.3 点，不宣称语义检索已解决；
 - 实现有界自主 Tool Loop：DeepSeek planner 在 arXiv/local_search 间选择，最多 5 步，工具失败记录 observation；真实 planner + local_search 跑通；
 - 接入真实 OpenAI embedding 评测入口；本机缺 `OPENAI_API_KEY`，明确 blocked，不伪造语义结果；
 - 实现 claim-level 引用映射：逐句 supported/page-only/external/no-citation/failed；
