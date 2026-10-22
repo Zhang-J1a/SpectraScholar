@@ -618,6 +618,7 @@ SpectraScholar-Starter/
 - [Tool Calling：arXiv 搜索](docs/TOOLS.md)
 - [有界自主 Tool Calling 循环](docs/AGENT_LOOP.md)
 - [真实 Embedding / RAG 检索评测](docs/EMBEDDING_EVAL.md)
+- [50 题检索失败分析](docs/RETRIEVAL_FAILURE_ANALYSIS.md)
 - [3 篇真实论文结构化对照样例](docs/real_paper_comparison.md)
 - [个人贡献边界](docs/PERSONAL_CONTRIBUTION.md)
 - [面试讲解与 3～5 个学习点](docs/INTERVIEW_GUIDE.md)
