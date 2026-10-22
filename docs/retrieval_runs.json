@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-10-22T10:32:19+00:00",
+  "generated_at": "2026-10-22T11:05:07+00:00",
   "corpus": "real_papers_retrieval",
-  "questions": 30,
+  "questions": 50,
   "chunks": 250,
   "embedding_backend": "ollama:nomic-embed-text",
   "page_counts": {
@@ -12,302 +12,302 @@
   "summary": {
     "bm25": {
       "k=1": {
-        "recall@1": 0.3,
-        "mrr@1": 0.3,
-        "hits": 9,
-        "total": 30
+        "recall@1": 0.32,
+        "mrr@1": 0.32,
+        "hits": 16,
+        "total": 50
       },
       "k=3": {
-        "recall@3": 0.5,
-        "mrr@3": 0.4,
-        "hits": 15,
-        "total": 30
+        "recall@3": 0.58,
+        "mrr@3": 0.4433,
+        "hits": 29,
+        "total": 50
       },
       "k=5": {
-        "recall@5": 0.6333,
-        "mrr@5": 0.4283,
-        "hits": 19,
-        "total": 30
+        "recall@5": 0.68,
+        "mrr@5": 0.4653,
+        "hits": 34,
+        "total": 50
       }
     },
     "hash": {
       "k=1": {
-        "recall@1": 0.3333,
-        "mrr@1": 0.3333,
-        "hits": 10,
-        "total": 30
+        "recall@1": 0.34,
+        "mrr@1": 0.34,
+        "hits": 17,
+        "total": 50
       },
       "k=3": {
-        "recall@3": 0.6,
-        "mrr@3": 0.4389,
-        "hits": 18,
-        "total": 30
+        "recall@3": 0.54,
+        "mrr@3": 0.42,
+        "hits": 27,
+        "total": 50
       },
       "k=5": {
-        "recall@5": 0.6667,
-        "mrr@5": 0.4539,
-        "hits": 20,
-        "total": 30
+        "recall@5": 0.6,
+        "mrr@5": 0.433,
+        "hits": 30,
+        "total": 50
       }
     },
     "vector": {
       "k=1": {
-        "recall@1": 0.3333,
-        "mrr@1": 0.3333,
-        "hits": 10,
-        "total": 30
+        "recall@1": 0.3,
+        "mrr@1": 0.3,
+        "hits": 15,
+        "total": 50
       },
       "k=3": {
         "recall@3": 0.6,
-        "mrr@3": 0.4444,
-        "hits": 18,
-        "total": 30
+        "mrr@3": 0.42,
+        "hits": 30,
+        "total": 50
       },
       "k=5": {
         "recall@5": 0.7,
-        "mrr@5": 0.4678,
-        "hits": 21,
-        "total": 30
+        "mrr@5": 0.442,
+        "hits": 35,
+        "total": 50
       }
     },
     "hybrid": {
       "k=1": {
-        "recall@1": 0.5,
-        "mrr@1": 0.5,
-        "hits": 15,
-        "total": 30
+        "recall@1": 0.46,
+        "mrr@1": 0.46,
+        "hits": 23,
+        "total": 50
       },
       "k=3": {
-        "recall@3": 0.6,
-        "mrr@3": 0.5333,
-        "hits": 18,
-        "total": 30
+        "recall@3": 0.66,
+        "mrr@3": 0.54,
+        "hits": 33,
+        "total": 50
       },
       "k=5": {
-        "recall@5": 0.6333,
-        "mrr@5": 0.5417,
-        "hits": 19,
-        "total": 30
+        "recall@5": 0.72,
+        "mrr@5": 0.554,
+        "hits": 36,
+        "total": 50
       }
     },
     "router": {
       "k=1": {
-        "recall@1": 0.3667,
-        "mrr@1": 0.3667,
-        "hits": 11,
-        "total": 30
+        "recall@1": 0.36,
+        "mrr@1": 0.36,
+        "hits": 18,
+        "total": 50
       },
       "k=3": {
-        "recall@3": 0.6667,
-        "mrr@3": 0.4889,
-        "hits": 20,
-        "total": 30
+        "recall@3": 0.66,
+        "mrr@3": 0.48,
+        "hits": 33,
+        "total": 50
       },
       "k=5": {
-        "recall@5": 0.7333,
-        "mrr@5": 0.5039,
-        "hits": 22,
-        "total": 30
+        "recall@5": 0.76,
+        "mrr@5": 0.502,
+        "hits": 38,
+        "total": 50
       }
     }
   },
   "page_summary": {
     "bm25": {
       "k=1": {
-        "recall@1": 0.2,
-        "mrr@1": 0.2,
-        "hits": 6,
-        "total": 30
+        "recall@1": 0.24,
+        "mrr@1": 0.24,
+        "hits": 12,
+        "total": 50
       },
       "k=3": {
-        "recall@3": 0.4,
-        "mrr@3": 0.3,
-        "hits": 12,
-        "total": 30
+        "recall@3": 0.5,
+        "mrr@3": 0.3633,
+        "hits": 25,
+        "total": 50
       },
       "k=5": {
-        "recall@5": 0.5667,
-        "mrr@5": 0.3383,
-        "hits": 17,
-        "total": 30
+        "recall@5": 0.62,
+        "mrr@5": 0.3913,
+        "hits": 31,
+        "total": 50
       }
     },
     "hash": {
       "k=1": {
-        "recall@1": 0.2333,
-        "mrr@1": 0.2333,
-        "hits": 7,
-        "total": 30
+        "recall@1": 0.24,
+        "mrr@1": 0.24,
+        "hits": 12,
+        "total": 50
       },
       "k=3": {
-        "recall@3": 0.5667,
-        "mrr@3": 0.3722,
-        "hits": 17,
-        "total": 30
+        "recall@3": 0.5,
+        "mrr@3": 0.35,
+        "hits": 25,
+        "total": 50
       },
       "k=5": {
-        "recall@5": 0.6,
-        "mrr@5": 0.3789,
-        "hits": 18,
-        "total": 30
+        "recall@5": 0.52,
+        "mrr@5": 0.354,
+        "hits": 26,
+        "total": 50
       }
     },
     "vector": {
       "k=1": {
-        "recall@1": 0.2667,
-        "mrr@1": 0.2667,
-        "hits": 8,
-        "total": 30
+        "recall@1": 0.24,
+        "mrr@1": 0.24,
+        "hits": 12,
+        "total": 50
       },
       "k=3": {
-        "recall@3": 0.4667,
-        "mrr@3": 0.3444,
-        "hits": 14,
-        "total": 30
+        "recall@3": 0.46,
+        "mrr@3": 0.33,
+        "hits": 23,
+        "total": 50
       },
       "k=5": {
-        "recall@5": 0.6,
-        "mrr@5": 0.3761,
-        "hits": 18,
-        "total": 30
+        "recall@5": 0.64,
+        "mrr@5": 0.369,
+        "hits": 32,
+        "total": 50
       }
     },
     "hybrid": {
       "k=1": {
-        "recall@1": 0.4,
-        "mrr@1": 0.4,
-        "hits": 12,
-        "total": 30
+        "recall@1": 0.38,
+        "mrr@1": 0.38,
+        "hits": 19,
+        "total": 50
       },
       "k=3": {
-        "recall@3": 0.5,
-        "mrr@3": 0.4333,
-        "hits": 15,
-        "total": 30
+        "recall@3": 0.54,
+        "mrr@3": 0.4467,
+        "hits": 27,
+        "total": 50
       },
       "k=5": {
-        "recall@5": 0.6,
-        "mrr@5": 0.4567,
-        "hits": 18,
-        "total": 30
+        "recall@5": 0.7,
+        "mrr@5": 0.4847,
+        "hits": 35,
+        "total": 50
       }
     },
     "router": {
       "k=1": {
-        "recall@1": 0.3667,
-        "mrr@1": 0.3667,
-        "hits": 11,
-        "total": 30
+        "recall@1": 0.32,
+        "mrr@1": 0.32,
+        "hits": 16,
+        "total": 50
       },
       "k=3": {
-        "recall@3": 0.5667,
-        "mrr@3": 0.4444,
-        "hits": 17,
-        "total": 30
+        "recall@3": 0.52,
+        "mrr@3": 0.4033,
+        "hits": 26,
+        "total": 50
       },
       "k=5": {
-        "recall@5": 0.7,
-        "mrr@5": 0.4761,
-        "hits": 21,
-        "total": 30
+        "recall@5": 0.72,
+        "mrr@5": 0.4473,
+        "hits": 36,
+        "total": 50
       }
     }
   },
   "by_category": {
     "condition": {
       "bm25": {
-        "recall@5": 0.6667,
-        "mrr@5": 0.15,
-        "hits": 2,
-        "total": 3
+        "recall@5": 0.75,
+        "mrr@5": 0.4333,
+        "hits": 9,
+        "total": 12
       },
       "hash": {
         "recall@5": 0.3333,
-        "mrr@5": 0.0833,
-        "hits": 1,
-        "total": 3
+        "mrr@5": 0.1625,
+        "hits": 4,
+        "total": 12
       },
       "vector": {
-        "recall@5": 0.3333,
-        "mrr@5": 0.0833,
-        "hits": 1,
-        "total": 3
+        "recall@5": 0.75,
+        "mrr@5": 0.4014,
+        "hits": 9,
+        "total": 12
       },
       "hybrid": {
-        "recall@5": 0.3333,
-        "mrr@5": 0.1111,
-        "hits": 1,
-        "total": 3
+        "recall@5": 0.8333,
+        "mrr@5": 0.5236,
+        "hits": 10,
+        "total": 12
       },
       "router": {
-        "recall@5": 0.3333,
-        "mrr@5": 0.0833,
-        "hits": 1,
-        "total": 3
+        "recall@5": 0.8333,
+        "mrr@5": 0.4917,
+        "hits": 10,
+        "total": 12
       }
     },
     "metadata": {
       "bm25": {
-        "recall@5": 0.7778,
-        "mrr@5": 0.7778,
-        "hits": 7,
-        "total": 9
+        "recall@5": 0.7333,
+        "mrr@5": 0.7,
+        "hits": 11,
+        "total": 15
       },
       "hash": {
-        "recall@5": 0.7778,
-        "mrr@5": 0.6481,
-        "hits": 7,
-        "total": 9
+        "recall@5": 0.6667,
+        "mrr@5": 0.5444,
+        "hits": 10,
+        "total": 15
       },
       "vector": {
-        "recall@5": 0.6667,
-        "mrr@5": 0.5278,
-        "hits": 6,
-        "total": 9
+        "recall@5": 0.5333,
+        "mrr@5": 0.4167,
+        "hits": 8,
+        "total": 15
       },
       "hybrid": {
-        "recall@5": 0.7778,
-        "mrr@5": 0.7778,
-        "hits": 7,
-        "total": 9
+        "recall@5": 0.7333,
+        "mrr@5": 0.7,
+        "hits": 11,
+        "total": 15
       },
       "router": {
-        "recall@5": 0.7778,
-        "mrr@5": 0.6481,
-        "hits": 7,
-        "total": 9
+        "recall@5": 0.6667,
+        "mrr@5": 0.5444,
+        "hits": 10,
+        "total": 15
       }
     },
     "metric": {
       "bm25": {
-        "recall@5": 0.5556,
-        "mrr@5": 0.3,
-        "hits": 10,
-        "total": 18
+        "recall@5": 0.6087,
+        "mrr@5": 0.329,
+        "hits": 14,
+        "total": 23
       },
       "hash": {
-        "recall@5": 0.6667,
-        "mrr@5": 0.4185,
-        "hits": 12,
-        "total": 18
+        "recall@5": 0.6957,
+        "mrr@5": 0.5014,
+        "hits": 16,
+        "total": 23
       },
       "vector": {
-        "recall@5": 0.7778,
-        "mrr@5": 0.5019,
-        "hits": 14,
-        "total": 18
+        "recall@5": 0.7826,
+        "mrr@5": 0.4797,
+        "hits": 18,
+        "total": 23
       },
       "hybrid": {
-        "recall@5": 0.6111,
-        "mrr@5": 0.4954,
-        "hits": 11,
-        "total": 18
+        "recall@5": 0.6522,
+        "mrr@5": 0.4746,
+        "hits": 15,
+        "total": 23
       },
       "router": {
-        "recall@5": 0.7778,
-        "mrr@5": 0.5019,
-        "hits": 14,
-        "total": 18
+        "recall@5": 0.7826,
+        "mrr@5": 0.4797,
+        "hits": 18,
+        "total": 23
       }
     }
   },
@@ -1120,6 +1120,546 @@
         "vector": 3,
         "hybrid": 3,
         "router": 3
+      }
+    },
+    {
+      "id": "q031",
+      "category": "metadata",
+      "document_id": "hybridsn",
+      "dataset": null,
+      "metric": null,
+      "question": "HybridSN 的作者是谁？",
+      "gold_answer": "Swalpa Kumar Roy, Gopal Krishna, Shiv Ram Dubey, Bidyut B. Chaudhuri",
+      "gold_page": 1,
+      "gold_quote": "Swalpa Kumar Roy, Student Member, IEEE, Gopal Krishna, Shiv Ram Dubey, Member, IEEE, and Bidyut B. Chaudhuri, Life Fellow, IEEE",
+      "must_cite": false,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 1,
+        "hash": null,
+        "vector": 2,
+        "hybrid": 1,
+        "router": null
+      },
+      "page_ranks": {
+        "bm25": 1,
+        "hash": null,
+        "vector": 2,
+        "hybrid": 1,
+        "router": null
+      }
+    },
+    {
+      "id": "q032",
+      "category": "metadata",
+      "document_id": "hybridsn",
+      "dataset": null,
+      "metric": null,
+      "question": "HybridSN 的 DOI 是什么？",
+      "gold_answer": "10.1109/LGRS.2019.2918719",
+      "gold_page": 1,
+      "gold_quote": "DOI: 10.1109/LGRS.2019.2918719",
+      "must_cite": false,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 1,
+        "hash": 1,
+        "vector": 1,
+        "hybrid": 1,
+        "router": 1
+      },
+      "page_ranks": {
+        "bm25": 1,
+        "hash": null,
+        "vector": 1,
+        "hybrid": 1,
+        "router": null
+      }
+    },
+    {
+      "id": "q033",
+      "category": "metric",
+      "document_id": "hybridsn",
+      "dataset": "Salinas Scene",
+      "metric": "OA",
+      "question": "HybridSN 在 Salinas Scene、30% 训练比例下的 OA 是多少？",
+      "gold_answer": "100",
+      "gold_page": 3,
+      "gold_quote": "HybridSN 100 ± 0.0 100 ± 0.0 100 ± 0.0",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 3,
+        "hash": 1,
+        "vector": 3,
+        "hybrid": 3,
+        "router": 3
+      },
+      "page_ranks": {
+        "bm25": 3,
+        "hash": 1,
+        "vector": 5,
+        "hybrid": 4,
+        "router": 5
+      }
+    },
+    {
+      "id": "q034",
+      "category": "metric",
+      "document_id": "hybridsn",
+      "dataset": "Salinas Scene",
+      "metric": "AA",
+      "question": "HybridSN 在 Salinas Scene、30% 训练比例下的 AA 是多少？",
+      "gold_answer": "100",
+      "gold_page": 3,
+      "gold_quote": "HybridSN 100 ± 0.0 100 ± 0.0 100 ± 0.0",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 3,
+        "hash": 1,
+        "vector": 3,
+        "hybrid": 3,
+        "router": 3
+      },
+      "page_ranks": {
+        "bm25": 3,
+        "hash": 2,
+        "vector": 5,
+        "hybrid": 4,
+        "router": 5
+      }
+    },
+    {
+      "id": "q035",
+      "category": "metric",
+      "document_id": "hybridsn",
+      "dataset": "Salinas Scene",
+      "metric": "Kappa",
+      "question": "HybridSN 在 Salinas Scene、30% 训练比例下的 Kappa 是多少？",
+      "gold_answer": "100",
+      "gold_page": 3,
+      "gold_quote": "HybridSN 100 ± 0.0 100 ± 0.0 100 ± 0.0",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 2,
+        "hash": 1,
+        "vector": 3,
+        "hybrid": 3,
+        "router": 3
+      },
+      "page_ranks": {
+        "bm25": 2,
+        "hash": 1,
+        "vector": 5,
+        "hybrid": 4,
+        "router": 5
+      }
+    },
+    {
+      "id": "q036",
+      "category": "metric",
+      "document_id": "hybridsn",
+      "dataset": "Salinas Scene",
+      "metric": "OA",
+      "question": "HybridSN 在 Salinas Scene、10% 训练比例下的 OA 是多少？",
+      "gold_answer": "99.98",
+      "gold_page": 4,
+      "gold_quote": "HybridSN 98.39 98.16 98.01 99.72 99.64 99.20 99.98 99.98 99.98",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 1,
+        "hash": 1,
+        "vector": 1,
+        "hybrid": 1,
+        "router": 1
+      },
+      "page_ranks": {
+        "bm25": 1,
+        "hash": 1,
+        "vector": 1,
+        "hybrid": 1,
+        "router": 1
+      }
+    },
+    {
+      "id": "q037",
+      "category": "metadata",
+      "document_id": "ssrn",
+      "dataset": null,
+      "metric": null,
+      "question": "SSRN 的作者是谁？",
+      "gold_answer": "Zilong Zhong, Jonathan Li, Zhiming Luo, Michael Chapman",
+      "gold_page": 1,
+      "gold_quote": "Zilong Zhong, Student Member, IEEE, Jonathan Li, Senior Member, IEEE, Zhiming Luo, and Michael Chapman",
+      "must_cite": false,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": null,
+        "hash": null,
+        "vector": null,
+        "hybrid": null,
+        "router": null
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": null,
+        "vector": null,
+        "hybrid": null,
+        "router": null
+      }
+    },
+    {
+      "id": "q038",
+      "category": "metadata",
+      "document_id": "ssrn",
+      "dataset": null,
+      "metric": null,
+      "question": "SSRN 的期刊卷期和起始页码是什么？",
+      "gold_answer": "IEEE TGRS, Vol. 56, No. 2, p. 847",
+      "gold_page": 1,
+      "gold_quote": "IEEE TRANSACTIONS ON GEOSCIENCE AND REMOTE SENSING, VOL. 56, NO. 2, FEBRUARY 2018 847",
+      "must_cite": false,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": null,
+        "hash": 1,
+        "vector": null,
+        "hybrid": null,
+        "router": 1
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": 1,
+        "vector": null,
+        "hybrid": null,
+        "router": 1
+      }
+    },
+    {
+      "id": "q039",
+      "category": "condition",
+      "document_id": "ssrn",
+      "dataset": "KSC",
+      "metric": null,
+      "question": "SSRN 在 KSC 数据集的训练/验证/测试比例是多少？",
+      "gold_answer": "20% / 10% / 70%",
+      "gold_page": 6,
+      "gold_quote": "In the IN and KSC data sets, 20%, 10%, and 70% of the labeled data are randomly assigned to training, validation, and testing groups, respectively.",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 4,
+        "hash": 10,
+        "vector": 1,
+        "hybrid": 5,
+        "router": 5
+      },
+      "page_ranks": {
+        "bm25": 4,
+        "hash": 10,
+        "vector": 1,
+        "hybrid": 5,
+        "router": 5
+      }
+    },
+    {
+      "id": "q040",
+      "category": "condition",
+      "document_id": "ssrn",
+      "dataset": "University of Pavia",
+      "metric": null,
+      "question": "SSRN 在 University of Pavia 的训练/验证/测试比例是多少？",
+      "gold_answer": "10% / 10% / 80%",
+      "gold_page": 6,
+      "gold_quote": "In the UP data sets, the ratio is 10%:10%:80%.",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": null,
+        "hash": null,
+        "vector": 1,
+        "hybrid": 4,
+        "router": 4
+      },
+      "page_ranks": {
+        "bm25": null,
+        "hash": null,
+        "vector": 1,
+        "hybrid": 4,
+        "router": 4
+      }
+    },
+    {
+      "id": "q041",
+      "category": "metric",
+      "document_id": "ssrn",
+      "dataset": "KSC",
+      "metric": "OA",
+      "question": "SSRN 在 KSC 数据集的 OA 是多少？",
+      "gold_answer": "99.61",
+      "gold_page": 8,
+      "gold_quote": "For example, in the KSC data set, SSRN (99.61%) delivered a roughly 2.5% increase of mean overall classification accuracy compared with CNN (97.08%).",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 15,
+        "hash": 9,
+        "vector": 18,
+        "hybrid": 20,
+        "router": 18
+      },
+      "page_ranks": {
+        "bm25": 15,
+        "hash": 9,
+        "vector": 18,
+        "hybrid": 20,
+        "router": 18
+      }
+    },
+    {
+      "id": "q042",
+      "category": "condition",
+      "document_id": "ssrn",
+      "dataset": "Indian Pines",
+      "metric": null,
+      "question": "SSRN 在 Indian Pines 使用的输入 cube 尺寸是多少？",
+      "gold_answer": "7x7x200",
+      "gold_page": 3,
+      "gold_quote": "the size of HSI cubes for the Indian Pines (IN) data set is 7 × 7 × 200",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 7,
+        "hash": null,
+        "vector": 3,
+        "hybrid": 1,
+        "router": 1
+      },
+      "page_ranks": {
+        "bm25": 7,
+        "hash": null,
+        "vector": 3,
+        "hybrid": 1,
+        "router": 1
+      }
+    },
+    {
+      "id": "q043",
+      "category": "condition",
+      "document_id": "ssrn",
+      "dataset": null,
+      "metric": null,
+      "question": "SSRN 训练时 batch size 是多少？",
+      "gold_answer": "16",
+      "gold_page": 6,
+      "gold_quote": "we set the batch size to 16",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 1,
+        "hash": 2,
+        "vector": 2,
+        "hybrid": 1,
+        "router": 1
+      },
+      "page_ranks": {
+        "bm25": 1,
+        "hash": 2,
+        "vector": 2,
+        "hybrid": 1,
+        "router": 1
+      }
+    },
+    {
+      "id": "q044",
+      "category": "metadata",
+      "document_id": "cnn_gat",
+      "dataset": null,
+      "metric": null,
+      "question": "WFCG 的期刊卷号和起始页码是什么？",
+      "gold_answer": "IEEE TIP, Vol. 31, 2022, p. 1559",
+      "gold_page": 1,
+      "gold_quote": "IEEE TRANSACTIONS ON IMAGE PROCESSING, VOL. 31, 2022 1559",
+      "must_cite": false,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 1,
+        "hash": 3,
+        "vector": null,
+        "hybrid": 1,
+        "router": 3
+      },
+      "page_ranks": {
+        "bm25": 1,
+        "hash": 3,
+        "vector": null,
+        "hybrid": 1,
+        "router": 3
+      }
+    },
+    {
+      "id": "q045",
+      "category": "condition",
+      "document_id": "cnn_gat",
+      "dataset": "University of Pavia",
+      "metric": null,
+      "question": "WFCG 在 University of Pavia 使用的训练比例是多少？",
+      "gold_answer": "0.1%",
+      "gold_page": 7,
+      "gold_quote": "For the University of Pavia dataset and the WHU-Hi-HongHu dataset, because they have more labels, 0.1% the labels are selected as the training set and the validation set.",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 1,
+        "hash": 5,
+        "vector": 1,
+        "hybrid": 1,
+        "router": 1
+      },
+      "page_ranks": {
+        "bm25": 13,
+        "hash": 7,
+        "vector": 2,
+        "hybrid": 3,
+        "router": 2
+      }
+    },
+    {
+      "id": "q046",
+      "category": "condition",
+      "document_id": "cnn_gat",
+      "dataset": null,
+      "metric": null,
+      "question": "WFCG 的超像素数量如何设置？",
+      "gold_answer": "像素数的 1/100",
+      "gold_page": 8,
+      "gold_quote": "The number of superpixels for each dataset is set to 1/100 of the number of pixels.",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 2,
+        "hash": 8,
+        "vector": 5,
+        "hybrid": 2,
+        "router": 2
+      },
+      "page_ranks": {
+        "bm25": 2,
+        "hash": 8,
+        "vector": 5,
+        "hybrid": 2,
+        "router": 2
+      }
+    },
+    {
+      "id": "q047",
+      "category": "condition",
+      "document_id": "cnn_gat",
+      "dataset": null,
+      "metric": null,
+      "question": "WFCG 训练多少 epoch？",
+      "gold_answer": "300",
+      "gold_page": 8,
+      "gold_quote": "The training epoch is set to 300.",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 1,
+        "hash": 1,
+        "vector": 6,
+        "hybrid": 2,
+        "router": 2
+      },
+      "page_ranks": {
+        "bm25": 1,
+        "hash": 1,
+        "vector": 6,
+        "hybrid": 2,
+        "router": 2
+      }
+    },
+    {
+      "id": "q048",
+      "category": "condition",
+      "document_id": "cnn_gat",
+      "dataset": null,
+      "metric": null,
+      "question": "WFCG 使用什么优化器和学习率？",
+      "gold_answer": "Adam, learning rate 0.001",
+      "gold_page": 8,
+      "gold_quote": "we use Adam optimizer to train the model with a learning rate 0.001",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 2,
+        "hash": 17,
+        "vector": 3,
+        "hybrid": 1,
+        "router": 1
+      },
+      "page_ranks": {
+        "bm25": 2,
+        "hash": 17,
+        "vector": 3,
+        "hybrid": 1,
+        "router": 1
+      }
+    },
+    {
+      "id": "q049",
+      "category": "metadata",
+      "document_id": "cnn_gat",
+      "dataset": null,
+      "metric": null,
+      "question": "WFCG 的 DOI 是什么？",
+      "gold_answer": "10.1109/TIP.2022.3144017",
+      "gold_page": 1,
+      "gold_quote": "Digital Object Identiﬁer 10.1109/TIP .2022.3144017",
+      "must_cite": false,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 2,
+        "hash": null,
+        "vector": null,
+        "hybrid": 2,
+        "router": null
+      },
+      "page_ranks": {
+        "bm25": 2,
+        "hash": null,
+        "vector": null,
+        "hybrid": 2,
+        "router": null
+      }
+    },
+    {
+      "id": "q050",
+      "category": "condition",
+      "document_id": "cnn_gat",
+      "dataset": "WHU-Hi-HongHu",
+      "metric": null,
+      "question": "WFCG 在 WHU-Hi-HongHu 上使用的训练比例范围是多少？",
+      "gold_answer": "0.1%–0.6%",
+      "gold_page": 10,
+      "gold_quote": "the ratios of training samples are both set from 0.1% to 0.6% per class for the University of Pavia dataset and the WHU-Hi-HongHu dataset",
+      "must_cite": true,
+      "source_type": "local_pdf",
+      "ranks": {
+        "bm25": 2,
+        "hash": 11,
+        "vector": 5,
+        "hybrid": 2,
+        "router": 5
+      },
+      "page_ranks": {
+        "bm25": 2,
+        "hash": 11,
+        "vector": 5,
+        "hybrid": 2,
+        "router": 5
       }
     }
   ],

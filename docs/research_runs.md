@@ -12,7 +12,7 @@
 | # | 状态 | 报告字符 | elapsed_ms | page+ | local_file | unsupported | error |
 |---|---|---|---|---|---|---|---|
 | 1 | completed | 14905 | 33529 | 0 | 6 | 20 |  |
-| 2 | completed | 13677 | 21888 | 0 | 29 | 8 |  |
+| 2 | completed | 13678 | 21888 | 0 | 29 | 8 |  |
 | 3 | completed | 15363 | 23993 | 0 | 15 | 6 |  |
 | 4 | completed | 12933 | 20158 | 0 | 25 | 8 |  |
 | 5 | completed | 14202 | 21007 | 0 | 34 | 10 |  |

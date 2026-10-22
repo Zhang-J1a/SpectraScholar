@@ -35,7 +35,7 @@ SpectraScholar 把这三件事做成了显式契约：
 
 | 能力 | 状态 | 证据 |
 |---|---|---|
-| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 102 个 pytest |
+| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 103 个 pytest |
 | Demo 调研任务（不调用搜索/LLM） | ✅ 已实现 | 报告中明确“不是调研结果” |
 | GPT Researcher Adapter | ✅ 代码完成，API 签名按 **0.16.1** 源码核对 | Mock 集成测试 + 真实本地任务 |
 | GPT Researcher 真实本地 PDF 调研（DeepSeek） | ✅ **10/10 真实任务完成** | `backend=gptr`、`is_demo=false`、报告均值 14.7k 字符、p50 24.0s / p95 33.5s、上游 costs 合计 $0.663 |
@@ -46,7 +46,7 @@ SpectraScholar 把这三件事做成了显式契约：
 | 真实 LLM 抽取的字段关联 | ⚠️ 部分 | OA/Kappa 可抽取，但数据集/方法关联仍缺失，不能直接排名 |
 | 真实论文抽取评测（3 篇） | ✅ **已完成小样本** | LLM：title/year/venue/method 3/3、datasets 9/9、指标数值 21/24、指标→数据集绑定 **21/24** |
 | 真实论文上的条件化指标 | ⚠️ **部分完成** | 条件 5/8；指标→比例/patch 绑定 9/24；OCR 已真实运行，但仍不能直接排名 |
-| 真实论文检索评测（30 题） | ✅ **修正 ID 错配后重测** | Answer-level Recall@5：BM25 63.3%、hash 66.7%、Ollama vector 70.0%、hybrid 63.3%、**题型路由 73.3%**；严格 page-level 56.7%/60.0%/60.0%/60.0%/70.0%；路由比 hash 高 6.6 点 |
+| 真实论文检索评测（50 题） | ✅ **修正 ID 错配后重测** | Answer-level Recall@5：BM25 68.0%、hash 60.0%、Ollama vector 70.0%、hybrid 72.0%、**题型路由 76.0%**；严格 page-level 62.0%/52.0%/64.0%/70.0%/72.0%；路由比 hash 高 16 点 |
 | Claim-level 引用核验 | ✅ 已实现 | 逐句映射 supported/page-only/external/no-citation；见 `citations.py` |
 | 可靠任务队列 | ✅ 完成（SQLite worker） | 跨进程 queued→completed；`scripts/run_worker.py` |
 | Tool Calling（arXiv） | ✅ 端点 + 真实调用 + workflow 显式接入 | 年份/主题过滤、DOI 去重、分页、重试、超时；见 [`docs/TOOLS.md`](docs/TOOLS.md) |
@@ -184,7 +184,7 @@ PDF → 页级 chunk（保留页码/偏移） → embedding + BM25
 - 空知识库或低重合时拒答；
 - 回答中每个片段带页级引用；LLM 回答没有可核验引用时自动降级为抽取式；
 - 删除文献时同步删除索引；
-- `scripts/evaluate_retrieval.py` 跑 `bm25 / hash / vector / hybrid / router`；30 题 Answer-level router 73.3%，比 hash 66.7% 高 6.6 点，page-level 70.0%；仍不宣称语义检索已解决。
+- `scripts/evaluate_retrieval.py` 跑 `bm25 / hash / vector / hybrid / router`；50 题 Answer-level router 76.0%，比 hash 60.0% 高 16 点，page-level 72.0%；仍不宣称语义检索已解决。
 
 ### 4.6 工作流与工程化（P3）
 
@@ -494,9 +494,9 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 
 实际结果：
 
-- **102 passed**（pytest）
+- **103 passed**（pytest）
 - **ruff：All checks passed**
-- **coverage：85%**（4459 statements，677 missed）
+- **coverage：85%**（4461 statements，678 missed）
 - 三份合成夹具（两篇正文 + 一张带线 OA/AA/Kappa 表格）：
   - 抽取字段命中 **20/20**
   - 原文证据接受 **23/23**
@@ -510,14 +510,14 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 - **真实 Tavily 网页任务**：`scripts/evaluate_web_research.py` 跑 **10/10 completed**，`source=web`、`backend=gptr`、`is_demo=false`；报告均值 20,180 字符，p50 36.9s、p95 42.7s，62 个来源，上游 costs 合计 $1.078。
 - **网页引用审计真实结果**：443 条外部链接均标记为未联网核验，页级通过 0 条，31 条数值结论缺引用。当前沙箱需 `ALLOW_PRIVATE_URLS=true` 放行代理地址，不能把这次结果当成通用网络环境下的生产稳定性结论；完整结果见 [`docs/web_research_runs.md`](docs/web_research_runs.md)。
 - **真实论文抽取（3 篇）**：LLM 的 title/year/venue/主方法 **3/3**、datasets **9/9**、指标数值 **21/24**、实验条件 **5/8**；文本表格 + Tesseract OCR 转置表解析把指标→数据集从 **0/24 提升到 21/24**，条件化绑定 **9/24**。证据接受 271/277（97.8%）。仍不能直接排名。详见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)。
-- **真实论文检索（30 题）**：修正 WFCG 文档 ID 错配后，Answer-level Recall@5：BM25 **63.3%**、hash **66.7%**、Ollama `nomic-embed-text` vector **70.0%**、hybrid **63.3%**、题型路由 **73.3%**，MRR@5 分别 0.428/0.454/0.468/0.542/0.504；严格 page-level Recall@5 为 56.7%/60.0%/60.0%/60.0%/70.0%。此前 46.7%/33.3% 的低结果是 WFCG 10 题全部 ID 不匹配造成的；修正后路由仍只比 hash 高 6.6 点，不能宣称语义检索已解决；详见 [`docs/retrieval_runs.md`](docs/retrieval_runs.md)。
+- **真实论文检索（50 题）**：修正 WFCG 文档 ID 错配后，Answer-level Recall@5：BM25 **68.0%**、hash **60.0%**、Ollama `nomic-embed-text` vector **70.0%**、hybrid **72.0%**、题型路由 **76.0%**，MRR@5 分别 0.465/0.433/0.442/0.554/0.502；严格 page-level Recall@5 为 62.0%/52.0%/64.0%/70.0%/72.0%。50 题扩样后路由比 hash 高 16 点，page-level 也到 72.0%；仍不能宣称语义检索已解决；详见 [`docs/retrieval_runs.md`](docs/retrieval_runs.md)。
 - **V1 结构化对照**：3 篇真实论文生成 46,987 字符报告，82 个 `[[doc:... p.N "quote"]]` 页级引用；`comparable_groups=0` 时不强行排名。见 [`docs/real_paper_comparison.md`](docs/real_paper_comparison.md) 和 [`docs/V1_ACCEPTANCE.md`](docs/V1_ACCEPTANCE.md)。
 - **真实 DeepSeek LLM 抽取**：夹具 12/12 候选通过逐字核验（OA 98.4%、Kappa 0.977）；但数据集/方法关联缺失，仍不可直接排名。
 - **真实 DeepSeek RAG 回答**：返回 3 条 page-only 引用；`grounded=false`，因为回答未提供逐句引用/原文片段，审计保持严格。
 
 > V1 验收状态：[`docs/V1_ACCEPTANCE.md`](docs/V1_ACCEPTANCE.md)（V1.1/1.2/1.4/1.5 完成；V1.3 仍有 OCR 误读；V1.6 本机 Docker 通过、第二台机器未验证）。
 >
-> ✅ 检索评测现在有 30 题真实论文集：修正 WFCG 文档 ID 错配后，Ollama `nomic-embed-text` 的 Answer-level Recall@5 为 BM25 63.3%、hash 66.7%、vector 70.0%、hybrid 63.3%、题型路由 73.3%；严格 page-level 为 56.7%/60.0%/60.0%/60.0%/70.0%。路由仅比 hash 高 6.6 点，page-level 仍不过半，不能宣称语义检索已解决。真实论文抽取结果见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)，检索结果见 [`docs/retrieval_runs.md`](docs/retrieval_runs.md)，方法与限制见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。
+> ✅ 检索评测现在有 50 题真实论文集：修正 WFCG 文档 ID 错配后，Ollama `nomic-embed-text` 的 Answer-level Recall@5 为 BM25 68.0%、hash 60.0%、vector 70.0%、hybrid 72.0%、题型路由 76.0%；严格 page-level 为 62.0%/52.0%/64.0%/70.0%/72.0%。50 题扩样后路由比 hash 高 16 点，page-level 72.0%，仍不能宣称语义检索已解决。真实论文抽取结果见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)，检索结果见 [`docs/retrieval_runs.md`](docs/retrieval_runs.md)，方法与限制见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。
 
 测试覆盖的关键失败路径：
 
@@ -549,7 +549,7 @@ SpectraScholar-Starter/
 │   ├── workflow.py             # 7 节点本地文献工作流
 │   └── domains.py              # 可替换领域模板
 ├── web/index.html              # 单页中文 Web UI（无构建步骤）
-├── tests/                      # 102 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
+├── tests/                      # 103 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
 ├── scripts/                    # 评测、GPT Researcher API 检查/真实冒烟
 ├── eval/                       # 3 篇真实论文标注 + 清单（PDF 未提交）
 ├── docs/                       # 架构、开发日志、评测、面试、贡献说明

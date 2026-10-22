@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 102 个）。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 103 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -348,7 +348,7 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 
 ```text
 .............................................................            [100%]
-102 passed, 1 warning in 12.34s
+103 passed, 1 warning in 12.34s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  4459 statements  677 missed  85%
+TOTAL  4461 statements  678 missed  85%
 ```
 
 ### 8.4 合成夹具评测
@@ -522,8 +522,8 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 ### 10.6 本轮真实结果
 
 ```text
-pytest -q                         → 102 passed
-pytest --cov                      → 85% (4459 / 677)
+pytest -q                         → 103 passed
+pytest --cov                      → 85% (4461 / 678)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -701,16 +701,16 @@ arxiv_max_results
 - `/api/v1/kb/search` 的 `mode=auto` 使用同一路由；
 - `scripts/evaluate_retrieval.py` 增加 `router` 模式，便于同口径消融。
 
-30 题结果：
+50 题结果：
 
 ```text
-Answer-level R@5: BM25 63.3 / hash 66.7 / vector 70.0 / hybrid 63.3 / router 73.3
-Page-level R@5:   BM25 46.7 / hash 43.3 / vector 50.0 / hybrid 40.0 / router 53.3
+Answer-level R@5: BM25 68.0 / hash 60.0 / vector 70.0 / hybrid 72.0 / router 76.0
+Page-level R@5:   BM25 62.0 / hash 52.0 / vector 64.0 / hybrid 70.0 / router 72.0
 ```
 
 关键修复：评测把 WFCG 文档 ID 写成 `wfcg`，而 gold 标注和 chunk 实际是 `cnn_gat`，导致 10 道 WFCG 题全部 miss。修正后所有模式大幅上升。
 
-结论：Answer-level 比 hash 高 6.6 点，page-level 70.0%；路由是改善，但仍未解决跨语言和表格页问题。  
+结论：Answer-level 比 hash 高 16 点，page-level 72.0%；路由是改善，但仍未解决跨语言和表格页问题。  
 metadata 依赖 hash 词法匹配，说明当前 router 仍是启发式，不是学习型路由。
 
 ### 10.16 取消 / 预算 / 队列可靠性
@@ -751,7 +751,7 @@ metadata 依赖 hash 词法匹配，说明当前 router 仍是启发式，不是
 
 新增：
 
-- `eval/research_eval.json`：30 条真实论文检索题，gold 为 document/page/quote；
+- `eval/research_eval.json`：50 条真实论文检索题，gold 为 document/page/quote；
 - `scripts/evaluate_retrieval.py --ocr`：BM25 / hash / hybrid RRF 的 Recall@1/3/5 与 MRR；索引时追加可选 OCR 表格文本；
 - `citations.py` 的 `audit_claims`：逐句映射 supported_quote / page_only / external_unchecked / no_citation / citation_failed；
 - `CitationAudit` 新增 claim 计数字段，报告自动附加 claim-level 统计。
@@ -760,17 +760,17 @@ metadata 依赖 hash 词法匹配，说明当前 router 仍是启发式，不是
 
 ```text
 Answer-level:
-BM25          Recall@5 63.3%  MRR@5 0.428
-hash          Recall@5 66.7%  MRR@5 0.454
-Ollama vector Recall@5 70.0%  MRR@5 0.468
-hybrid        Recall@5 63.3%  MRR@5 0.542
-router        Recall@5 73.3%  MRR@5 0.504
+BM25          Recall@5 68.0%  MRR@5 0.465
+hash          Recall@5 60.0%  MRR@5 0.433
+Ollama vector Recall@5 70.0%  MRR@5 0.442
+hybrid        Recall@5 72.0%  MRR@5 0.554
+router        Recall@5 76.0%  MRR@5 0.502
 严格 page-level:
-router        Recall@5 70.0%  MRR@5 0.476
+router        Recall@5 72.0%  MRR@5 0.447
 ```
 
 路由：metadata → hash，metric/condition → Ollama vector，其余 hybrid。  
-路由 Answer-level 比 hash 高 6.6 点，page-level 70.0%，仍没有解决跨语言和表格页问题；不能写“语义检索已解决”。
+路由 Answer-level 比 hash 高 16 点，page-level 72.0%，仍没有解决跨语言和表格页问题；不能写“语义检索已解决”。
 
 说明：
 
