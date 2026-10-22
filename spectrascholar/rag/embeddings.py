@@ -58,29 +58,48 @@ class HashEmbedder:
 
 
 class OpenAIEmbedder:
-    def __init__(self, model: str, batch_size: int = 32, timeout: float = 60.0) -> None:
+    def __init__(
+        self,
+        model: str,
+        batch_size: int = 32,
+        timeout: float = 60.0,
+        *,
+        api_key: str | None = None,
+        base_url: str | None = None,
+    ) -> None:
         self.model = model
         self.batch_size = max(1, batch_size)
         self.timeout = timeout
-        self.name = f"openai:{model}"
+        self.name = f"openai-compatible:{model}"
         self.dim = None
         self._client = None
+        self.api_key = (api_key or "").strip()
+        self.base_url = (base_url or "").strip()
 
     def _client_or_raise(self):
         if self._client is not None:
             return self._client
-        key = os.getenv("OPENAI_API_KEY", "").strip()
+        key = (
+            self.api_key
+            or os.getenv("EMBEDDING_API_KEY", "").strip()
+            or os.getenv("OPENAI_API_KEY", "").strip()
+        )
         if not key:
             raise EmbeddingError(
                 "missing_api_key",
-                "EMBEDDING_BACKEND=openai 需要 OPENAI_API_KEY；"
+                "EMBEDDING_BACKEND=openai 需要 EMBEDDING_API_KEY（或 OPENAI_API_KEY）；"
                 "可改用 EMBEDDING_BACKEND=hash 进行离线流程测试。",
             )
         from openai import AsyncOpenAI
 
         self._client = AsyncOpenAI(
             api_key=key,
-            base_url=os.getenv("OPENAI_BASE_URL") or None,
+            base_url=(
+                self.base_url
+                or os.getenv("EMBEDDING_BASE_URL", "").strip()
+                or os.getenv("OPENAI_BASE_URL", "").strip()
+                or None
+            ),
             timeout=self.timeout,
         )
         return self._client
@@ -128,6 +147,8 @@ def get_embedder(name: str | None = None) -> Embedder:
             settings.embedding_model,
             batch_size=settings.embedding_batch_size,
             timeout=settings.extraction_timeout_seconds,
+            api_key=settings.embedding_api_key,
+            base_url=settings.embedding_base_url,
         )
     raise EmbeddingError(
         "invalid_embedding_backend",

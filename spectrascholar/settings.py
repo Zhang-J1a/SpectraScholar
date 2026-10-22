@@ -123,6 +123,10 @@ class Settings:
     embedding_model: str = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
     embedding_dim: int = _env_int("EMBEDDING_DIM", 512, 64)
     embedding_batch_size: int = _env_int("EMBEDDING_BATCH_SIZE", 32, 1)
+    # Separate from the chat key so a third-party embedding provider does not
+    # silently switch the chat provider.
+    embedding_api_key: str = os.getenv("EMBEDDING_API_KEY", "").strip()
+    embedding_base_url: str = os.getenv("EMBEDDING_BASE_URL", "").strip()
     rag_chunk_chars: int = _env_int("RAG_CHUNK_CHARS", 1200, 200)
     rag_chunk_overlap: int = _env_int("RAG_CHUNK_OVERLAP", 180, 0)
     rag_top_k: int = _env_int("RAG_TOP_K", 6, 1)
