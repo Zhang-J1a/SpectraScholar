@@ -693,7 +693,7 @@ arxiv_max_results
 
 ### 10.15c bge-m3 实测
 
-本机 Ollama registry 被代理/schannel 挡住，改为 Python 直接下载 Ollama manifest/blob 到 `workspace/ollama_models`，启动独立实例：
+本机 Ollama registry 被代理/schannel 挡住，改为 Python 直接下载 Ollama manifest/blob 到 `D:/SpectraScholar/ollama_models`，启动独立实例：
 
 ```text
 OLLAMA_HOST=127.0.0.1:11435

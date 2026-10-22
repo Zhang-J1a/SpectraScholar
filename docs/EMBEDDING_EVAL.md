@@ -132,7 +132,7 @@ Page-level:   vector 64.0% / hybrid 70.0% / router 76.0%
 - bge-m3 下 router 退化到 70.0%/62.0%，说明 router 是给 nomic 调的，**bge 不推荐 auto/router**；
 - 仍不能宣称语义检索已解决；50 题、3 篇论文仍小。
 
-本机 bge-m3 使用 workspace 独立 Ollama 实例：
+本机 bge-m3 使用 D 盘独立 Ollama 实例：
 
 ```text
 OLLAMA_BASE_URL=http://127.0.0.1:11435
@@ -140,7 +140,7 @@ OLLAMA_EMBEDDING_MODEL=bge-m3
 scripts/start_ollama_workspace.ps1
 ```
 
-模型文件在 `workspace/ollama_models`，未写入 `D:\Ollama\Models`。
+模型文件在 `D:/SpectraScholar/ollama_models`，未写入 `D:\Ollama\Models`。
 
 ## 有 Ollama/Key 后要补的记录
 

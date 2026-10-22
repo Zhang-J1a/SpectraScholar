@@ -1,8 +1,7 @@
-# Start the workspace-local Ollama instance used for bge-m3.
+# Start the D-drive-local Ollama instance used for bge-m3.
 # This does not modify the system-wide Ollama service or D:\Ollama\Models.
 $ErrorActionPreference = "Stop"
-$root = Split-Path -Parent $PSScriptRoot
-$models = Join-Path $root "workspace\ollama_models"
+$models = "D:\SpectraScholar\ollama_models"
 $ollama = "D:\Ollama\App\ollama.exe"
 
 if (-not (Test-Path $ollama)) {
@@ -20,3 +19,4 @@ $env:NO_PROXY = "*"
 Write-Host "OLLAMA_HOST=$env:OLLAMA_HOST"
 Write-Host "OLLAMA_MODELS=$env:OLLAMA_MODELS"
 & $ollama serve
+
