@@ -691,6 +691,26 @@ arxiv_max_results
 
 2026-10-22 真实 workflow 验证（两篇本地 PDF）：workflow 完成，`arxiv_search` 因网络超时写入 `status=failed`，报告仍生成；离线假客户端覆盖成功路径。
 
+### 10.15b 题型路由检索
+
+新增 `spectrascholar/rag/router.py`：
+
+- metadata（年份/期刊/作者/主方法/DOI）→ hash；
+- metric/condition（OA/AA/Kappa/比例/patch）→ Ollama vector；
+- 其他 → hybrid；
+- `/api/v1/kb/search` 的 `mode=auto` 使用同一路由；
+- `scripts/evaluate_retrieval.py` 增加 `router` 模式，便于同口径消融。
+
+30 题结果：
+
+```text
+Answer-level R@5: BM25 36.7 / hash 46.7 / vector 43.3 / hybrid 36.7 / router 50.0
+Page-level R@5:   BM25 33.3 / hash 30.0 / vector 30.0 / hybrid 23.3 / router 33.3
+```
+
+结论：Answer-level 比 hash 高 3.3 点，但 page-level 仍只有 33.3%；路由是改善，不是语义检索已解决。  
+metadata 依赖 hash 词法匹配，说明当前 router 仍是启发式，不是学习型路由。
+
 ### 10.16 取消 / 预算 / 队列可靠性
 
 新增：
