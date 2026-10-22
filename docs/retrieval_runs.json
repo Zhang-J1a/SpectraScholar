@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-22T05:28:12+00:00",
+  "generated_at": "2026-10-22T05:35:14+00:00",
   "corpus": "real_papers_retrieval",
   "questions": 30,
   "chunks": 250,
@@ -11,61 +11,61 @@
   "summary": {
     "bm25": {
       "k=1": {
-        "recall@1": 0.0667,
-        "mrr@1": 0.0667,
-        "hits": 2,
+        "recall@1": 0.1,
+        "mrr@1": 0.1,
+        "hits": 3,
         "total": 30
       },
       "k=3": {
         "recall@3": 0.3,
-        "mrr@3": 0.1611,
-        "hits": 9,
-        "total": 30
-      },
-      "k=5": {
-        "recall@5": 0.3333,
-        "mrr@5": 0.1694,
-        "hits": 10,
-        "total": 30
-      }
-    },
-    "hash": {
-      "k=1": {
-        "recall@1": 0.2333,
-        "mrr@1": 0.2333,
-        "hits": 7,
-        "total": 30
-      },
-      "k=3": {
-        "recall@3": 0.2667,
-        "mrr@3": 0.25,
-        "hits": 8,
-        "total": 30
-      },
-      "k=5": {
-        "recall@5": 0.4,
-        "mrr@5": 0.2783,
-        "hits": 12,
-        "total": 30
-      }
-    },
-    "hybrid": {
-      "k=1": {
-        "recall@1": 0.2,
-        "mrr@1": 0.2,
-        "hits": 6,
-        "total": 30
-      },
-      "k=3": {
-        "recall@3": 0.3,
-        "mrr@3": 0.2389,
+        "mrr@3": 0.1889,
         "hits": 9,
         "total": 30
       },
       "k=5": {
         "recall@5": 0.3667,
-        "mrr@5": 0.2539,
+        "mrr@5": 0.2056,
         "hits": 11,
+        "total": 30
+      }
+    },
+    "hash": {
+      "k=1": {
+        "recall@1": 0.2667,
+        "mrr@1": 0.2667,
+        "hits": 8,
+        "total": 30
+      },
+      "k=3": {
+        "recall@3": 0.3667,
+        "mrr@3": 0.3167,
+        "hits": 11,
+        "total": 30
+      },
+      "k=5": {
+        "recall@5": 0.4667,
+        "mrr@5": 0.3417,
+        "hits": 14,
+        "total": 30
+      }
+    },
+    "hybrid": {
+      "k=1": {
+        "recall@1": 0.1667,
+        "mrr@1": 0.1667,
+        "hits": 5,
+        "total": 30
+      },
+      "k=3": {
+        "recall@3": 0.3333,
+        "mrr@3": 0.2333,
+        "hits": 10,
+        "total": 30
+      },
+      "k=5": {
+        "recall@5": 0.4,
+        "mrr@5": 0.2483,
+        "hits": 12,
         "total": 30
       }
     }
@@ -79,39 +79,19 @@
         "total": 30
       },
       "k=3": {
-        "recall@3": 0.2667,
-        "mrr@3": 0.1,
-        "hits": 8,
+        "recall@3": 0.2333,
+        "mrr@3": 0.0944,
+        "hits": 7,
         "total": 30
       },
       "k=5": {
-        "recall@5": 0.3,
-        "mrr@5": 0.1083,
-        "hits": 9,
+        "recall@5": 0.3333,
+        "mrr@5": 0.1194,
+        "hits": 10,
         "total": 30
       }
     },
     "hash": {
-      "k=1": {
-        "recall@1": 0.1,
-        "mrr@1": 0.1,
-        "hits": 3,
-        "total": 30
-      },
-      "k=3": {
-        "recall@3": 0.1,
-        "mrr@3": 0.1,
-        "hits": 3,
-        "total": 30
-      },
-      "k=5": {
-        "recall@5": 0.2333,
-        "mrr@5": 0.1283,
-        "hits": 7,
-        "total": 30
-      }
-    },
-    "hybrid": {
       "k=1": {
         "recall@1": 0.1333,
         "mrr@1": 0.1333,
@@ -120,14 +100,34 @@
       },
       "k=3": {
         "recall@3": 0.2,
-        "mrr@3": 0.1556,
+        "mrr@3": 0.1667,
         "hits": 6,
         "total": 30
       },
       "k=5": {
-        "recall@5": 0.2667,
-        "mrr@5": 0.1689,
-        "hits": 8,
+        "recall@5": 0.3,
+        "mrr@5": 0.1917,
+        "hits": 9,
+        "total": 30
+      }
+    },
+    "hybrid": {
+      "k=1": {
+        "recall@1": 0.0333,
+        "mrr@1": 0.0333,
+        "hits": 1,
+        "total": 30
+      },
+      "k=3": {
+        "recall@3": 0.2333,
+        "mrr@3": 0.1056,
+        "hits": 7,
+        "total": 30
+      },
+      "k=5": {
+        "recall@5": 0.3,
+        "mrr@5": 0.1189,
+        "hits": 9,
         "total": 30
       }
     }
@@ -135,9 +135,9 @@
   "by_category": {
     "condition": {
       "bm25": {
-        "recall@5": 0.0,
-        "mrr@5": 0.0,
-        "hits": 0,
+        "recall@5": 0.3333,
+        "mrr@5": 0.0833,
+        "hits": 1,
         "total": 3
       },
       "hash": {
@@ -176,20 +176,20 @@
     "metric": {
       "bm25": {
         "recall@5": 0.3333,
-        "mrr@5": 0.1343,
+        "mrr@5": 0.1806,
         "hits": 6,
         "total": 18
       },
       "hash": {
-        "recall@5": 0.3333,
-        "mrr@5": 0.2,
-        "hits": 6,
+        "recall@5": 0.4444,
+        "mrr@5": 0.3056,
+        "hits": 8,
         "total": 18
       },
       "hybrid": {
-        "recall@5": 0.3333,
-        "mrr@5": 0.2148,
-        "hits": 6,
+        "recall@5": 0.3889,
+        "mrr@5": 0.2056,
+        "hits": 7,
         "total": 18
       }
     }
@@ -277,14 +277,14 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 7,
+        "bm25": 4,
         "hash": null,
-        "hybrid": 14
+        "hybrid": 8
       },
       "page_ranks": {
-        "bm25": 7,
+        "bm25": 4,
         "hash": null,
-        "hybrid": 14
+        "hybrid": 8
       }
     },
     {
@@ -301,12 +301,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
-        "hash": 12,
+        "hash": 4,
         "hybrid": 3
       },
       "page_ranks": {
         "bm25": 2,
-        "hash": 12,
+        "hash": 4,
         "hybrid": 3
       }
     },
@@ -323,14 +323,14 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 3,
-        "hash": 15,
-        "hybrid": 5
+        "bm25": 2,
+        "hash": 4,
+        "hybrid": 3
       },
       "page_ranks": {
-        "bm25": 3,
-        "hash": 15,
-        "hybrid": 5
+        "bm25": 2,
+        "hash": 4,
+        "hybrid": 3
       }
     },
     {
@@ -346,14 +346,14 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 2,
-        "hash": 6,
-        "hybrid": 3
+        "bm25": 1,
+        "hash": 2,
+        "hybrid": 2
       },
       "page_ranks": {
-        "bm25": 3,
-        "hash": 6,
-        "hybrid": 3
+        "bm25": 2,
+        "hash": 2,
+        "hybrid": 2
       }
     },
     {
@@ -369,14 +369,14 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 4,
+        "bm25": 2,
         "hash": 1,
         "hybrid": 1
       },
       "page_ranks": {
         "bm25": 4,
         "hash": 1,
-        "hybrid": 1
+        "hybrid": 3
       }
     },
     {
@@ -392,14 +392,14 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 3,
-        "hash": 1,
-        "hybrid": 1
+        "bm25": 4,
+        "hash": 2,
+        "hybrid": 3
       },
       "page_ranks": {
-        "bm25": 3,
-        "hash": 1,
-        "hybrid": 1
+        "bm25": 4,
+        "hash": 2,
+        "hybrid": 3
       }
     },
     {
@@ -420,9 +420,9 @@
         "hybrid": 1
       },
       "page_ranks": {
-        "bm25": 2,
+        "bm25": 3,
         "hash": 1,
-        "hybrid": 1
+        "hybrid": 3
       }
     },
     {
@@ -530,14 +530,14 @@
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
-        "bm25": 20,
-        "hash": 5,
-        "hybrid": 8
+        "bm25": 11,
+        "hash": 1,
+        "hybrid": 5
       },
       "page_ranks": {
-        "bm25": 20,
-        "hash": 5,
-        "hybrid": 8
+        "bm25": 11,
+        "hash": 1,
+        "hybrid": 5
       }
     },
     {
@@ -554,13 +554,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 5,
-        "hybrid": 12
+        "hash": 1,
+        "hybrid": 7
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 5,
-        "hybrid": 12
+        "hash": 1,
+        "hybrid": 7
       }
     },
     {
@@ -577,12 +577,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 5,
+        "hash": 7,
         "hybrid": 13
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 5,
+        "hash": 7,
         "hybrid": 13
       }
     },
@@ -600,13 +600,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 9,
-        "hybrid": 19
+        "hash": 13,
+        "hybrid": 25
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 9,
-        "hybrid": 19
+        "hash": 13,
+        "hybrid": 25
       }
     },
     {
@@ -623,13 +623,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 17,
-        "hybrid": null
+        "hash": 16,
+        "hybrid": 26
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 17,
-        "hybrid": null
+        "hash": 16,
+        "hybrid": 26
       }
     },
     {
@@ -646,13 +646,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 11,
-        "hybrid": null
+        "hash": 14,
+        "hybrid": 27
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 11,
-        "hybrid": null
+        "hash": 14,
+        "hybrid": 27
       }
     },
     {
@@ -886,5 +886,5 @@
       }
     }
   ],
-  "note": "Answer hit = same document and (gold page or gold answer string in chunk); page hit is stricter. Hash vectors are lexical hashing, not semantic embeddings."
+  "note": "Answer hit = same document and (gold page or gold answer string in chunk); page hit is stricter. Table-page metadata rerank is applied. Hash vectors are lexical hashing, not semantic embeddings."
 }

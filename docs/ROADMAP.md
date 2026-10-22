@@ -77,7 +77,7 @@
 - [x] 删除文献同步删索引
 - [x] 合成夹具 Recall/MRR 评测
 - [x] BM25 / 向量 / 混合三模式消融脚本（hash 下并列 1.0，不能宣称提升）
-- [x] 30 条真实论文检索题 + BM25/hash/hybrid 基线（Answer-level R@5 33.3/40.0/36.7%；page-level ≤30%）
+- [x] 30 条真实论文检索题 + BM25/hash/hybrid 基线（Answer-level R@5 36.7/46.7/40.0%；page-level 33.3/30.0/30.0%）
 - [ ] 真实 embedding + 真实论文 Recall@K
 - [ ] Reranker ablation
 
@@ -90,7 +90,7 @@
 - [x] 幂等键
 - [x] 统一错误/Trace/限流/安全头
 - [x] 可选 API Key
-- [x] 87 tests / 86% coverage / ruff
+- [x] 90 tests / 86% coverage / ruff
 - [x] Dockerfile + compose + healthcheck
 - [x] 本机 `docker compose build/up`、api healthy、worker completed
 - [ ] 另一台机器部署

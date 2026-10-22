@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 87 个）。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 90 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -348,7 +348,7 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 
 ```text
 .............................................................            [100%]
-87 passed, 1 warning in 12.34s
+90 passed, 1 warning in 12.34s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  4061 statements  571 missed  86%
+TOTAL  4137 statements  577 missed  86%
 ```
 
 ### 8.4 合成夹具评测
@@ -522,8 +522,8 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 ### 10.6 本轮真实结果
 
 ```text
-pytest -q                         → 87 passed
-pytest --cov                      → 86% (4061 / 571)
+pytest -q                         → 90 passed
+pytest --cov                      → 86% (4137 / 577)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -704,18 +704,20 @@ arxiv_max_results
 
 ```text
 Answer-level:
-BM25   Recall@5 33.3%  MRR@5 0.169
-hash   Recall@5 40.0%  MRR@5 0.278
-hybrid Recall@5 36.7%  MRR@5 0.254
+BM25   Recall@5 36.7%  MRR@5 0.206
+hash   Recall@5 46.7%  MRR@5 0.342
+hybrid Recall@5 40.0%  MRR@5 0.248
 严格 page-level:
-BM25/hash/hybrid Recall@5 30.0%/23.3%/26.7%
+BM25/hash/hybrid Recall@5 33.3%/30.0%/30.0%
 ```
 
 说明：
 
 - PDF 索引会追加可选 OCR 文本，图片表中的 WFCG/SSRN 数值可被检索；
+- 新增 `rag/table_meta.py`：检测 TABLE/数据集/OA/AA/Kappa/训练比例/patch，并对候选页做确定性 boost；
 - Answer-level 允许命中“包含 gold answer 的另一页”，page-level 仍要求精确 gold page；
-- 基线仍偏低，不能宣称语义检索提升；hash 仍是词法哈希。
+- 严格 page-level 从上一轮的 30.0/23.3/26.7 变为 33.3/30.0/30.0：BM25/hash 提升，hybrid 仍低于最初 33.3% 基线；没有全面胜出；
+- 基线仍偏低，不能宣称语义检索提升；hash 仍是词法哈希；
 - Claim-level 只证明引文可追溯/句子有引用，不证明语义蕴含。
 
 ---
