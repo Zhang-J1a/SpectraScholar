@@ -451,6 +451,7 @@ class IndexResponse(BaseModel):
     total_chunks: int
     embedding_backend: str
     elapsed_ms: int
+    notes: list[str] = Field(default_factory=list)
 
 
 class SearchRequest(BaseModel):

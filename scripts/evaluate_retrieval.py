@@ -12,6 +12,8 @@ from __future__ import annotations
 import asyncio
 import json
 import math
+import os
+import re
 import sys
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -19,11 +21,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+if "--ocr" in sys.argv:
+    os.environ["OCR_ENABLED"] = "1"
 
 from spectrascholar.evidence import read_pdf_pages  # noqa: E402
+from spectrascholar.extraction.ocr import augment_pages_with_ocr  # noqa: E402
 from spectrascholar.rag.bm25 import BM25, tokenize  # noqa: E402
 from spectrascholar.rag.chunking import chunk_page  # noqa: E402
 from spectrascholar.rag.embeddings import HashEmbedder  # noqa: E402
+from spectrascholar.settings import settings  # noqa: E402
 
 PAPER_FILES = {
     "hybridsn": "HybridSN Exploring 3-D–2-D CNN Feature Hierarchy for Hyperspectral Image Classification.pdf",
@@ -71,7 +77,10 @@ def _load_chunks() -> tuple[list, dict[str, int]]:
     chunks = []
     page_counts: dict[str, int] = {}
     for paper_id, filename in PAPER_FILES.items():
-        pages = read_pdf_pages(ROOT / "workspace" / "papers" / filename)
+        path = ROOT / "workspace" / "papers" / filename
+        pages = read_pdf_pages(path)
+        if settings.ocr_enabled:
+            pages, _ = augment_pages_with_ocr(pages, path)
         page_counts[paper_id] = len(pages)
         for page_number, text in enumerate(pages, 1):
             chunks.extend(
@@ -86,11 +95,35 @@ def _load_chunks() -> tuple[list, dict[str, int]]:
     return chunks, page_counts
 
 
-def _score(rows: list[dict], mode: str, k: int) -> dict:
+def _normalized_text(text: str) -> str:
+    normalized = text.casefold().replace("×", "x").replace("–", "-")
+    normalized = re.sub(r"\s*([x%])\s*", r"\1", normalized)
+    return " ".join(normalized.split())
+
+
+def _answer_tokens(item: dict) -> list[str]:
+    answer = _normalized_text(item["gold_answer"])
+    if item["category"] == "condition":
+        tokens = re.findall(r"\d+(?:\.\d+)?%|\d+x\d+", answer)
+        return tokens or [answer]
+    return [answer]
+
+
+def _answer_hit(chunk, item: dict) -> bool:
+    if chunk.document_id != item["document_id"]:
+        return False
+    if chunk.page == item["gold_page"]:
+        return True
+    text = _normalized_text(chunk.text)
+    return all(token in text for token in _answer_tokens(item))
+
+
+def _score(rows: list[dict], mode: str, k: int, *, page_only: bool = False) -> dict:
     hits = 0
     reciprocal = 0.0
+    field = "page_ranks" if page_only else "ranks"
     for row in rows:
-        rank = row["ranks"][mode]
+        rank = row[field][mode]
         if rank and rank <= k:
             hits += 1
             reciprocal += 1.0 / rank
@@ -112,17 +145,29 @@ def run() -> dict:
     rows = []
     for item in payload["items"]:
         ranks = {}
+        page_ranks = {}
         for mode in MODES:
             ranked = _rank(mode, item["question"], chunks, bm25, vectors, embedder)
             first = None
+            page_first = None
             for rank, index in enumerate(ranked, 1):
                 chunk = chunks[index]
-                if chunk.document_id == item["document_id"] and chunk.page == item["gold_page"]:
+                if chunk.document_id != item["document_id"]:
+                    continue
+                if page_first is None and chunk.page == item["gold_page"]:
+                    page_first = rank
+                if first is None and _answer_hit(chunk, item):
                     first = rank
+                if first is not None and page_first is not None:
                     break
             ranks[mode] = first
-        rows.append({**item, "ranks": ranks})
+            page_ranks[mode] = page_first
+        rows.append({**item, "ranks": ranks, "page_ranks": page_ranks})
     summary = {mode: {f"k={k}": _score(rows, mode, k) for k in (1, 3, 5)} for mode in MODES}
+    page_summary = {
+        mode: {f"k={k}": _score(rows, mode, k, page_only=True) for k in (1, 3, 5)}
+        for mode in MODES
+    }
     by_category: dict[str, dict] = {}
     for category in sorted({row["category"] for row in rows}):
         subset = [row for row in rows if row["category"] == category]
@@ -134,9 +179,10 @@ def run() -> dict:
         "chunks": len(chunks),
         "page_counts": page_counts,
         "summary": summary,
+        "page_summary": page_summary,
         "by_category": by_category,
         "items": rows,
-        "note": "Gold is document/page from manual labels. Hash vectors are lexical hashing, not semantic embeddings.",
+        "note": "Answer hit = same document and (gold page or gold answer string in chunk); page hit is stricter. Hash vectors are lexical hashing, not semantic embeddings.",
     }
 
 
@@ -147,10 +193,11 @@ def write_markdown(result: dict) -> str:
         f"- 生成时间：{result['generated_at']}",
         f"- 问题数：{result['questions']}",
         f"- chunk 数：{result['chunks']}",
-        "- Gold：人工标注的 document/page；只评检索/页码命中，不评回答语义。",
+        "- Answer hit：同一文档，且 gold page 或 gold answer 出现在 chunk；比只命中 gold page 宽。",
+        "- Page hit：必须命中人工标注的 gold page；更严格。",
         "- `hash` 是词法哈希，不是语义 embedding。",
         "",
-        "## 总览",
+        "## Answer-level 总览",
         "",
         "| 模式 | Recall@1 | Recall@3 | Recall@5 | MRR@5 |",
         "|---|---:|---:|---:|---:|",
@@ -162,13 +209,21 @@ def write_markdown(result: dict) -> str:
             f"{summary['k=3']['recall@3']:.2%} | {summary['k=5']['recall@5']:.2%} | "
             f"{summary['k=5']['mrr@5']:.4f} |"
         )
-    lines += ["", "## 分类", "", "| 类别 | 模式 | Recall@5 | MRR@5 |", "|---|---|---:|---:|"]
+    lines += ["", "## 严格 Page-level 总览", "", "| 模式 | Recall@1 | Recall@3 | Recall@5 | MRR@5 |", "|---|---:|---:|---:|---:|"]
+    for mode in MODES:
+        summary = result["page_summary"][mode]
+        lines.append(
+            f"| {mode} | {summary['k=1']['recall@1']:.2%} | "
+            f"{summary['k=3']['recall@3']:.2%} | {summary['k=5']['recall@5']:.2%} | "
+            f"{summary['k=5']['mrr@5']:.4f} |"
+        )
+    lines += ["", "## 分类（answer-level）", "", "| 类别 | 模式 | Recall@5 | MRR@5 |", "|---|---|---:|---:|"]
     for category, modes in result["by_category"].items():
         for mode, score in modes.items():
             lines.append(
                 f"| {category} | {mode} | {score['recall@5']:.2%} | {score['mrr@5']:.4f} |"
             )
-    lines += ["", "## 未命中示例（hybrid，前 10 条）", ""]
+    lines += ["", "## 未命中示例（hybrid answer-level，前 10 条）", ""]
     misses = [row for row in result["items"] if not row["ranks"]["hybrid"]]
     if not misses:
         lines.append("无未命中。")

@@ -1,11 +1,13 @@
 """Knowledge-base ingestion, hybrid retrieval and grounded answering."""
 from __future__ import annotations
 
+import asyncio
 import time
 from pathlib import Path
 
 from ..citations import audit_report
 from ..evidence import PDFExtractionError, read_pdf_pages
+from ..extraction.ocr import augment_pages_with_ocr
 from ..llm_config import LLMConfigurationError, resolve_llm_credentials
 from ..schemas import (
     AnswerRequest,
@@ -134,9 +136,10 @@ async def index_documents(document_ids: list[str] | None = None) -> IndexRespons
 
     indexed: list[IndexedDocument] = []
     records: list[StoredChunk] = []
+    notes: list[str] = []
     for document in documents:
         try:
-            _, pages = _load_pages(document)
+            path, pages = _load_pages(document)
         except PDFExtractionError as exc:
             skipped.append(
                 SkippedDocument(
@@ -146,6 +149,9 @@ async def index_documents(document_ids: list[str] | None = None) -> IndexRespons
                 )
             )
             continue
+        if settings.ocr_enabled:
+            pages, ocr_notes = await asyncio.to_thread(augment_pages_with_ocr, pages, path)
+            notes.extend(f"{document['filename']}: {note}" for note in ocr_notes)
         if not any(text.strip() for text in pages):
             skipped.append(
                 SkippedDocument(
@@ -211,6 +217,7 @@ async def index_documents(document_ids: list[str] | None = None) -> IndexRespons
         total_chunks=int(index.stats()["total_chunks"]),
         embedding_backend=embedder.name,
         elapsed_ms=int((time.perf_counter() - started) * 1000),
+        notes=notes,
     )
 
 
