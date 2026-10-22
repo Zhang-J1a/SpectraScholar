@@ -6,7 +6,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.150-009688?logo=fastapi&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-84%20passed-2ea44f)
+![Tests](https://img.shields.io/badge/tests-87%20passed-2ea44f)
 ![Coverage](https://img.shields.io/badge/coverage-86%25-2ea44f)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Upstream](https://img.shields.io/badge/upstream-GPT%20Researcher%20Apache--2.0-orange)
