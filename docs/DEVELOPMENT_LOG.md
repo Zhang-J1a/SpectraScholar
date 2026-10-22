@@ -704,11 +704,13 @@ arxiv_max_results
 30 题结果：
 
 ```text
-Answer-level R@5: BM25 36.7 / hash 46.7 / vector 43.3 / hybrid 36.7 / router 50.0
-Page-level R@5:   BM25 33.3 / hash 30.0 / vector 30.0 / hybrid 23.3 / router 33.3
+Answer-level R@5: BM25 63.3 / hash 66.7 / vector 70.0 / hybrid 63.3 / router 73.3
+Page-level R@5:   BM25 46.7 / hash 43.3 / vector 50.0 / hybrid 40.0 / router 53.3
 ```
 
-结论：Answer-level 比 hash 高 3.3 点，但 page-level 仍只有 33.3%；路由是改善，不是语义检索已解决。  
+关键修复：评测把 WFCG 文档 ID 写成 `wfcg`，而 gold 标注和 chunk 实际是 `cnn_gat`，导致 10 道 WFCG 题全部 miss。修正后所有模式大幅上升。
+
+结论：Answer-level 比 hash 高 6.6 点，page-level 53.3%；路由是改善，但仍未解决跨语言和表格页问题。  
 metadata 依赖 hash 词法匹配，说明当前 router 仍是启发式，不是学习型路由。
 
 ### 10.16 取消 / 预算 / 队列可靠性
@@ -758,24 +760,24 @@ metadata 依赖 hash 词法匹配，说明当前 router 仍是启发式，不是
 
 ```text
 Answer-level:
-BM25          Recall@5 36.7%  MRR@5 0.206
-hash          Recall@5 46.7%  MRR@5 0.342
-Ollama vector Recall@5 43.3%  MRR@5 0.254
-hybrid        Recall@5 36.7%  MRR@5 0.286
-router        Recall@5 50.0%  MRR@5 0.328
+BM25          Recall@5 63.3%  MRR@5 0.384
+hash          Recall@5 66.7%  MRR@5 0.451
+Ollama vector Recall@5 70.0%  MRR@5 0.436
+hybrid        Recall@5 63.3%  MRR@5 0.492
+router        Recall@5 73.3%  MRR@5 0.501
 严格 page-level:
-router        Recall@5 33.3%  MRR@5 0.159
+router        Recall@5 53.3%  MRR@5 0.301
 ```
 
 路由：metadata → hash，metric/condition → Ollama vector，其余 hybrid。  
-路由 Answer-level 比 hash 高 3.3 点，但严格 page-level 仍为 33.3%，没有解决跨语言和表格页问题；不能写“语义检索已解决”。
+路由 Answer-level 比 hash 高 6.6 点，page-level 53.3%，仍没有解决跨语言和表格页问题；不能写“语义检索已解决”。
 
 说明：
 
 - PDF 索引会追加可选 OCR 文本，图片表中的 WFCG/SSRN 数值可被检索；
 - 新增 `rag/table_meta.py`：检测 TABLE/数据集/OA/AA/Kappa/训练比例/patch，并对候选页做确定性 boost；
 - Answer-level 允许命中“包含 gold answer 的另一页”，page-level 仍要求精确 gold page；
-- 严格 page-level 从上一轮的 30.0/23.3/26.7 变为 33.3/30.0/30.0：BM25/hash 提升，hybrid 仍低于最初 33.3% 基线；没有全面胜出；
+- 10.15 中的旧 page-level 数字受 WFCG ID 错配影响，已被 10.15b 的修正结果取代；
 - 基线仍偏低，不能宣称语义检索提升；hash 仍是词法哈希；
 - Claim-level 只证明引文可追溯/句子有引用，不证明语义蕴含。
 

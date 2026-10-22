@@ -44,7 +44,7 @@ from spectrascholar.settings import settings  # noqa: E402
 PAPER_FILES = {
     "hybridsn": "HybridSN Exploring 3-D–2-D CNN Feature Hierarchy for Hyperspectral Image Classification.pdf",
     "ssrn": "spectral-spatial_residual_networks_for_hyperspectral_image_classification_a_3d_deep_learning_framework_0.pdf",
-    "wfcg": "Weighted_Feature_Fusion_of_Convolutional_Neural_Network_and_Graph_Attention_Network_for_Hyperspectral_Image_Classification.pdf",
+    "cnn_gat": "Weighted_Feature_Fusion_of_Convolutional_Neural_Network_and_Graph_Attention_Network_for_Hyperspectral_Image_Classification.pdf",
 }
 MODES = ("bm25", "hash", "vector", "hybrid", "router")
 METADATA_RE = re.compile(r"年份|发表|期刊|会议|作者|主方法|标题|DOI|venue|year|author", re.I)
@@ -132,7 +132,7 @@ def _table_rerank(
     for rank, index in enumerate(ranked, 1):
         chunk = chunks[index]
         boost = table_boost(query, page_texts.get((chunk.document_id, chunk.page), ""))
-        rescored.append((index, 1.0 / (20 + rank) + 0.15 * boost))
+        rescored.append((index, 1.0 / (20 + rank) + 0.30 * boost))
     rescored.sort(key=lambda item: item[1], reverse=True)
     return [index for index, _ in rescored]
 

@@ -104,22 +104,22 @@ DeepSeek 只提供 chat，不提供 embedding，不能用它代替。
 
 ```text
 Answer-level Recall@5:
-BM25          36.7%
-hash          46.7%
-Ollama vector 43.3%
-hybrid        36.7%
-router        50.0%
+BM25          63.3%
+hash          66.7%
+Ollama vector 70.0%
+hybrid        63.3%
+router        73.3%
 
 严格 page-level Recall@5:
-BM25          33.3%
-hash          30.0%
-Ollama vector 30.0%
-hybrid        23.3%
-router        33.3%
+BM25          46.7%
+hash          43.3%
+Ollama vector 50.0%
+hybrid        40.0%
+router        53.3%
 ```
 
 路由：metadata → hash，metric/condition → Ollama vector，其余 hybrid。  
-结论：**路由 Answer-level 比 hash 高 3.3 点，但严格 page-level 仍为 33.3%，没有解决跨语言和表格页问题**；不能宣称语义检索已解决。  
+结论：**修正 WFCG 文档 ID 错配后，路由 Answer-level 73.3%，比 hash 66.7% 高 6.6 点；page-level 53.3%，仍不过半**；不能宣称语义检索已解决。  
 当前评测只有 30 题、表格页/OCR 噪声大，需要更大评测集和更强的多语言模型。
 
 ## 有 Ollama/Key 后要补的记录
@@ -131,4 +131,4 @@ router        33.3%
 - 是否真的提升 page-level/answer-level；
 - 失败样本。
 
-不要把“hash 46.7%”或“Ollama 43.3%”写成“语义检索提升”。
+不要把“router 73.3%”写成“语义检索已解决”。
