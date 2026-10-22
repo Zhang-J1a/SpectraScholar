@@ -340,6 +340,9 @@ class KnowledgeIndex:
                         score += 0.1 * coverage
                 page_text = "\n".join(page_texts.get((chunk.document_id, chunk.page), []))
                 score += table_boost(query, page_text) * max(max_vector, max_bm25, max_hash)
+                if mode == "hash" and chunk.page == 1:
+                    # Metadata questions (year/venue/author/method) live on p.1.
+                    score += 0.25 * max(max_vector, max_bm25, max_hash)
                 scored.append(
                     {
                         "chunk": chunk,

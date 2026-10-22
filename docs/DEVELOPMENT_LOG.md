@@ -710,7 +710,7 @@ Page-level R@5:   BM25 46.7 / hash 43.3 / vector 50.0 / hybrid 40.0 / router 53.
 
 关键修复：评测把 WFCG 文档 ID 写成 `wfcg`，而 gold 标注和 chunk 实际是 `cnn_gat`，导致 10 道 WFCG 题全部 miss。修正后所有模式大幅上升。
 
-结论：Answer-level 比 hash 高 6.6 点，page-level 53.3%；路由是改善，但仍未解决跨语言和表格页问题。  
+结论：Answer-level 比 hash 高 6.6 点，page-level 70.0%；路由是改善，但仍未解决跨语言和表格页问题。  
 metadata 依赖 hash 词法匹配，说明当前 router 仍是启发式，不是学习型路由。
 
 ### 10.16 取消 / 预算 / 队列可靠性
@@ -760,17 +760,17 @@ metadata 依赖 hash 词法匹配，说明当前 router 仍是启发式，不是
 
 ```text
 Answer-level:
-BM25          Recall@5 63.3%  MRR@5 0.384
-hash          Recall@5 66.7%  MRR@5 0.451
-Ollama vector Recall@5 70.0%  MRR@5 0.436
-hybrid        Recall@5 63.3%  MRR@5 0.492
-router        Recall@5 73.3%  MRR@5 0.501
+BM25          Recall@5 63.3%  MRR@5 0.428
+hash          Recall@5 66.7%  MRR@5 0.454
+Ollama vector Recall@5 70.0%  MRR@5 0.468
+hybrid        Recall@5 63.3%  MRR@5 0.542
+router        Recall@5 73.3%  MRR@5 0.504
 严格 page-level:
-router        Recall@5 53.3%  MRR@5 0.301
+router        Recall@5 70.0%  MRR@5 0.476
 ```
 
 路由：metadata → hash，metric/condition → Ollama vector，其余 hybrid。  
-路由 Answer-level 比 hash 高 6.6 点，page-level 53.3%，仍没有解决跨语言和表格页问题；不能写“语义检索已解决”。
+路由 Answer-level 比 hash 高 6.6 点，page-level 70.0%，仍没有解决跨语言和表格页问题；不能写“语义检索已解决”。
 
 说明：
 

@@ -111,15 +111,15 @@ hybrid        63.3%
 router        73.3%
 
 严格 page-level Recall@5:
-BM25          46.7%
-hash          43.3%
-Ollama vector 50.0%
-hybrid        40.0%
-router        53.3%
+BM25          56.7%
+hash          60.0%
+Ollama vector 60.0%
+hybrid        60.0%
+router        70.0%
 ```
 
 路由：metadata → hash，metric/condition → Ollama vector，其余 hybrid。  
-结论：**修正 WFCG 文档 ID 错配后，路由 Answer-level 73.3%，比 hash 66.7% 高 6.6 点；page-level 53.3%，仍不过半**；不能宣称语义检索已解决。  
+结论：**修正 WFCG 文档 ID 错配后，路由 Answer-level 73.3%，比 hash 66.7% 高 6.6 点；page-level 70.0%，仍不是满分且只有 30 题**；不能宣称语义检索已解决。  
 当前评测只有 30 题、表格页/OCR 噪声大，需要更大评测集和更强的多语言模型。
 
 ## 有 Ollama/Key 后要补的记录

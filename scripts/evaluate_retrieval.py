@@ -132,7 +132,11 @@ def _table_rerank(
     for rank, index in enumerate(ranked, 1):
         chunk = chunks[index]
         boost = table_boost(query, page_texts.get((chunk.document_id, chunk.page), ""))
-        rescored.append((index, 1.0 / (20 + rank) + 0.30 * boost))
+        score = 1.0 / (20 + rank) + 0.30 * boost
+        if chunk.page == 1 and METADATA_RE.search(query):
+            # Title/venue/year/author questions live on the first page.
+            score += 0.25
+        rescored.append((index, score))
     rescored.sort(key=lambda item: item[1], reverse=True)
     return [index for index, _ in rescored]
 
