@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 98 个）。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 100 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -348,7 +348,7 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 
 ```text
 .............................................................            [100%]
-98 passed, 1 warning in 12.34s
+100 passed, 1 warning in 12.34s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  4377 statements  657 missed  85%
+TOTAL  4381 statements  654 missed  85%
 ```
 
 ### 8.4 合成夹具评测
@@ -522,8 +522,8 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 ### 10.6 本轮真实结果
 
 ```text
-pytest -q                         → 98 passed
-pytest --cov                      → 85% (4377 / 657)
+pytest -q                         → 100 passed
+pytest --cov                      → 85% (4381 / 654)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -722,7 +722,7 @@ arxiv_max_results
 真实 embedding：
 
 - `scripts/evaluate_retrieval.py --embedding openai` 已接入 `OpenAIEmbedder`；
-- 本机缺 `OPENAI_API_KEY`，返回 `REAL_EMBEDDING_BLOCKED`，不覆盖 hash 基线；
+- 本机缺 `EMBEDDING_API_KEY` / `OPENAI_API_KEY`，返回 `REAL_EMBEDDING_BLOCKED`，不覆盖 hash 基线；
 - 不能把 hash 结果写成真实语义检索。
 
 ### 10.15 真实检索评测与 Claim-level 核验
