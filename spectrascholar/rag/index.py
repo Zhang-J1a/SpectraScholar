@@ -22,6 +22,7 @@ from pathlib import Path
 
 from .bm25 import BM25, tokenize
 from .chunking import Chunk
+from .table_meta import table_boost
 
 
 @dataclass
@@ -290,6 +291,9 @@ class KnowledgeIndex:
             query_terms = set(tokenize(query))
             max_vector = max((vector_scores[index] for index in candidates), default=1.0) or 1.0
             max_bm25 = max((bm25_scores[index] for index in candidates), default=1.0) or 1.0
+            page_texts: dict[tuple[str, int], list[str]] = {}
+            for chunk in self.chunks:
+                page_texts.setdefault((chunk.document_id, chunk.page), []).append(chunk.text)
 
             scored: list[dict] = []
             for index in candidates:
@@ -310,6 +314,8 @@ class KnowledgeIndex:
                     if rerank == "lexical" and query_terms:
                         coverage = len(query_terms & set(tokenize(chunk.text))) / len(query_terms)
                         score += 0.1 * coverage
+                page_text = "\n".join(page_texts.get((chunk.document_id, chunk.page), []))
+                score += table_boost(query, page_text) * max(max_vector, max_bm25)
                 scored.append(
                     {
                         "chunk": chunk,

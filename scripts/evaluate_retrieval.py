@@ -29,6 +29,7 @@ from spectrascholar.extraction.ocr import augment_pages_with_ocr  # noqa: E402
 from spectrascholar.rag.bm25 import BM25, tokenize  # noqa: E402
 from spectrascholar.rag.chunking import chunk_page  # noqa: E402
 from spectrascholar.rag.embeddings import HashEmbedder  # noqa: E402
+from spectrascholar.rag.table_meta import table_boost  # noqa: E402
 from spectrascholar.settings import settings  # noqa: E402
 
 PAPER_FILES = {
@@ -55,22 +56,45 @@ def _rank(
     bm25: BM25,
     vectors: list[list[float]],
     embedder: HashEmbedder,
+    page_texts: dict[tuple[str, int], str],
     limit: int = 20,
 ) -> list[int]:
     if mode == "bm25":
-        return [index for index, _ in bm25.top_k(query, limit)]
+        ranked = [index for index, _ in bm25.top_k(query, limit)]
+        return _table_rerank(ranked, query, chunks, page_texts)
     query_vector = asyncio.run(embedder.embed([query]))[0]
     vector_scores = [_cosine(query_vector, vector) for vector in vectors]
     if mode == "hash":
-        return sorted(range(len(chunks)), key=lambda index: vector_scores[index], reverse=True)[:limit]
+        ranked = sorted(
+            range(len(chunks)), key=lambda index: vector_scores[index], reverse=True
+        )[:limit]
+        return _table_rerank(ranked, query, chunks, page_texts)
     bm25_rank = [index for index, _ in bm25.top_k(query, limit)]
-    hash_rank = sorted(range(len(chunks)), key=lambda index: vector_scores[index], reverse=True)[:limit]
+    hash_rank = sorted(
+        range(len(chunks)), key=lambda index: vector_scores[index], reverse=True
+    )[:limit]
     fused: dict[int, float] = defaultdict(float)
     for rank, index in enumerate(bm25_rank, 1):
         fused[index] += 1.0 / (60 + rank)
     for rank, index in enumerate(hash_rank, 1):
         fused[index] += 1.0 / (60 + rank)
-    return [index for index, _ in sorted(fused.items(), key=lambda item: item[1], reverse=True)[:limit]]
+    ranked = [index for index, _ in sorted(fused.items(), key=lambda item: item[1], reverse=True)]
+    return _table_rerank(ranked, query, chunks, page_texts)
+
+
+def _table_rerank(
+    ranked: list[int],
+    query: str,
+    chunks: list,
+    page_texts: dict[tuple[str, int], str],
+) -> list[int]:
+    rescored = []
+    for rank, index in enumerate(ranked, 1):
+        chunk = chunks[index]
+        boost = table_boost(query, page_texts.get((chunk.document_id, chunk.page), ""))
+        rescored.append((index, 1.0 / (20 + rank) + 0.15 * boost))
+    rescored.sort(key=lambda item: item[1], reverse=True)
+    return [index for index, _ in rescored]
 
 
 def _load_chunks() -> tuple[list, dict[str, int]]:
@@ -142,12 +166,18 @@ def run() -> dict:
     bm25 = BM25([tokenize(chunk.text) for chunk in chunks])
     embedder = HashEmbedder()
     vectors = asyncio.run(embedder.embed([chunk.text for chunk in chunks]))
+    page_chunks: dict[tuple[str, int], list[str]] = defaultdict(list)
+    for chunk in chunks:
+        page_chunks[(chunk.document_id, chunk.page)].append(chunk.text)
+    page_texts = {key: "\n".join(parts) for key, parts in page_chunks.items()}
     rows = []
     for item in payload["items"]:
         ranks = {}
         page_ranks = {}
         for mode in MODES:
-            ranked = _rank(mode, item["question"], chunks, bm25, vectors, embedder)
+            ranked = _rank(
+                mode, item["question"], chunks, bm25, vectors, embedder, page_texts
+            )
             first = None
             page_first = None
             for rank, index in enumerate(ranked, 1):
@@ -182,7 +212,7 @@ def run() -> dict:
         "page_summary": page_summary,
         "by_category": by_category,
         "items": rows,
-        "note": "Answer hit = same document and (gold page or gold answer string in chunk); page hit is stricter. Hash vectors are lexical hashing, not semantic embeddings.",
+        "note": "Answer hit = same document and (gold page or gold answer string in chunk); page hit is stricter. Table-page metadata rerank is applied. Hash vectors are lexical hashing, not semantic embeddings.",
     }
 
 
