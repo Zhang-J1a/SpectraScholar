@@ -490,6 +490,11 @@ class WorkflowRequest(BaseModel):
     extraction_mode: Literal["auto", "heuristic", "llm"] = "auto"
     language: Literal["zh", "en"] = "zh"
     idempotency_key: str | None = Field(default=None, max_length=120)
+    # Tool calling is opt-in; the local PDF pipeline remains unchanged by default.
+    tools: list[Literal["arxiv_search"]] = Field(default_factory=list, max_length=1)
+    arxiv_year_from: int | None = Field(default=None, ge=1900, le=2100)
+    arxiv_year_to: int | None = Field(default=None, ge=1900, le=2100)
+    arxiv_max_results: int = Field(default=5, ge=1, le=20)
 
     @field_validator("document_ids")
     @classmethod

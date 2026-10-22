@@ -63,6 +63,35 @@ def test_text_table_rows_bind_datasets_and_metrics():
     assert result.metrics[0].source == "table"
 
 
+def test_transposed_ocr_repairs_s181_to_51_81():
+    page = (
+        "TABLE VII\n"
+        "COMPARISON RESULTS OBTAINED ON UNIVERSITY OF PAVIA DATASET\n"
+        "SVM 1D-CNN JSAN HybridSN GCN MDGCN CEGCN WFCG\n"
+        "OA(%) 72.73 71.54 75.70 66.60 85.09 92.75 91.44 93.47\n"
+        "AA(%) 64.71 63.41 63.55 S181 81.90 86.99 89.48 91.64\n"
+        "kappax100 63.18 64.95 67.25 54.27 80.28 85.85 88.51 91.37\n"
+    )
+    result = parse_transposed_metric_rows(
+        [page],
+        "doc-s181",
+        ["SVM", "1D-CNN", "JSAN", "HybridSN", "GCN", "MDGCN", "CEGCN", "WFCG"],
+    )
+    # The repaired HybridSN value is not literally present in the OCR line,
+    # so the evidence verifier must reject it rather than silently accepting.
+    assert len(result.metrics) == 23
+    assert any(
+        rejection.value == "51.81" and rejection.reason == "quote_found_value_mismatch"
+        for rejection in result.rejections
+    )
+    wfcg = next(
+        metric
+        for metric in result.metrics
+        if metric.method == "WFCG" and metric.metric == "AA"
+    )
+    assert wfcg.value == "91.64"
+
+
 def test_transposed_ocr_table_binds_methods_and_dataset():
     page = (
         "TABLE VI\n"

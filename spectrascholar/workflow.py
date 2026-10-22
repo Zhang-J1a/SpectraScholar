@@ -36,6 +36,7 @@ from .store import (
     save_comparison,
     set_workflow_step,
 )
+from .tools import ArxivSearchError, search_arxiv
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,8 @@ class WorkflowState:
     skipped: list[str] = field(default_factory=list)
     verification: dict = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
+    tool_calls: list[dict] = field(default_factory=list)
+    arxiv_results: list[dict] = field(default_factory=list)
 
 
 def _utcnow() -> str:
@@ -82,6 +85,45 @@ def _load_document(document_id: str) -> tuple[dict, list[str]]:
     return document, pages
 
 
+async def _run_arxiv_tool(state: WorkflowState) -> str:
+    """Call the arXiv tool from the planning node; failures are non-fatal."""
+    arguments = {
+        "query": state.req.topic[:500],
+        "year_from": state.req.arxiv_year_from,
+        "year_to": state.req.arxiv_year_to,
+        "task_topic": state.req.topic[:200],
+        "max_results": state.req.arxiv_max_results,
+    }
+    call = {"tool": "arxiv_search", "arguments": arguments, "status": "running"}
+    state.tool_calls.append(call)
+    try:
+        result = await asyncio.wait_for(
+            asyncio.to_thread(search_arxiv, **arguments),
+            timeout=settings.arxiv_timeout_seconds,
+        )
+        call.update(
+            status="completed",
+            returned=result.get("returned", 0),
+            duplicates_filtered=result.get("duplicates_filtered", 0),
+            attempts=result.get("attempts", 1),
+        )
+        state.arxiv_results = list(result.get("papers", []))
+        state.notes.append(f"arXiv 工具返回 {len(state.arxiv_results)} 篇；仅作外部线索，不进入本地证据链。")
+        return f"arXiv 工具调用完成，返回 {len(state.arxiv_results)} 篇"
+    except TimeoutError:
+        call.update(status="failed", error="timeout")
+        state.notes.append("arXiv 工具超时；继续本地 PDF 工作流。")
+        return "arXiv 工具超时，继续本地流程"
+    except ArxivSearchError as exc:
+        call.update(status="failed", error=f"{exc.code}: {exc}")
+        state.notes.append(f"arXiv 工具失败（{exc.code}）；继续本地 PDF 工作流。")
+        return f"arXiv 工具失败（{exc.code}），继续本地流程"
+    except Exception as exc:
+        call.update(status="failed", error=f"{type(exc).__name__}: {exc}")
+        state.notes.append(f"arXiv 工具异常（{type(exc).__name__}）；继续本地 PDF 工作流。")
+        return "arXiv 工具异常，继续本地流程"
+
+
 async def _step_plan(state: WorkflowState) -> str:
     documents = []
     for document_id in state.req.document_ids:
@@ -96,9 +138,12 @@ async def _step_plan(state: WorkflowState) -> str:
         "steps": STEPS,
         "extraction_mode": state.req.extraction_mode,
     }
+    tool_summary = ""
+    if "arxiv_search" in state.req.tools:
+        tool_summary = "；" + await _run_arxiv_tool(state)
     return (
         f"计划 {len(STEPS)} 个节点，分析 {len(documents)} 篇论文；"
-        f"维度：{'、'.join(state.plan['dimensions'])}"
+        f"维度：{'、'.join(state.plan['dimensions'])}" + tool_summary
     )
 
 
@@ -269,6 +314,27 @@ def _compose_report(state: WorkflowState) -> str:
         lines.append(f"- 跳过文档：{'; '.join(state.skipped)}")
     if state.notes:
         lines.append(f"- 运行提示：{'; '.join(state.notes)}")
+    if state.tool_calls:
+        lines += ["", "## 外部工具调用（arXiv）", ""]
+        for call in state.tool_calls:
+            args = call.get("arguments", {})
+            detail = (
+                f"`{call['tool']}` status={call.get('status')} "
+                f"returned={call.get('returned', 0)} query={args.get('query', '')}"
+            )
+            if call.get("error"):
+                detail += f" error={call['error']}"
+            lines.append(f"- {detail}")
+        for paper in state.arxiv_results[:5]:
+            lines.append(
+                f"- [{paper.get('title')}]({paper.get('entry_url')}) "
+                f"({paper.get('year')}, DOI: {paper.get('doi') or 'n/a'})"
+            )
+        lines += [
+            "",
+            "> 外部检索只用于发现问题，**不进入本地 PDF 证据链，也不参与可比组/排名**。",
+            "",
+        ]
     lines += ["", state.comparison.markdown, ""]
 
     if state.retrieval:

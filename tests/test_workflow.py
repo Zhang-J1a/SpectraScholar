@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import time
 
+from spectrascholar.schemas import WorkflowRequest
+from spectrascholar.tools import ArxivSearchError
+from spectrascholar.workflow import WorkflowState, _step_plan
 from tests.conftest import upload_pdf
 
 
@@ -13,6 +17,71 @@ def _wait_workflow(client, workflow_id: str, tries: int = 200) -> dict:
             return workflow
         time.sleep(0.02)
     return workflow
+
+
+def test_plan_invokes_arxiv_tool_and_keeps_results_outside_local_evidence(monkeypatch):
+    import spectrascholar.workflow as workflow_module
+
+    state = WorkflowState(
+        req=WorkflowRequest(
+            topic="hyperspectral graph neural network",
+            document_ids=["a", "b"],
+            tools=["arxiv_search"],
+        )
+    )
+
+    def fake_load(document_id):
+        return {"document_id": document_id, "filename": f"{document_id}.pdf"}, ["page text"]
+
+    def fake_search(**kwargs):
+        return {
+            "returned": 1,
+            "duplicates_filtered": 0,
+            "attempts": 1,
+            "papers": [
+                {
+                    "title": "External paper",
+                    "entry_url": "https://arxiv.org/abs/2401.00001",
+                    "year": 2024,
+                    "doi": "10.1/x",
+                }
+            ],
+        }
+
+    monkeypatch.setattr(workflow_module, "_load_document", fake_load)
+    monkeypatch.setattr(workflow_module, "search_arxiv", fake_search)
+    summary = asyncio.run(_step_plan(state))
+    assert "arXiv 工具调用完成" in summary
+    assert state.tool_calls[0]["status"] == "completed"
+    assert state.tool_calls[0]["returned"] == 1
+    assert state.arxiv_results[0]["title"] == "External paper"
+    assert state.notes and "不进入本地证据链" in state.notes[0]
+
+
+def test_plan_arxiv_tool_failure_does_not_fail_local_workflow(monkeypatch):
+    import spectrascholar.workflow as workflow_module
+
+    state = WorkflowState(
+        req=WorkflowRequest(
+            topic="hyperspectral graph neural network",
+            document_ids=["a", "b"],
+            tools=["arxiv_search"],
+        )
+    )
+
+    def fake_load(document_id):
+        return {"document_id": document_id, "filename": f"{document_id}.pdf"}, ["page text"]
+
+    def fake_search(**kwargs):
+        raise ArxivSearchError("arxiv_unavailable", "network down")
+
+    monkeypatch.setattr(workflow_module, "_load_document", fake_load)
+    monkeypatch.setattr(workflow_module, "search_arxiv", fake_search)
+    summary = asyncio.run(_step_plan(state))
+    assert "arXiv 工具失败" in summary
+    assert state.tool_calls[0]["status"] == "failed"
+    assert state.arxiv_results == []
+    assert state.notes
 
 
 def test_workflow_completes_all_steps_and_exports_report(client, two_papers):

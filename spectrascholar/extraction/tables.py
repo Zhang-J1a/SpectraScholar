@@ -524,6 +524,22 @@ def _ocr_dataset_from_line(line: str) -> str | None:
     return _dataset_in(line)
 
 
+OCR_NUMBER_RE = re.compile(r"(\d{1,3}\.\d+)|([S$£])(\d)\.(\d+)|([S$£])(\d)(\d{2})(?!\d)")
+
+
+def _ocr_values(line: str) -> list[str]:
+    """Extract decimal metrics, repairing common OCR ``S181 -> 51.81`` errors."""
+    values: list[str] = []
+    for match in OCR_NUMBER_RE.finditer(line):
+        if match.group(1):
+            values.append(match.group(1))
+        elif match.group(2):
+            values.append(f"5{match.group(3)}.{match.group(4)}")
+        else:
+            values.append(f"5{match.group(6)}.{match.group(7)}")
+    return values
+
+
 def _ocr_metric_name(line: str) -> str | None:
     match = TRANSPOSED_METRIC_RE.match(line)
     if not match:
@@ -611,7 +627,7 @@ def parse_transposed_metric_rows(
                 current_dataset = _ocr_dataset_from_line(page)
             if current_dataset is None:
                 continue
-            values = re.findall(r"\d{1,3}(?:\.\d+)", line)
+            values = _ocr_values(line)
             if len(values) < len(header):
                 continue
             values = values[: len(header)]
