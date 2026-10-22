@@ -127,6 +127,11 @@ class Settings:
     # silently switch the chat provider.
     embedding_api_key: str = os.getenv("EMBEDDING_API_KEY", "").strip()
     embedding_base_url: str = os.getenv("EMBEDDING_BASE_URL", "").strip()
+    ollama_base_url: str = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").strip()
+    ollama_embedding_model: str = os.getenv(
+        "OLLAMA_EMBEDDING_MODEL", "nomic-embed-text"
+    ).strip()
+    ollama_timeout_seconds: int = _env_int("OLLAMA_TIMEOUT_SECONDS", 120, 5)
     rag_chunk_chars: int = _env_int("RAG_CHUNK_CHARS", 1200, 200)
     rag_chunk_overlap: int = _env_int("RAG_CHUNK_OVERLAP", 180, 0)
     rag_top_k: int = _env_int("RAG_TOP_K", 6, 1)

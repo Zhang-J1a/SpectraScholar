@@ -14,6 +14,8 @@ import os
 from collections import Counter
 from typing import Protocol
 
+import httpx
+
 from ..settings import settings
 from .bm25 import tokenize
 
@@ -138,6 +140,86 @@ class OpenAIEmbedder:
         return vectors
 
 
+class OllamaEmbedder:
+    """Native Ollama embeddings via ``POST /api/embeddings``.
+
+    This avoids depending on Ollama's OpenAI-compatible layer.  The endpoint
+    accepts one prompt at a time; batching is explicit so 4 GB machines do not
+    hold a large request in memory.
+    """
+
+    def __init__(
+        self,
+        model: str,
+        base_url: str = "http://127.0.0.1:11434",
+        timeout: float = 60.0,
+        *,
+        client: httpx.AsyncClient | None = None,
+    ) -> None:
+        self.model = model
+        self.base_url = base_url.rstrip("/")
+        self.timeout = timeout
+        self.name = f"ollama:{model}"
+        self.dim = None
+        self._client = client
+
+    async def _embed_one(self, client: httpx.AsyncClient, text: str) -> list[float]:
+        last_error: Exception | None = None
+        for attempt in range(1, 3):
+            try:
+                response = await client.post(
+                    f"{self.base_url}/api/embeddings",
+                    json={"model": self.model, "prompt": text},
+                )
+                if response.status_code == 404:
+                    # Older/alternate Ollama builds can expose only /v1.
+                    response = await client.post(
+                        f"{self.base_url}/v1/embeddings",
+                        json={"model": self.model, "input": text},
+                    )
+                response.raise_for_status()
+                payload = response.json()
+                vector = payload.get("embedding")
+                if vector is None and payload.get("data"):
+                    vector = payload["data"][0].get("embedding")
+                if not isinstance(vector, list) or not vector:
+                    raise EmbeddingError("ollama_invalid_response", "Ollama 未返回 embedding")
+                return [float(value) for value in vector]
+            except EmbeddingError:
+                raise
+            except Exception as exc:
+                last_error = exc
+                if attempt < 2 and isinstance(
+                    exc, (httpx.TimeoutException, httpx.ConnectError, httpx.ReadError)
+                ):
+                    await asyncio.sleep(1.5 * attempt)
+                    continue
+                break
+        raise EmbeddingError(
+            "ollama_unavailable",
+            f"Ollama embedding 失败（model={self.model}, url={self.base_url}）: "
+            f"{type(last_error).__name__}: {str(last_error)[:300]}",
+            retryable=True,
+        )
+
+    async def embed(self, texts: list[str]) -> list[list[float]]:
+        if not texts:
+            return []
+        client = self._client
+        owns_client = client is None
+        if client is None:
+            client = httpx.AsyncClient(timeout=self.timeout)
+        assert client is not None
+        try:
+            vectors = [await self._embed_one(client, text) for text in texts]
+        finally:
+            if owns_client:
+                await client.aclose()
+        if vectors:
+            self.dim = len(vectors[0])
+        return vectors
+
+
 def get_embedder(name: str | None = None) -> Embedder:
     backend = (name or settings.embedding_backend).lower()
     if backend == "hash":
@@ -150,7 +232,13 @@ def get_embedder(name: str | None = None) -> Embedder:
             api_key=settings.embedding_api_key,
             base_url=settings.embedding_base_url,
         )
+    if backend == "ollama":
+        return OllamaEmbedder(
+            settings.ollama_embedding_model,
+            base_url=settings.ollama_base_url,
+            timeout=settings.ollama_timeout_seconds,
+        )
     raise EmbeddingError(
         "invalid_embedding_backend",
-        "EMBEDDING_BACKEND 只能是 hash 或 openai",
+        "EMBEDDING_BACKEND 只能是 hash、openai 或 ollama",
     )
