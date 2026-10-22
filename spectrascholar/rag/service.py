@@ -321,7 +321,7 @@ async def _llm_answer(query: str, hits: list[SearchHit]) -> tuple[str, str]:
         for number, hit in enumerate(hits, 1)
     )
     prompt = (
-        "你是科研文献问答助手。只能使用下面给出的 PDF 片段回答，不得使用外部知识补全。"
+        "你是科研文献问答系统。只能使用下面给出的 PDF 片段回答，不得使用外部知识补全。"
         "每个事实性结论后必须附上片段中给出的引用标记（[[doc:... p.N]]）。"
         "如果片段不足以回答，明确说“知识库证据不足”，不要猜测。"
         "数字指标必须与片段逐字一致，并说明数据集与训练比例（如果片段有）。"
@@ -334,7 +334,7 @@ async def _llm_answer(query: str, hits: list[SearchHit]) -> tuple[str, str]:
             response = await client.chat.completions.create(
                 model=settings.answer_model,
                 messages=[
-                    {"role": "system", "content": "你是受证据约束的科研问答助手。"},
+                    {"role": "system", "content": "你是受证据约束的科研问答系统。"},
                     {"role": "user", "content": prompt},
                 ],
                 temperature=0,

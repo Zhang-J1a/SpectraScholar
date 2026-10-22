@@ -56,9 +56,9 @@ def create_app() -> FastAPI:
         title=settings.app_name,
         version=settings.app_version,
         description=(
-            "SpectraScholar：科研文献调研与分析 Agent。"
+            "SpectraScholar：科研文献研究工作台。"
             "通用网页研究能力来自 Apache-2.0 的 GPT Researcher；"
-            "本地 PDF 抽取、证据核验、对比与混合检索为个人扩展模块。"
+            "本地 PDF 抽取、证据核验、对比与混合检索为本仓库扩展模块。"
         ),
         lifespan=lifespan,
     )

@@ -101,7 +101,7 @@ def test_workflow_completes_all_steps_and_exports_report(client, two_papers):
     assert workflow["status"] == "completed", workflow
     assert workflow["comparison_id"]
     assert workflow["report"]
-    assert "引用核验报告（自动生成）" in workflow["report"]
+    assert "引用核验报告" in workflow["report"]
     assert "工作流边界" in workflow["report"]
     assert workflow["citation_audit"]["verified_local"] >= 1
 

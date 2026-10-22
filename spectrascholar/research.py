@@ -300,7 +300,13 @@ class GPTResearcherBackend:
 
 def _effective_timeout(req: ResearchRequest) -> float:
     requested = req.max_elapsed_seconds or settings.research_timeout_seconds
-    return float(min(requested, settings.research_timeout_seconds))
+    return float(
+        min(
+            requested,
+            settings.research_timeout_seconds,
+            settings.research_phase_timeout_seconds,
+        )
+    )
 
 
 def _extract_cost(metadata: dict | None) -> float | None:

@@ -1,11 +1,11 @@
 # 3 分钟演示脚本
 
-> 演示前先启动服务。所有数字应以你本机实际运行结果为准；不要照抄文档中的合成夹具分数当真实论文结果。
+> 演示前先启动服务。所有数字应以本地实际运行结果为准；不要照抄文档中的合成夹具分数当真实论文结果。
 
 ## 1. 启动（离线）
 
 ```powershell
-cd SpectraScholar-Starter
+cd SpectraScholar
 .\.venv\Scripts\Activate.ps1
 Copy-Item .env.example .env
 uvicorn spectrascholar.main:app --reload
@@ -80,7 +80,7 @@ python scripts\make_demo_pdfs.py --out demo_assets
 - hash 不是语义模型；
 - 原文匹配 ≠ 事实正确 ≠ 实验可比；
 - 合成夹具 100% 只证明流水线；
-- Docker 本机 build/up/worker 已验证；第二台机器未验证；本地 PDF 10/10、Tavily 网页 10/10、3 篇真实论文抽取均已完成（网页依赖代理放行；指标绑定仍是缺口）。
+- Docker 本地 build/up/worker 已验证；第二台机器未验证；本地 PDF 10/10、Tavily 网页 10/10、3 篇真实论文抽取均已完成（网页依赖代理放行；指标绑定仍是缺口）。
 
 ## 4. 当前环境未完成的可视化
 

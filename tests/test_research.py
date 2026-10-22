@@ -53,7 +53,7 @@ def test_demo_research_completes_with_explicit_demo_marker(client):
     download = client.get(f"/api/v1/research/{submitted['job_id']}.md")
     assert download.status_code == 200
     assert "演示模式" in download.text
-    assert "引用核验报告（自动生成）" in download.text
+    assert "引用核验报告" in download.text
 
 
 def test_gptr_mocked_success_records_real_backend(client, monkeypatch):

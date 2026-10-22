@@ -1,56 +1,39 @@
-# 真实论文评测集（3 篇已评测）
+# 评测数据
 
-本目录用于存放**合法获取**的论文、人工标注与评测结果。PDF 保存在本地
-`workspace/papers/`（已被 Git 忽略），**不随仓库分发**。
+本目录保存评测标注与示例，不包含论文 PDF。  
+PDF 需要自行合法获取并放入 `workspace/papers/`（该目录不随仓库分发）。
 
-当前工作区已有：
+## 文件
 
-- HybridSN：DOI 10.1109/LGRS.2019.2918719
-- SSRN：DOI 10.1109/TGRS.2017.2755542
-- WFCG：IEEE TIP 2022，Weighted Feature Fusion of CNN and GAT
-- 2 份中文精读笔记（HyperAE、F2HNN）：只作为“非论文输入”的鲁棒性对照，**不计入准确率分母**
+| 文件 | 用途 |
+|---|---|
+| `real_papers.labels.json` | 3 篇真实论文的字段标注 |
+| `research_eval.json` | 50 道检索题，含 `document_id/page/answer/quote` |
+| `papers.manifest.json` | 论文元数据清单 |
+| `extraction_labels.example.json` | 抽取标注模板 |
+| `rag_queries.example.json` | RAG 查询示例 |
 
-标注文件：`real_papers.labels.json`。标注只记录能在原文表格/正文确认的字段；无法确认的写
-`null`。共 24 条指标、8 个实验条件、9 个数据集字段。
-
-检索题集：`research_eval.json`，共 30 题（9 条元数据、3 条条件、18 条指标），
-gold 为 `document_id/page/quote`，来自同一份人工标注。  
-运行：
+## 检索评测
 
 ```bash
-python scripts/evaluate_retrieval.py --ocr
+python scripts/evaluate_retrieval.py --ocr --embedding hash
+python scripts/evaluate_retrieval.py --ocr --embedding ollama
 ```
 
-输出 `docs/retrieval_runs.md/json`；只评 document/page 命中，不评回答语义。
+输出：
 
-## 运行
+```text
+docs/retrieval_runs.md
+docs/retrieval_runs.json
+```
+
+50 题结果与限制见 [docs/EVALUATION.md](../docs/EVALUATION.md) 和
+[docs/EMBEDDING_EVAL.md](../docs/EMBEDDING_EVAL.md)。
+
+## 抽取评测
 
 ```bash
 python scripts/evaluate_real_papers.py
 ```
 
-脚本会分别运行 heuristic 和 LLM（DeepSeek）抽取，输出：
-
-- `docs/real_paper_runs.json`
-- `docs/real_paper_runs.md`
-
-## 当前结果（3 篇小样本）
-
-| 指标 | heuristic | LLM |
-|---|---|---|
-| title | 0/3 | 3/3 |
-| year | 3/3 | 3/3 |
-| venue | 2/3 | 3/3 |
-| 主方法 | 2/3 | 3/3 |
-| 数据集 | 8/9 | 9/9 |
-| 实验条件 | 0/8 | 5/8 |
-| 指标数值 | 12/24 | 21/24 |
-| 指标→数据集绑定 | 12/24 | 21/24 |
-| 指标→比例/patch 绑定 | 0/24 | 9/24 |
-
-**关键限制**：指标→数据集绑定仅 21/24（文本表 + Tesseract OCR），OCR 仍有误读/列错位；不能据此做真实论文的跨论文排名；这属于抽取子问题，
-不是“论文结论已被验证”。不要复用合成夹具的数字作为真实结论。
-
-## 候选论文清单
-
-见 `papers.manifest.json`；GCN-HSI 仍未下载。PDF 的下载和使用请遵守出版商条款与所在机构许可。
+脚本需要本地 PDF；输出目录可通过参数或环境配置调整。

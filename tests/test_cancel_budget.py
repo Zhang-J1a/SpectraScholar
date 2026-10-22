@@ -67,7 +67,7 @@ def test_cancel_endpoint_cancels_queued_job(client):
 def test_budget_helpers():
     request = _request(max_elapsed_seconds=120, max_cost_usd=0.5)
     assert _effective_timeout(request) == float(
-        min(120, settings.research_timeout_seconds)
+        min(120, settings.research_timeout_seconds, settings.research_phase_timeout_seconds)
     )
     assert _extract_cost({"costs": {"total_cost": 0.42}}) == 0.42
     assert _extract_cost({"costs": "$0.125"}) == 0.125

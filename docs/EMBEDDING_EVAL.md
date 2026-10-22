@@ -1,124 +1,80 @@
-# 真实 Embedding / RAG 检索评测
+# Embedding 与检索评测
 
-## 入口
+## 支持的 Backend
 
-```powershell
-# hash 基线（可离线）
-.\.venv\Scripts\python.exe scripts\evaluate_retrieval.py --ocr --embedding hash
+| Backend | 配置 | 说明 |
+|---|---|---|
+| `hash` | `EMBEDDING_BACKEND=hash` | 词法哈希；离线可跑，不是语义模型 |
+| `openai` | `EMBEDDING_BACKEND=openai` | 任意 OpenAI-compatible `/v1/embeddings` |
+| `ollama` | `EMBEDDING_BACKEND=ollama` | Ollama 原生 `/api/embeddings` |
 
-# 任意 OpenAI-compatible embedding
-$env:EMBEDDING_API_KEY="..."
-$env:EMBEDDING_BASE_URL="https://api.siliconflow.cn/v1"
-$env:EMBEDDING_MODEL="BAAI/bge-m3"
-.\.venv\Scripts\python.exe scripts\evaluate_retrieval.py --ocr --embedding openai
+### OpenAI-compatible
+
+```dotenv
+EMBEDDING_BACKEND=openai
+EMBEDDING_API_KEY=...
+EMBEDDING_BASE_URL=https://api.siliconflow.cn/v1
+EMBEDDING_MODEL=BAAI/bge-m3
 ```
 
 `EMBEDDING_API_KEY` 与聊天 Key 分离；不设置时才回退到 `OPENAI_API_KEY`。  
-这样第三方 embedding 不会把 DeepSeek/OpenAI 聊天 provider 切走。
+支持 SiliconFlow、Jina、DashScope、LM Studio、vLLM 等兼容 `/v1/embeddings` 的服务。
 
-## 可选 provider
+### Ollama
 
-| Provider | Base URL | 示例模型 | 备注 |
-|---|---|---|---|
-| OpenAI | 空或 `https://api.openai.com/v1` | `text-embedding-3-small` | 官方 |
-| 硅基流动 | `https://api.siliconflow.cn/v1` | `BAAI/bge-m3` | OpenAI-compatible |
-| Jina | `https://api.jina.ai/v1` | `jina-embeddings-v3` | 需确认账户/额度 |
-| DashScope | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `text-embedding-v3` | 阿里云兼容模式 |
-| Ollama（原生） | `http://127.0.0.1:11434` | `nomic-embed-text` | `EMBEDDING_BACKEND=ollama`，无需 Key |
-| Ollama（兼容层） | `http://localhost:11434/v1` | `nomic-embed-text` | `EMBEDDING_BACKEND=openai`，Key 填 `ollama` |
-| LM Studio | `http://localhost:1234/v1` | 本地模型 | Key 任意占位 |
-| vLLM / llama.cpp | 自定义 `/v1` | 本地 embedding 模型 | OpenAI-compatible |
-
-不直接兼容 OpenAI 协议的 provider（例如部分 Azure OpenAI、Cohere、Voyage）需要单独 adapter，当前未接入。
-
-本地 4 GB 机器优先考虑：
-
-```text
-Ollama nomic-embed-text
-或 fastembed / ONNX 小模型
-```
-
-不建议在 4 GB 上跑 `bge-m3` + 完整 GPTR 同时运行。
-
-## Ollama 安装与配置
-
-当前机器**未安装 Ollama**（`ollama`、11434 端口均不存在）。
-
-1. 下载 Windows 安装包：
-   <https://ollama.com/download>
-2. 安装到 `D:\Ollama`（如果安装器支持 `/DIR=D:\Ollama`；否则默认 C 盘）。
-3. 模型目录放 D 盘（管理员 PowerShell，设置后重开终端）：
-
-```powershell
-setx OLLAMA_MODELS "D:\OllamaModels"
-```
-
-4. 启动：
-
-```powershell
+```bash
+ollama pull bge-m3
 ollama serve
 ```
-
-5. 拉取轻量 embedding 模型：
-
-```powershell
-ollama pull nomic-embed-text
-```
-
-6. `.env`：
 
 ```dotenv
 EMBEDDING_BACKEND=ollama
 OLLAMA_BASE_URL=http://127.0.0.1:11434
-OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+OLLAMA_EMBEDDING_MODEL=bge-m3
 OLLAMA_TIMEOUT_SECONDS=120
 ```
 
-7. 验证：
+小机器可先用 `nomic-embed-text`（768 维，约 274 MB）；`bge-m3` 为 1024 维、约 1.2 GB。
+
+如果模型放在独立目录：
 
 ```powershell
-Invoke-RestMethod http://127.0.0.1:11434/api/tags
-.\.venv\Scripts\python.exe scripts\evaluate_retrieval.py --ocr --embedding ollama
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\start_ollama.ps1 `
+  -OllamaExe "C:\path\to\ollama.exe" `
+  -ModelsDir "D:\path\to\ollama_models"
 ```
 
-注意：
+该脚本只启动项目使用的独立 Ollama 进程，不修改系统服务。
 
-- `nomic-embed-text` 约 274 MB，4 GB 内存可尝试；不要同时跑完整 GPTR + OCR；
-- 原生 backend 调用 `/api/embeddings`，不依赖 Ollama 的 `/v1` 兼容层；
-- 没有 Ollama 时返回 `ollama_unavailable`，不会回退成 hash 冒充真实 embedding。
+---
 
-## 当前状态
+## 50 题结果
 
-本机没有 `EMBEDDING_API_KEY`/`OPENAI_API_KEY`，也**未安装 Ollama**，所以真实 embedding 没有运行：
+数据：3 篇真实论文、50 道人工标注题；只评检索/page 命中。
 
-```text
---embedding openai → REAL_EMBEDDING_BLOCKED: missing_api_key
---embedding ollama → REAL_EMBEDDING_BLOCKED: ollama_unavailable
-```
+### Answer-level Recall@5
 
-这不是代码失败，而是没有真实 embedding 凭据。  
-DeepSeek 只提供 chat，不提供 embedding，不能用它代替。  
-但可以用任何 OpenAI-compatible embedding 服务，或本地 Ollama/fastembed。
+| 模式 | R@1 | R@3 | R@5 | MRR@5 |
+|---|---:|---:|---:|---:|
+| BM25 | 32.0% | 58.0% | 68.0% | 0.465 |
+| hash | 34.0% | 54.0% | 60.0% | 0.433 |
+| bge-m3 vector | 54.0% | 70.0% | 78.0% | 0.630 |
+| **bge-m3 hybrid** | 50.0% | 74.0% | **80.0%** | 0.611 |
+| router | 44.0% | 62.0% | 70.0% | 0.540 |
 
-## 当前真实结果（Ollama bge-m3，1024 维，50 题）
+### 严格 Page-level Recall@5
 
-```text
-Answer-level Recall@5:
-BM25          68.0%
-hash          60.0%
-bge-m3 vector 78.0%
-bge-m3 hybrid 80.0%
-router        70.0%
+| 模式 | R@5 | MRR@5 |
+|---|---:|---:|
+| BM25 | 62.0% | 0.391 |
+| hash | 52.0% | 0.354 |
+| bge-m3 vector | 72.0% | 0.555 |
+| **bge-m3 hybrid** | **72.0%** | 0.539 |
+| router | 62.0% | 0.445 |
 
-严格 page-level Recall@5:
-BM25          62.0%
-hash          52.0%
-bge-m3 vector 72.0%
-bge-m3 hybrid 72.0%
-router        62.0%
-```
+### nomic 对照
 
-nomic-embed-text 对照（同一 50 题）：
+同一 50 题：
 
 ```text
 Answer-level: vector 70.0% / hybrid 72.0% / router 78.0%
@@ -127,28 +83,34 @@ Page-level:   vector 64.0% / hybrid 70.0% / router 76.0%
 
 结论：
 
-- **bge-m3 的最佳模式是 hybrid：Answer-level 80.0%，Page-level 72.0%**；
-- bge-m3 的 answer-level 比 nomic 高 8 点，但 page-level 比 nomic router 低 4 点；
-- bge-m3 下 router 退化到 70.0%/62.0%，说明 router 是给 nomic 调的，**bge 不推荐 auto/router**；
-- 仍不能宣称语义检索已解决；50 题、3 篇论文仍小。
+- `bge-m3 + hybrid` 的 answer-level 最高（80.0%），page-level 72.0%；
+- nomic 的 router 在 page-level 更高（76.0%），但 answer-level 较低；
+- `router` 依赖 metadata→BM25 规则，换 embedding 后不一定最优；bge-m3 推荐显式使用 `hybrid`；
+- 50 题、3 篇论文仍是小样本，不能外推为通用语义检索结论。
 
-本机 bge-m3 使用 D 盘独立 Ollama 实例：
+---
 
-```text
-OLLAMA_BASE_URL=http://127.0.0.1:11435
-OLLAMA_EMBEDDING_MODEL=bge-m3
-scripts/start_ollama_workspace.ps1
+## 复现
+
+```bash
+# hash
+python scripts/evaluate_retrieval.py --ocr --embedding hash
+
+# Ollama (bge-m3)
+python scripts/evaluate_retrieval.py --ocr --embedding ollama
 ```
 
-模型文件在 `D:/SpectraScholar/ollama_models`，未写入 `D:\Ollama\Models`。
+输出：
 
-## 有 Ollama/Key 后要补的记录
+```text
+docs/retrieval_runs.md
+docs/retrieval_runs.json
+```
 
-- embedding 模型名；
-- 维度、批量大小；
-- 构建耗时、查询耗时；
-- 与 hash 的同题对比；
-- 是否真的提升 page-level/answer-level；
-- 失败样本。
+题目与 gold：
 
-不要把“bge-m3 hybrid 80.0%”写成“语义检索已解决”。
+```text
+eval/research_eval.json
+```
+
+论文 PDF 不随仓库分发，需要自行合法获取并放入 `workspace/papers/`。

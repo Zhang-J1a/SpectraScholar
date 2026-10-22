@@ -383,7 +383,7 @@ def audit_report(
 
 def render_audit_markdown(audit: CitationAudit) -> str:
     lines = [
-        "## 引用核验报告（自动生成）",
+        "## 引用核验报告",
         "",
         f"- 本地 PDF 引用：{audit.total - audit.external_unchecked} 条；"
         f"原文片段核验通过 {audit.verified_local} 条；仅页码核验 {audit.page_only_local} 条；"
@@ -428,6 +428,6 @@ def render_audit_markdown(audit: CitationAudit) -> str:
 
 
 def append_audit_section(report: str, audit: CitationAudit) -> str:
-    if "## 引用核验报告（自动生成）" in report:
+    if "## 引用核验报告" in report:
         return report
     return report.rstrip() + "\n\n" + render_audit_markdown(audit)

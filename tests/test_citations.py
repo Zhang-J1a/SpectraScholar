@@ -90,4 +90,4 @@ def test_append_audit_section_is_idempotent():
     first = append_audit_section("# Report", audit)
     second = append_audit_section(first, audit)
     assert first == second
-    assert first.count("## 引用核验报告（自动生成）") == 1
+    assert first.count("## 引用核验报告") == 1
