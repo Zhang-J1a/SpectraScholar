@@ -738,12 +738,14 @@ arxiv_max_results
 
 ```text
 Answer-level:
-BM25   Recall@5 36.7%  MRR@5 0.206
-hash   Recall@5 46.7%  MRR@5 0.342
-hybrid Recall@5 40.0%  MRR@5 0.248
+BM25          Recall@5 36.7%  MRR@5 0.206
+Ollama vector Recall@5 43.3%  MRR@5 0.254
+hybrid        Recall@5 36.7%  MRR@5 0.286
 严格 page-level:
-BM25/hash/hybrid Recall@5 33.3%/30.0%/30.0%
+BM25/Ollama/hybrid Recall@5 33.3%/30.0%/23.3%
 ```
+
+历史 hash 基线为 Answer-level 46.7%/40.0%、page-level 33.3%/30.0%/30.0%；Ollama 没有超过，不能写“语义提升”。
 
 说明：
 

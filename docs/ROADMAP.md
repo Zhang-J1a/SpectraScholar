@@ -78,7 +78,7 @@
 - [x] 删除文献同步删索引
 - [x] 合成夹具 Recall/MRR 评测
 - [x] BM25 / 向量 / 混合三模式消融脚本（hash 下并列 1.0，不能宣称提升）
-- [x] 30 条真实论文检索题 + BM25/hash/hybrid 基线（Answer-level R@5 36.7/46.7/40.0%；page-level 33.3/30.0/30.0%）
+- [x] 30 条真实论文检索题 + BM25/Ollama-vector/hybrid 基线（Answer-level R@5 36.7/43.3/36.7%；page-level 33.3/30.0/23.3%；hash 基线 46.7/40.0 未提升）
 - [ ] 真实 embedding + 真实论文 Recall@K
 - [ ] Reranker ablation
 

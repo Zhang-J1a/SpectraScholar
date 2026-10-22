@@ -100,23 +100,31 @@ Invoke-RestMethod http://127.0.0.1:11434/api/tags
 DeepSeek 只提供 chat，不提供 embedding，不能用它代替。  
 但可以用任何 OpenAI-compatible embedding 服务，或本地 Ollama/fastembed。
 
-## 当前真实结果（hash）
+## 当前真实结果（Ollama nomic-embed-text，768 维）
 
 ```text
 Answer-level Recall@5:
-BM25 36.7%
-hash 46.7%
-hybrid 40.0%
+BM25          36.7%
+Ollama vector 43.3%
+hybrid        36.7%
 
 严格 page-level Recall@5:
-BM25 33.3%
-hash 30.0%
-hybrid 30.0%
+BM25          33.3%
+Ollama vector 30.0%
+hybrid        23.3%
 ```
 
-hash 是词法哈希，不是语义模型；这些数字只能证明检索流水线，不证明语义能力。
+历史 hash 基线：
 
-## 有 Key 后要补的记录
+```text
+Answer-level: 46.7% / 40.0%
+page-level:   33.3% / 30.0% / 30.0%
+```
+
+结论：**Ollama 真实 embedding 没有超过 hash 基线**，不能宣称语义提升。  
+这不代表 embedding 没用；当前评测只有 30 题、表格页/OCR 噪声大，需要继续做 rerank 和更大评测集。
+
+## 有 Ollama/Key 后要补的记录
 
 - embedding 模型名；
 - 维度、批量大小；
@@ -125,4 +133,4 @@ hash 是词法哈希，不是语义模型；这些数字只能证明检索流水
 - 是否真的提升 page-level/answer-level；
 - 失败样本。
 
-不要把“hash 46.7%”写成“语义检索提升”。
+不要把“hash 46.7%”或“Ollama 43.3%”写成“语义检索提升”。

@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-22T05:38:45+00:00",
+  "generated_at": "2026-10-22T09:21:27+00:00",
   "corpus": "real_papers_retrieval",
   "questions": 30,
   "chunks": 250,
-  "embedding_backend": "hash-512",
+  "embedding_backend": "ollama:nomic-embed-text",
   "page_counts": {
     "hybridsn": 5,
     "ssrn": 12,
@@ -30,27 +30,7 @@
         "total": 30
       }
     },
-    "hash": {
-      "k=1": {
-        "recall@1": 0.2667,
-        "mrr@1": 0.2667,
-        "hits": 8,
-        "total": 30
-      },
-      "k=3": {
-        "recall@3": 0.3667,
-        "mrr@3": 0.3167,
-        "hits": 11,
-        "total": 30
-      },
-      "k=5": {
-        "recall@5": 0.4667,
-        "mrr@5": 0.3417,
-        "hits": 14,
-        "total": 30
-      }
-    },
-    "hybrid": {
+    "vector": {
       "k=1": {
         "recall@1": 0.1667,
         "mrr@1": 0.1667,
@@ -58,15 +38,35 @@
         "total": 30
       },
       "k=3": {
+        "recall@3": 0.3,
+        "mrr@3": 0.2222,
+        "hits": 9,
+        "total": 30
+      },
+      "k=5": {
+        "recall@5": 0.4333,
+        "mrr@5": 0.2539,
+        "hits": 13,
+        "total": 30
+      }
+    },
+    "hybrid": {
+      "k=1": {
+        "recall@1": 0.2333,
+        "mrr@1": 0.2333,
+        "hits": 7,
+        "total": 30
+      },
+      "k=3": {
         "recall@3": 0.3333,
-        "mrr@3": 0.2333,
+        "mrr@3": 0.2778,
         "hits": 10,
         "total": 30
       },
       "k=5": {
-        "recall@5": 0.4,
-        "mrr@5": 0.2483,
-        "hits": 12,
+        "recall@5": 0.3667,
+        "mrr@5": 0.2861,
+        "hits": 11,
         "total": 30
       }
     }
@@ -92,43 +92,43 @@
         "total": 30
       }
     },
-    "hash": {
+    "vector": {
       "k=1": {
-        "recall@1": 0.1333,
-        "mrr@1": 0.1333,
-        "hits": 4,
+        "recall@1": 0.1,
+        "mrr@1": 0.1,
+        "hits": 3,
         "total": 30
       },
       "k=3": {
-        "recall@3": 0.2,
-        "mrr@3": 0.1667,
-        "hits": 6,
+        "recall@3": 0.1333,
+        "mrr@3": 0.1111,
+        "hits": 4,
         "total": 30
       },
       "k=5": {
         "recall@5": 0.3,
-        "mrr@5": 0.1917,
+        "mrr@5": 0.1511,
         "hits": 9,
         "total": 30
       }
     },
     "hybrid": {
       "k=1": {
-        "recall@1": 0.0333,
-        "mrr@1": 0.0333,
-        "hits": 1,
+        "recall@1": 0.1,
+        "mrr@1": 0.1,
+        "hits": 3,
         "total": 30
       },
       "k=3": {
-        "recall@3": 0.2333,
-        "mrr@3": 0.1056,
-        "hits": 7,
+        "recall@3": 0.1333,
+        "mrr@3": 0.1111,
+        "hits": 4,
         "total": 30
       },
       "k=5": {
-        "recall@5": 0.3,
-        "mrr@5": 0.1189,
-        "hits": 9,
+        "recall@5": 0.2333,
+        "mrr@5": 0.1361,
+        "hits": 7,
         "total": 30
       }
     }
@@ -141,16 +141,16 @@
         "hits": 1,
         "total": 3
       },
-      "hash": {
-        "recall@5": 0.0,
-        "mrr@5": 0.0,
-        "hits": 0,
+      "vector": {
+        "recall@5": 0.3333,
+        "mrr@5": 0.0833,
+        "hits": 1,
         "total": 3
       },
       "hybrid": {
-        "recall@5": 0.0,
-        "mrr@5": 0.0,
-        "hits": 0,
+        "recall@5": 0.3333,
+        "mrr@5": 0.1111,
+        "hits": 1,
         "total": 3
       }
     },
@@ -161,16 +161,16 @@
         "hits": 4,
         "total": 9
       },
-      "hash": {
-        "recall@5": 0.6667,
-        "mrr@5": 0.5278,
-        "hits": 6,
+      "vector": {
+        "recall@5": 0.4444,
+        "mrr@5": 0.2815,
+        "hits": 4,
         "total": 9
       },
       "hybrid": {
-        "recall@5": 0.5556,
-        "mrr@5": 0.4167,
-        "hits": 5,
+        "recall@5": 0.4444,
+        "mrr@5": 0.3333,
+        "hits": 4,
         "total": 9
       }
     },
@@ -181,16 +181,16 @@
         "hits": 6,
         "total": 18
       },
-      "hash": {
+      "vector": {
         "recall@5": 0.4444,
-        "mrr@5": 0.3056,
+        "mrr@5": 0.2685,
         "hits": 8,
         "total": 18
       },
       "hybrid": {
-        "recall@5": 0.3889,
-        "mrr@5": 0.2056,
-        "hits": 7,
+        "recall@5": 0.3333,
+        "mrr@5": 0.2917,
+        "hits": 6,
         "total": 18
       }
     }
@@ -210,13 +210,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 3,
-        "hash": 4,
-        "hybrid": 1
+        "vector": 5,
+        "hybrid": 2
       },
       "page_ranks": {
         "bm25": 3,
-        "hash": 4,
-        "hybrid": 1
+        "vector": 11,
+        "hybrid": 7
       }
     },
     {
@@ -233,13 +233,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 3,
-        "hash": 2,
+        "vector": 3,
         "hybrid": 2
       },
       "page_ranks": {
         "bm25": 3,
-        "hash": 19,
-        "hybrid": 5
+        "vector": 6,
+        "hybrid": 7
       }
     },
     {
@@ -256,13 +256,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 1,
-        "hash": 1,
+        "vector": 1,
         "hybrid": 1
       },
       "page_ranks": {
         "bm25": 3,
-        "hash": 14,
-        "hybrid": 9
+        "vector": 10,
+        "hybrid": 7
       }
     },
     {
@@ -279,13 +279,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 4,
-        "hash": null,
-        "hybrid": 8
+        "vector": 4,
+        "hybrid": 3
       },
       "page_ranks": {
         "bm25": 4,
-        "hash": null,
-        "hybrid": 8
+        "vector": 4,
+        "hybrid": 3
       }
     },
     {
@@ -302,13 +302,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
-        "hash": 4,
-        "hybrid": 3
+        "vector": 1,
+        "hybrid": 1
       },
       "page_ranks": {
         "bm25": 2,
-        "hash": 4,
-        "hybrid": 3
+        "vector": 1,
+        "hybrid": 1
       }
     },
     {
@@ -325,13 +325,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
-        "hash": 4,
-        "hybrid": 3
+        "vector": 1,
+        "hybrid": 1
       },
       "page_ranks": {
         "bm25": 2,
-        "hash": 4,
-        "hybrid": 3
+        "vector": 1,
+        "hybrid": 1
       }
     },
     {
@@ -348,13 +348,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 1,
-        "hash": 2,
-        "hybrid": 2
+        "vector": 1,
+        "hybrid": 1
       },
       "page_ranks": {
         "bm25": 2,
-        "hash": 2,
-        "hybrid": 2
+        "vector": 1,
+        "hybrid": 1
       }
     },
     {
@@ -371,13 +371,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
-        "hash": 1,
+        "vector": 2,
         "hybrid": 1
       },
       "page_ranks": {
         "bm25": 4,
-        "hash": 1,
-        "hybrid": 3
+        "vector": 5,
+        "hybrid": 4
       }
     },
     {
@@ -394,13 +394,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 4,
-        "hash": 2,
-        "hybrid": 3
+        "vector": 4,
+        "hybrid": 4
       },
       "page_ranks": {
         "bm25": 4,
-        "hash": 2,
-        "hybrid": 3
+        "vector": 4,
+        "hybrid": 4
       }
     },
     {
@@ -417,13 +417,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
-        "hash": 1,
+        "vector": 2,
         "hybrid": 1
       },
       "page_ranks": {
         "bm25": 3,
-        "hash": 1,
-        "hybrid": 3
+        "vector": 4,
+        "hybrid": 4
       }
     },
     {
@@ -440,13 +440,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 17,
-        "hash": 1,
-        "hybrid": 6
+        "vector": 20,
+        "hybrid": 28
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 8,
-        "hybrid": 17
+        "vector": null,
+        "hybrid": null
       }
     },
     {
@@ -463,13 +463,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 17,
-        "hash": 1,
-        "hybrid": 4
+        "vector": 9,
+        "hybrid": 22
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 8,
-        "hybrid": 18
+        "vector": null,
+        "hybrid": null
       }
     },
     {
@@ -486,13 +486,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 1,
-        "hash": 1,
+        "vector": 1,
         "hybrid": 1
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 7,
-        "hybrid": 12
+        "vector": null,
+        "hybrid": null
       }
     },
     {
@@ -509,13 +509,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": null,
-        "hybrid": null
+        "vector": 18,
+        "hybrid": 29
       },
       "page_ranks": {
         "bm25": null,
-        "hash": null,
-        "hybrid": null
+        "vector": 18,
+        "hybrid": 29
       }
     },
     {
@@ -532,13 +532,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 11,
-        "hash": 1,
-        "hybrid": 5
+        "vector": 3,
+        "hybrid": 9
       },
       "page_ranks": {
         "bm25": 11,
-        "hash": 1,
-        "hybrid": 5
+        "vector": 3,
+        "hybrid": 9
       }
     },
     {
@@ -555,13 +555,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 1,
-        "hybrid": 7
+        "vector": 4,
+        "hybrid": 11
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 1,
-        "hybrid": 7
+        "vector": 4,
+        "hybrid": 11
       }
     },
     {
@@ -578,13 +578,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 7,
-        "hybrid": 13
+        "vector": 13,
+        "hybrid": 21
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 7,
-        "hybrid": 13
+        "vector": 13,
+        "hybrid": 21
       }
     },
     {
@@ -601,13 +601,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 13,
-        "hybrid": 25
+        "vector": 13,
+        "hybrid": 24
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 13,
-        "hybrid": 25
+        "vector": 13,
+        "hybrid": 24
       }
     },
     {
@@ -624,13 +624,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 16,
-        "hybrid": 26
+        "vector": 9,
+        "hybrid": 21
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 16,
-        "hybrid": 26
+        "vector": 9,
+        "hybrid": 21
       }
     },
     {
@@ -647,13 +647,13 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": 14,
-        "hybrid": 27
+        "vector": 13,
+        "hybrid": 29
       },
       "page_ranks": {
         "bm25": null,
-        "hash": 14,
-        "hybrid": 27
+        "vector": 13,
+        "hybrid": 29
       }
     },
     {
@@ -670,12 +670,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       },
       "page_ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       }
     },
@@ -693,12 +693,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       },
       "page_ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       }
     },
@@ -716,12 +716,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       },
       "page_ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       }
     },
@@ -739,12 +739,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       },
       "page_ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       }
     },
@@ -762,12 +762,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       },
       "page_ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       }
     },
@@ -785,12 +785,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       },
       "page_ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       }
     },
@@ -808,12 +808,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       },
       "page_ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       }
     },
@@ -831,12 +831,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       },
       "page_ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       }
     },
@@ -854,12 +854,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       },
       "page_ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       }
     },
@@ -877,12 +877,12 @@
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       },
       "page_ranks": {
         "bm25": null,
-        "hash": null,
+        "vector": null,
         "hybrid": null
       }
     }
