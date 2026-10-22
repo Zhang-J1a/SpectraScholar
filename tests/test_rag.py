@@ -112,7 +112,7 @@ def test_openai_embedding_without_key_is_503(client, two_papers, monkeypatch):
 
 def test_route_question_selects_metadata_metric_hybrid():
     from spectrascholar.rag.router import route_question
-    assert route_question("WFCG 发表于哪一年？") == "hash"
+    assert route_question("WFCG 发表于哪一年？") == "bm25"
     assert route_question("Indian Pines 的 OA 是多少？") == "vector"
     assert route_question("比较两种方法的主要区别") == "hybrid"
 

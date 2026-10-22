@@ -14,7 +14,7 @@ def route_question(query: str) -> str:
     configured embedding vector; everything else uses hybrid RRF.
     """
     if METADATA_RE.search(query):
-        return "hash"
+        return "bm25"
     if METRIC_RE.search(query):
         return "vector"
     return "hybrid"

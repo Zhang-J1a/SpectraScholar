@@ -54,7 +54,7 @@ METRIC_RE = re.compile(r"\bOA\b|\bAA\b|Kappa|accuracy|准确率|精度|指标|�
 def _route_question(query: str) -> str:
     """Small deterministic router; the eval and product share this policy."""
     if METADATA_RE.search(query):
-        return "hash"
+        return "bm25"
     if METRIC_RE.search(query):
         return "vector"
     return "hybrid"
@@ -98,6 +98,20 @@ def _rank(
     if mode == "hash":
         hash_query = asyncio.run(HashEmbedder().embed([query]))[0]
         hash_scores = [_cosine(hash_query, vector) for vector in hash_vectors]
+        if max(hash_scores, default=0.0) <= 0:
+            # Chinese metadata query can have zero lexical hash overlap with
+            # the English first page; fall back to BM25 instead of an empty ranking.
+            return _rank(
+                "bm25",
+                query,
+                chunks,
+                bm25,
+                hash_vectors,
+                vectors,
+                embedder,
+                page_texts,
+                limit,
+            )
         ranked = sorted(
             range(len(chunks)), key=lambda index: hash_scores[index], reverse=True
         )[:limit]

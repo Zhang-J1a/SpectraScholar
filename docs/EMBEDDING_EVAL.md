@@ -108,18 +108,18 @@ BM25          68.0%
 hash          60.0%
 Ollama vector 70.0%
 hybrid        72.0%
-router        76.0%
+router        78.0%
 
 严格 page-level Recall@5:
 BM25          62.0%
 hash          52.0%
 Ollama vector 64.0%
 hybrid        70.0%
-router        72.0%
+router        76.0%
 ```
 
-路由：metadata → hash，metric/condition → Ollama vector，其余 hybrid。  
-结论：**50 题扩样后，路由 Answer-level 76.0%，比 hash 60.0% 高 16 点；page-level 72.0%**；仍不能宣称语义检索已解决。  
+路由：metadata → BM25，metric/condition → Ollama vector，其余 hybrid。  
+结论：**50 题扩样后，路由 Answer-level 78.0%，比 hash 60.0% 高 18 点；page-level 76.0%**；仍不能宣称语义检索已解决。  
 当前评测 50 题、3 篇论文；仍需更大评测集和更强的多语言模型。
 
 ## 有 Ollama/Key 后要补的记录
@@ -131,4 +131,4 @@ router        72.0%
 - 是否真的提升 page-level/answer-level；
 - 失败样本。
 
-不要把“router 76.0%”写成“语义检索已解决”。
+不要把“router 78.0%”写成“语义检索已解决”。

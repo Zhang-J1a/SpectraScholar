@@ -18,7 +18,7 @@
 - 实现有界自主 Tool Loop：DeepSeek planner 在 `arxiv_search`/`local_search` 间选择，最多 5 步，记录 observation；真实 planner + local_search 跑通，非法工具/步数上限有测试。
 - 设计 Pydantic 证据契约，将方法/模型家族/数据集/OA/AA/Kappa/训练比例/图构建绑定到 PDF 页码与连续原文片段；LLM 候选不匹配即拒绝，缺失字段返回 null。
 - 建立 3 篇真实论文（HybridSN/SSRN/WFCG）人工标注与评测：LLM 元数据/方法/数据集 3/3、9/9、指标数值 21/24；文本表 + Tesseract OCR 把指标→数据集从 0/24 提升到 21/24，OCR 仍可能误读。
-- 建立 50 题真实论文检索基线（Answer-level Recall@5 BM25/hash/Ollama-vector/hybrid/题型路由 68.0%/60.0%/70.0%/72.0%/76.0%，严格 page-level 62.0%/52.0%/64.0%/70.0%/72.0%；路由比 hash 高 16 点），并实现 claim-level 引用映射；不把基线结果写成语义提升。
+- 建立 50 题真实论文检索基线（Answer-level Recall@5 BM25/hash/Ollama-vector/hybrid/题型路由 68.0%/60.0%/70.0%/72.0%/78.0%，严格 page-level 62.0%/52.0%/64.0%/70.0%/76.0%；路由比 hash 高 18 点），并实现 claim-level 引用映射；不把基线结果写成语义提升。
 - 使用 pdfplumber 解析带线 OA/AA/Kappa 表格，把行识别为方法、列识别为指标；数值仍回页文本核验，多值单元格拒绝；表格指标与正文指标去重合并。
 - 实现多论文可比性分析：以数据集、指标、训练比例、补丁尺寸、协议为分组键，条件不全不排名；输出带证据附录的 Markdown。
 - 实现页级混合 RAG（BM25 + 向量 + RRF + 词法重排），空/低分拒答，回答带页级引用并复用引用审计；无有效引用的 LLM 回答自动降级为抽取式。

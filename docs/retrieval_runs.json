@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-22T11:05:07+00:00",
+  "generated_at": "2026-10-22T11:14:50+00:00",
   "corpus": "real_papers_retrieval",
   "questions": 50,
   "chunks": 250,
@@ -92,21 +92,21 @@
     },
     "router": {
       "k=1": {
-        "recall@1": 0.36,
-        "mrr@1": 0.36,
-        "hits": 18,
+        "recall@1": 0.42,
+        "mrr@1": 0.42,
+        "hits": 21,
         "total": 50
       },
       "k=3": {
-        "recall@3": 0.66,
-        "mrr@3": 0.48,
-        "hits": 33,
+        "recall@3": 0.68,
+        "mrr@3": 0.5267,
+        "hits": 34,
         "total": 50
       },
       "k=5": {
-        "recall@5": 0.76,
-        "mrr@5": 0.502,
-        "hits": 38,
+        "recall@5": 0.78,
+        "mrr@5": 0.5487,
+        "hits": 39,
         "total": 50
       }
     }
@@ -194,21 +194,21 @@
     },
     "router": {
       "k=1": {
-        "recall@1": 0.32,
-        "mrr@1": 0.32,
-        "hits": 16,
+        "recall@1": 0.38,
+        "mrr@1": 0.38,
+        "hits": 19,
         "total": 50
       },
       "k=3": {
-        "recall@3": 0.52,
-        "mrr@3": 0.4033,
-        "hits": 26,
+        "recall@3": 0.56,
+        "mrr@3": 0.4567,
+        "hits": 28,
         "total": 50
       },
       "k=5": {
-        "recall@5": 0.72,
-        "mrr@5": 0.4473,
-        "hits": 36,
+        "recall@5": 0.76,
+        "mrr@5": 0.5007,
+        "hits": 38,
         "total": 50
       }
     }
@@ -272,9 +272,9 @@
         "total": 15
       },
       "router": {
-        "recall@5": 0.6667,
-        "mrr@5": 0.5444,
-        "hits": 10,
+        "recall@5": 0.7333,
+        "mrr@5": 0.7,
+        "hits": 11,
         "total": 15
       }
     },
@@ -356,14 +356,14 @@
         "hash": 2,
         "vector": 1,
         "hybrid": 1,
-        "router": 2
+        "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": 2,
         "vector": 1,
         "hybrid": 1,
-        "router": 2
+        "router": 1
       }
     },
     {
@@ -599,14 +599,14 @@
         "hash": 1,
         "vector": 20,
         "hybrid": 28,
-        "router": 1
+        "router": 17
       },
       "page_ranks": {
         "bm25": null,
         "hash": 1,
         "vector": null,
         "hybrid": null,
-        "router": 1
+        "router": null
       }
     },
     {
@@ -626,14 +626,14 @@
         "hash": 1,
         "vector": 9,
         "hybrid": 22,
-        "router": 1
+        "router": 17
       },
       "page_ranks": {
         "bm25": null,
         "hash": 1,
         "vector": null,
         "hybrid": null,
-        "router": 1
+        "router": null
       }
     },
     {
@@ -660,7 +660,7 @@
         "hash": 1,
         "vector": null,
         "hybrid": null,
-        "router": 1
+        "router": null
       }
     },
     {
@@ -869,14 +869,14 @@
         "hash": null,
         "vector": 8,
         "hybrid": 1,
-        "router": null
+        "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": null,
         "vector": null,
         "hybrid": 1,
-        "router": null
+        "router": 1
       }
     },
     {
@@ -896,14 +896,14 @@
         "hash": null,
         "vector": 4,
         "hybrid": 1,
-        "router": null
+        "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": null,
         "vector": null,
         "hybrid": 1,
-        "router": null
+        "router": 1
       }
     },
     {
@@ -923,14 +923,14 @@
         "hash": 3,
         "vector": 1,
         "hybrid": 1,
-        "router": 3
+        "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": null,
         "vector": null,
         "hybrid": 1,
-        "router": null
+        "router": 1
       }
     },
     {
@@ -1139,14 +1139,14 @@
         "hash": null,
         "vector": 2,
         "hybrid": 1,
-        "router": null
+        "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": null,
         "vector": 2,
         "hybrid": 1,
-        "router": null
+        "router": 1
       }
     },
     {
@@ -1173,7 +1173,7 @@
         "hash": null,
         "vector": 1,
         "hybrid": 1,
-        "router": null
+        "router": 1
       }
     },
     {
@@ -1328,14 +1328,14 @@
         "hash": 1,
         "vector": null,
         "hybrid": null,
-        "router": 1
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
         "hash": 1,
         "vector": null,
         "hybrid": null,
-        "router": 1
+        "router": null
       }
     },
     {
@@ -1490,14 +1490,14 @@
         "hash": 3,
         "vector": null,
         "hybrid": 1,
-        "router": 3
+        "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": 3,
         "vector": null,
         "hybrid": 1,
-        "router": 3
+        "router": 1
       }
     },
     {
@@ -1625,14 +1625,14 @@
         "hash": null,
         "vector": null,
         "hybrid": 2,
-        "router": null
+        "router": 2
       },
       "page_ranks": {
         "bm25": 2,
         "hash": null,
         "vector": null,
         "hybrid": 2,
-        "router": null
+        "router": 2
       }
     },
     {

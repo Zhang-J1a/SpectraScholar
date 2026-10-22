@@ -695,7 +695,7 @@ arxiv_max_results
 
 新增 `spectrascholar/rag/router.py`：
 
-- metadata（年份/期刊/作者/主方法/DOI）→ hash；
+- metadata（年份/期刊/作者/主方法/DOI）→ BM25；
 - metric/condition（OA/AA/Kappa/比例/patch）→ Ollama vector；
 - 其他 → hybrid；
 - `/api/v1/kb/search` 的 `mode=auto` 使用同一路由；
@@ -704,14 +704,14 @@ arxiv_max_results
 50 题结果：
 
 ```text
-Answer-level R@5: BM25 68.0 / hash 60.0 / vector 70.0 / hybrid 72.0 / router 76.0
-Page-level R@5:   BM25 62.0 / hash 52.0 / vector 64.0 / hybrid 70.0 / router 72.0
+Answer-level R@5: BM25 68.0 / hash 60.0 / vector 70.0 / hybrid 72.0 / router 78.0
+Page-level R@5:   BM25 62.0 / hash 52.0 / vector 64.0 / hybrid 70.0 / router 76.0
 ```
 
 关键修复：评测把 WFCG 文档 ID 写成 `wfcg`，而 gold 标注和 chunk 实际是 `cnn_gat`，导致 10 道 WFCG 题全部 miss。修正后所有模式大幅上升。
 
-结论：Answer-level 比 hash 高 16 点，page-level 72.0%；路由是改善，但仍未解决跨语言和表格页问题。  
-metadata 依赖 hash 词法匹配，说明当前 router 仍是启发式，不是学习型路由。
+结论：Answer-level 比 hash 高 18 点，page-level 76.0%；路由是改善，但仍未解决跨语言和表格页问题。  
+metadata 依赖 BM25 词法匹配，说明当前 router 仍是启发式，不是学习型路由。
 
 ### 10.16 取消 / 预算 / 队列可靠性
 
@@ -764,13 +764,13 @@ BM25          Recall@5 68.0%  MRR@5 0.465
 hash          Recall@5 60.0%  MRR@5 0.433
 Ollama vector Recall@5 70.0%  MRR@5 0.442
 hybrid        Recall@5 72.0%  MRR@5 0.554
-router        Recall@5 76.0%  MRR@5 0.502
+router        Recall@5 78.0%  MRR@5 0.549
 严格 page-level:
-router        Recall@5 72.0%  MRR@5 0.447
+router        Recall@5 78.0%  MRR@5 0.549
 ```
 
-路由：metadata → hash，metric/condition → Ollama vector，其余 hybrid。  
-路由 Answer-level 比 hash 高 16 点，page-level 72.0%，仍没有解决跨语言和表格页问题；不能写“语义检索已解决”。
+路由：metadata → BM25，metric/condition → Ollama vector，其余 hybrid。  
+路由 Answer-level 比 hash 高 18 点，page-level 76.0%，仍没有解决跨语言和表格页问题；不能写“语义检索已解决”。
 
 说明：
 

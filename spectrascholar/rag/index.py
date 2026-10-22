@@ -257,6 +257,7 @@ class KnowledgeIndex:
                 return []
             if mode == "auto":
                 mode = route_question(query)
+            metadata_query = mode == "hash"
             allowed = self._allowed_indices(document_ids)
             indices = range(len(self.chunks)) if allowed is None else allowed
             if not indices:
@@ -279,6 +280,8 @@ class KnowledgeIndex:
                     else 0.0
                     for index, chunk in enumerate(self.chunks)
                 ]
+                if max(hash_scores, default=0.0) <= 0:
+                    mode = "bm25"
 
             pool_size = max(top_k * 8, 40)
             vector_ranked = sorted(
@@ -340,7 +343,7 @@ class KnowledgeIndex:
                         score += 0.1 * coverage
                 page_text = "\n".join(page_texts.get((chunk.document_id, chunk.page), []))
                 score += table_boost(query, page_text) * max(max_vector, max_bm25, max_hash)
-                if mode == "hash" and chunk.page == 1:
+                if metadata_query and chunk.page == 1:
                     # Metadata questions (year/venue/author/method) live on p.1.
                     score += 0.25 * max(max_vector, max_bm25, max_hash)
                 scored.append(
