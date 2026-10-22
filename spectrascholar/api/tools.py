@@ -6,7 +6,8 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from ..schemas import ArxivSearchResponse
+from ..agent import ToolLoopError, run_tool_loop
+from ..schemas import AgentLoopRequest, AgentLoopResponse, ArxivSearchResponse
 from ..settings import settings
 from ..tools import ArxivSearchError, search_arxiv
 from .dependencies import require_api_key
@@ -56,3 +57,34 @@ async def arxiv_search(
             detail=f"arXiv 工具调用失败: {type(exc).__name__}",
         ) from exc
     return ArxivSearchResponse(**result)
+
+
+@router.post("/agent_loop", response_model=AgentLoopResponse)
+async def agent_loop(req: AgentLoopRequest):
+    try:
+        result = await run_tool_loop(
+            req.query,
+            max_steps=req.max_steps,
+            allowed_tools=req.allowed_tools,
+        )
+    except ToolLoopError as exc:
+        status = 400 if exc.code in {"invalid_query", "unknown_tool"} else 503
+        raise HTTPException(status_code=status, detail=f"Agent loop 失败 ({exc.code}): {exc}") from exc
+    return AgentLoopResponse(
+        query=result.query,
+        answer=result.answer,
+        stopped_reason=result.stopped_reason,
+        steps=result.steps,
+        observations=[
+            {
+                "step": item.step,
+                "tool": item.tool,
+                "arguments": item.arguments,
+                "status": item.status,
+                "result": item.result,
+                "error": item.error,
+            }
+            for item in result.observations
+        ],
+        sources=result.sources,
+    )

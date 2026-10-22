@@ -604,6 +604,24 @@ class ArxivPaper(BaseModel):
     task_topic_match: bool = False
 
 
+class AgentLoopRequest(BaseModel):
+    query: str = Field(min_length=2, max_length=1000)
+    max_steps: int = Field(default=3, ge=1, le=5)
+    allowed_tools: list[Literal["arxiv_search", "local_search"]] = Field(
+        default_factory=lambda: ["arxiv_search", "local_search"],
+        max_length=2,
+    )
+
+
+class AgentLoopResponse(BaseModel):
+    query: str
+    answer: str
+    stopped_reason: str
+    steps: int
+    observations: list[dict] = Field(default_factory=list)
+    sources: list[dict] = Field(default_factory=list)
+
+
 class ArxivSearchResponse(BaseModel):
     tool: Literal["arxiv_search"] = "arxiv_search"
     query: str

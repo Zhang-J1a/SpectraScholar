@@ -133,6 +133,11 @@ class Settings:
     answer_model: str = os.getenv("ANSWER_MODEL", "").strip() or _DEFAULT_EXTRACTION_MODEL
     answer_timeout_seconds: int = _env_int("ANSWER_TIMEOUT_SECONDS", 90, 5)
 
+    # -- autonomous tool loop (V2.2) -----------------------------------------
+    agent_model: str = os.getenv("AGENT_MODEL", "").strip() or _DEFAULT_EXTRACTION_MODEL
+    agent_timeout_seconds: int = _env_int("AGENT_TIMEOUT_SECONDS", 60, 5)
+    agent_max_steps: int = _env_int("AGENT_MAX_STEPS", 3, 1)
+
     # -- workflow (P3) -------------------------------------------------------
     workflow_max_retries: int = _env_int("WORKFLOW_MAX_RETRIES", 1, 0)
     workflow_step_timeout_seconds: int = _env_int("WORKFLOW_STEP_TIMEOUT_SECONDS", 600, 5)
