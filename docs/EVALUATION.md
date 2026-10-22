@@ -33,7 +33,7 @@
 | 真实论文指标→数据集绑定 | **21/24** | 文本表 + Tesseract OCR 转置表 | ⚠️ 仍有 OCR/列错位 |
 | 真实论文指标→比例/patch 绑定 | **9/24** | 同上 | ⚠️ 条件化仍不完整 |
 | 真实论文抽取证据接受 | **271/277（97.8%）** | 同上 | ✅ 可写“证据过滤” |
-| 真实论文检索（50 题） | **Answer-level R@5：BM25 68.0%；hash 60.0%；Ollama vector 70.0%；hybrid 72.0%；题型路由 78.0%** | 3 篇 PDF、人工 gold page/answer；OCR 索引 | ✅ 50 题扩样；page-level 76.0% |
+| 真实论文检索（50 题） | **Answer-level R@5：BM25 68.0%；hash 60.0%；bge-m3 vector 78.0%；bge-m3 hybrid 80.0%；router 70.0%** | 3 篇 PDF、人工 gold page/answer；OCR 索引 | ✅ bge-m3 hybrid 80.0%；page-level 72.0% |
 | Claim-level 引用核验 | **已实现；未做全量人工语义抽检** | `citations.py` + 单测 | ⚠️ 只能写“citation mapping”，不能写“事实正确” |
 | 真实语义 Recall@K | **未验证** | 未用真实 embedding | ❌ 不能写 |
 | Token / API 成本 | **未完整统计** | 只记录单次 chat usage | ❌ 不能写完整成本 |

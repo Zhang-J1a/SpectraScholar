@@ -691,6 +691,25 @@ arxiv_max_results
 
 2026-10-22 真实 workflow 验证（两篇本地 PDF）：workflow 完成，`arxiv_search` 因网络超时写入 `status=failed`，报告仍生成；离线假客户端覆盖成功路径。
 
+### 10.15c bge-m3 实测
+
+本机 Ollama registry 被代理/schannel 挡住，改为 Python 直接下载 Ollama manifest/blob 到 `workspace/ollama_models`，启动独立实例：
+
+```text
+OLLAMA_HOST=127.0.0.1:11435
+OLLAMA_MODELS=<workspace>/ollama_models
+```
+
+bge-m3 1024 维，50 题结果：
+
+```text
+Answer-level R@5: BM25 68.0 / hash 60.0 / bge-vector 78.0 / bge-hybrid 80.0 / router 70.0
+Page-level R@5:   BM25 62.0 / hash 52.0 / bge-vector 72.0 / bge-hybrid 72.0 / router 62.0
+```
+
+结论：bge-m3 最佳模式是 hybrid（80.0%/72.0%）；bge 下 router 退化，不推荐 auto。  
+nomic 的 router 为 78.0%/76.0%，仍是 page-level 更好的旧组合。
+
 ### 10.15b 题型路由检索
 
 新增 `spectrascholar/rag/router.py`：

@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-22T11:14:50+00:00",
+  "generated_at": "2026-10-22T11:38:38+00:00",
   "corpus": "real_papers_retrieval",
   "questions": 50,
   "chunks": 250,
-  "embedding_backend": "ollama:nomic-embed-text",
+  "embedding_backend": "ollama:bge-m3",
   "page_counts": {
     "hybridsn": 5,
     "ssrn": 12,
@@ -52,61 +52,61 @@
     },
     "vector": {
       "k=1": {
-        "recall@1": 0.3,
-        "mrr@1": 0.3,
-        "hits": 15,
+        "recall@1": 0.54,
+        "mrr@1": 0.54,
+        "hits": 27,
         "total": 50
       },
       "k=3": {
-        "recall@3": 0.6,
-        "mrr@3": 0.42,
-        "hits": 30,
+        "recall@3": 0.7,
+        "mrr@3": 0.61,
+        "hits": 35,
         "total": 50
       },
       "k=5": {
-        "recall@5": 0.7,
-        "mrr@5": 0.442,
-        "hits": 35,
+        "recall@5": 0.78,
+        "mrr@5": 0.63,
+        "hits": 39,
         "total": 50
       }
     },
     "hybrid": {
       "k=1": {
-        "recall@1": 0.46,
-        "mrr@1": 0.46,
-        "hits": 23,
+        "recall@1": 0.5,
+        "mrr@1": 0.5,
+        "hits": 25,
         "total": 50
       },
       "k=3": {
-        "recall@3": 0.66,
-        "mrr@3": 0.54,
-        "hits": 33,
+        "recall@3": 0.74,
+        "mrr@3": 0.5967,
+        "hits": 37,
         "total": 50
       },
       "k=5": {
-        "recall@5": 0.72,
-        "mrr@5": 0.554,
-        "hits": 36,
+        "recall@5": 0.8,
+        "mrr@5": 0.6107,
+        "hits": 40,
         "total": 50
       }
     },
     "router": {
       "k=1": {
-        "recall@1": 0.42,
-        "mrr@1": 0.42,
-        "hits": 21,
+        "recall@1": 0.44,
+        "mrr@1": 0.44,
+        "hits": 22,
         "total": 50
       },
       "k=3": {
-        "recall@3": 0.68,
-        "mrr@3": 0.5267,
-        "hits": 34,
+        "recall@3": 0.62,
+        "mrr@3": 0.52,
+        "hits": 31,
         "total": 50
       },
       "k=5": {
-        "recall@5": 0.78,
-        "mrr@5": 0.5487,
-        "hits": 39,
+        "recall@5": 0.7,
+        "mrr@5": 0.54,
+        "hits": 35,
         "total": 50
       }
     }
@@ -154,61 +154,61 @@
     },
     "vector": {
       "k=1": {
-        "recall@1": 0.24,
-        "mrr@1": 0.24,
-        "hits": 12,
+        "recall@1": 0.48,
+        "mrr@1": 0.48,
+        "hits": 24,
         "total": 50
       },
       "k=3": {
-        "recall@3": 0.46,
-        "mrr@3": 0.33,
-        "hits": 23,
+        "recall@3": 0.62,
+        "mrr@3": 0.53,
+        "hits": 31,
         "total": 50
       },
       "k=5": {
-        "recall@5": 0.64,
-        "mrr@5": 0.369,
-        "hits": 32,
+        "recall@5": 0.72,
+        "mrr@5": 0.555,
+        "hits": 36,
         "total": 50
       }
     },
     "hybrid": {
       "k=1": {
-        "recall@1": 0.38,
-        "mrr@1": 0.38,
-        "hits": 19,
+        "recall@1": 0.46,
+        "mrr@1": 0.46,
+        "hits": 23,
         "total": 50
       },
       "k=3": {
-        "recall@3": 0.54,
-        "mrr@3": 0.4467,
-        "hits": 27,
+        "recall@3": 0.6,
+        "mrr@3": 0.5133,
+        "hits": 30,
         "total": 50
       },
       "k=5": {
-        "recall@5": 0.7,
-        "mrr@5": 0.4847,
-        "hits": 35,
+        "recall@5": 0.72,
+        "mrr@5": 0.5393,
+        "hits": 36,
         "total": 50
       }
     },
     "router": {
       "k=1": {
-        "recall@1": 0.38,
-        "mrr@1": 0.38,
-        "hits": 19,
+        "recall@1": 0.36,
+        "mrr@1": 0.36,
+        "hits": 18,
         "total": 50
       },
       "k=3": {
-        "recall@3": 0.56,
-        "mrr@3": 0.4567,
-        "hits": 28,
+        "recall@3": 0.52,
+        "mrr@3": 0.42,
+        "hits": 26,
         "total": 50
       },
       "k=5": {
-        "recall@5": 0.76,
-        "mrr@5": 0.5007,
-        "hits": 38,
+        "recall@5": 0.62,
+        "mrr@5": 0.445,
+        "hits": 31,
         "total": 50
       }
     }
@@ -228,20 +228,20 @@
         "total": 12
       },
       "vector": {
-        "recall@5": 0.75,
-        "mrr@5": 0.4014,
-        "hits": 9,
+        "recall@5": 0.8333,
+        "mrr@5": 0.6806,
+        "hits": 10,
         "total": 12
       },
       "hybrid": {
         "recall@5": 0.8333,
-        "mrr@5": 0.5236,
+        "mrr@5": 0.5833,
         "hits": 10,
         "total": 12
       },
       "router": {
         "recall@5": 0.8333,
-        "mrr@5": 0.4917,
+        "mrr@5": 0.6806,
         "hits": 10,
         "total": 12
       }
@@ -260,15 +260,15 @@
         "total": 15
       },
       "vector": {
-        "recall@5": 0.5333,
-        "mrr@5": 0.4167,
-        "hits": 8,
+        "recall@5": 1.0,
+        "mrr@5": 1.0,
+        "hits": 15,
         "total": 15
       },
       "hybrid": {
-        "recall@5": 0.7333,
-        "mrr@5": 0.7,
-        "hits": 11,
+        "recall@5": 1.0,
+        "mrr@5": 1.0,
+        "hits": 15,
         "total": 15
       },
       "router": {
@@ -292,21 +292,21 @@
         "total": 23
       },
       "vector": {
-        "recall@5": 0.7826,
-        "mrr@5": 0.4797,
-        "hits": 18,
+        "recall@5": 0.6087,
+        "mrr@5": 0.3623,
+        "hits": 14,
         "total": 23
       },
       "hybrid": {
         "recall@5": 0.6522,
-        "mrr@5": 0.4746,
+        "mrr@5": 0.371,
         "hits": 15,
         "total": 23
       },
       "router": {
-        "recall@5": 0.7826,
-        "mrr@5": 0.4797,
-        "hits": 18,
+        "recall@5": 0.6087,
+        "mrr@5": 0.3623,
+        "hits": 14,
         "total": 23
       }
     }
@@ -327,14 +327,14 @@
       "ranks": {
         "bm25": 1,
         "hash": 1,
-        "vector": 2,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": 1,
-        "vector": 2,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       }
@@ -408,16 +408,16 @@
       "ranks": {
         "bm25": 4,
         "hash": null,
-        "vector": 4,
+        "vector": 3,
         "hybrid": 3,
-        "router": 4
+        "router": 3
       },
       "page_ranks": {
         "bm25": 4,
         "hash": null,
-        "vector": 4,
+        "vector": 3,
         "hybrid": 3,
-        "router": 4
+        "router": 3
       }
     },
     {
@@ -517,15 +517,15 @@
         "bm25": 2,
         "hash": 1,
         "vector": 2,
-        "hybrid": 1,
+        "hybrid": 2,
         "router": 2
       },
       "page_ranks": {
         "bm25": 4,
         "hash": 2,
-        "vector": 4,
-        "hybrid": 4,
-        "router": 4
+        "vector": 6,
+        "hybrid": 6,
+        "router": 6
       }
     },
     {
@@ -543,16 +543,16 @@
       "ranks": {
         "bm25": 5,
         "hash": 2,
-        "vector": 5,
-        "hybrid": 6,
-        "router": 5
+        "vector": 6,
+        "hybrid": 7,
+        "router": 6
       },
       "page_ranks": {
         "bm25": 5,
         "hash": 2,
-        "vector": 5,
-        "hybrid": 6,
-        "router": 5
+        "vector": 6,
+        "hybrid": 7,
+        "router": 6
       }
     },
     {
@@ -570,16 +570,16 @@
       "ranks": {
         "bm25": 2,
         "hash": 1,
-        "vector": 2,
-        "hybrid": 1,
-        "router": 2
+        "vector": 3,
+        "hybrid": 2,
+        "router": 3
       },
       "page_ranks": {
         "bm25": 4,
         "hash": 2,
-        "vector": 4,
-        "hybrid": 5,
-        "router": 4
+        "vector": 6,
+        "hybrid": 7,
+        "router": 6
       }
     },
     {
@@ -597,15 +597,15 @@
       "ranks": {
         "bm25": 17,
         "hash": 1,
-        "vector": 20,
-        "hybrid": 28,
+        "vector": 1,
+        "hybrid": 1,
         "router": 17
       },
       "page_ranks": {
         "bm25": null,
         "hash": 1,
-        "vector": null,
-        "hybrid": null,
+        "vector": 1,
+        "hybrid": 1,
         "router": null
       }
     },
@@ -624,15 +624,15 @@
       "ranks": {
         "bm25": 17,
         "hash": 1,
-        "vector": 9,
-        "hybrid": 22,
+        "vector": 1,
+        "hybrid": 1,
         "router": 17
       },
       "page_ranks": {
         "bm25": null,
         "hash": 1,
-        "vector": null,
-        "hybrid": null,
+        "vector": 1,
+        "hybrid": 1,
         "router": null
       }
     },
@@ -658,8 +658,8 @@
       "page_ranks": {
         "bm25": null,
         "hash": 1,
-        "vector": null,
-        "hybrid": null,
+        "vector": 1,
+        "hybrid": 1,
         "router": null
       }
     },
@@ -678,16 +678,16 @@
       "ranks": {
         "bm25": null,
         "hash": null,
-        "vector": 18,
-        "hybrid": 29,
-        "router": 18
+        "vector": 9,
+        "hybrid": 14,
+        "router": 9
       },
       "page_ranks": {
         "bm25": null,
         "hash": null,
-        "vector": 18,
-        "hybrid": 29,
-        "router": 18
+        "vector": 15,
+        "hybrid": 26,
+        "router": 15
       }
     },
     {
@@ -705,16 +705,16 @@
       "ranks": {
         "bm25": 10,
         "hash": 1,
-        "vector": 2,
-        "hybrid": 7,
-        "router": 2
+        "vector": 7,
+        "hybrid": 10,
+        "router": 7
       },
       "page_ranks": {
         "bm25": 10,
         "hash": 1,
-        "vector": 2,
-        "hybrid": 7,
-        "router": 2
+        "vector": 7,
+        "hybrid": 10,
+        "router": 7
       }
     },
     {
@@ -732,16 +732,16 @@
       "ranks": {
         "bm25": null,
         "hash": 1,
-        "vector": 3,
-        "hybrid": 9,
-        "router": 3
+        "vector": 9,
+        "hybrid": 11,
+        "router": 9
       },
       "page_ranks": {
         "bm25": null,
         "hash": 1,
-        "vector": 3,
-        "hybrid": 9,
-        "router": 3
+        "vector": 9,
+        "hybrid": 11,
+        "router": 9
       }
     },
     {
@@ -759,16 +759,16 @@
       "ranks": {
         "bm25": null,
         "hash": 9,
-        "vector": 14,
-        "hybrid": 22,
-        "router": 14
+        "vector": 13,
+        "hybrid": 16,
+        "router": 13
       },
       "page_ranks": {
         "bm25": null,
         "hash": 9,
-        "vector": 14,
-        "hybrid": 22,
-        "router": 14
+        "vector": 13,
+        "hybrid": 16,
+        "router": 13
       }
     },
     {
@@ -786,16 +786,16 @@
       "ranks": {
         "bm25": null,
         "hash": 14,
-        "vector": 13,
-        "hybrid": 26,
-        "router": 13
+        "vector": 20,
+        "hybrid": 29,
+        "router": 20
       },
       "page_ranks": {
         "bm25": null,
         "hash": 14,
-        "vector": 13,
-        "hybrid": 26,
-        "router": 13
+        "vector": 20,
+        "hybrid": 29,
+        "router": 20
       }
     },
     {
@@ -813,16 +813,16 @@
       "ranks": {
         "bm25": null,
         "hash": 16,
-        "vector": 9,
-        "hybrid": 22,
-        "router": 9
+        "vector": 15,
+        "hybrid": 25,
+        "router": 15
       },
       "page_ranks": {
         "bm25": null,
         "hash": 16,
-        "vector": 9,
-        "hybrid": 22,
-        "router": 9
+        "vector": 15,
+        "hybrid": 25,
+        "router": 15
       }
     },
     {
@@ -840,16 +840,16 @@
       "ranks": {
         "bm25": null,
         "hash": 14,
-        "vector": 13,
-        "hybrid": 29,
-        "router": 13
+        "vector": null,
+        "hybrid": null,
+        "router": null
       },
       "page_ranks": {
         "bm25": null,
         "hash": 14,
-        "vector": 13,
-        "hybrid": 29,
-        "router": 13
+        "vector": null,
+        "hybrid": null,
+        "router": null
       }
     },
     {
@@ -867,14 +867,14 @@
       "ranks": {
         "bm25": 1,
         "hash": null,
-        "vector": 8,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": null,
-        "vector": null,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       }
@@ -894,14 +894,14 @@
       "ranks": {
         "bm25": 1,
         "hash": null,
-        "vector": 4,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": null,
-        "vector": null,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       }
@@ -928,7 +928,7 @@
       "page_ranks": {
         "bm25": 1,
         "hash": null,
-        "vector": null,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       }
@@ -948,16 +948,16 @@
       "ranks": {
         "bm25": 5,
         "hash": 4,
-        "vector": 7,
-        "hybrid": 10,
-        "router": 7
+        "vector": 1,
+        "hybrid": 3,
+        "router": 1
       },
       "page_ranks": {
         "bm25": null,
         "hash": null,
-        "vector": 7,
-        "hybrid": 15,
-        "router": 7
+        "vector": 4,
+        "hybrid": 10,
+        "router": 4
       }
     },
     {
@@ -982,9 +982,9 @@
       "page_ranks": {
         "bm25": 2,
         "hash": 3,
-        "vector": 1,
-        "hybrid": 1,
-        "router": 1
+        "vector": 6,
+        "hybrid": 3,
+        "router": 6
       }
     },
     {
@@ -1002,16 +1002,16 @@
       "ranks": {
         "bm25": 2,
         "hash": 3,
-        "vector": 1,
-        "hybrid": 1,
-        "router": 1
+        "vector": 6,
+        "hybrid": 3,
+        "router": 6
       },
       "page_ranks": {
         "bm25": 2,
         "hash": 3,
-        "vector": 1,
-        "hybrid": 1,
-        "router": 1
+        "vector": 6,
+        "hybrid": 3,
+        "router": 6
       }
     },
     {
@@ -1029,16 +1029,16 @@
       "ranks": {
         "bm25": 2,
         "hash": 3,
-        "vector": 1,
-        "hybrid": 1,
-        "router": 1
+        "vector": 4,
+        "hybrid": 3,
+        "router": 4
       },
       "page_ranks": {
         "bm25": 2,
         "hash": 3,
-        "vector": 1,
-        "hybrid": 1,
-        "router": 1
+        "vector": 4,
+        "hybrid": 3,
+        "router": 4
       }
     },
     {
@@ -1056,16 +1056,16 @@
       "ranks": {
         "bm25": 6,
         "hash": 5,
-        "vector": 3,
-        "hybrid": 4,
-        "router": 3
+        "vector": 4,
+        "hybrid": 5,
+        "router": 4
       },
       "page_ranks": {
         "bm25": 6,
         "hash": 5,
-        "vector": 3,
-        "hybrid": 4,
-        "router": 3
+        "vector": 4,
+        "hybrid": 5,
+        "router": 4
       }
     },
     {
@@ -1083,16 +1083,16 @@
       "ranks": {
         "bm25": 5,
         "hash": 9,
-        "vector": 3,
-        "hybrid": 3,
-        "router": 3
+        "vector": 4,
+        "hybrid": 4,
+        "router": 4
       },
       "page_ranks": {
         "bm25": 5,
         "hash": 9,
-        "vector": 3,
-        "hybrid": 3,
-        "router": 3
+        "vector": 4,
+        "hybrid": 4,
+        "router": 4
       }
     },
     {
@@ -1110,16 +1110,16 @@
       "ranks": {
         "bm25": 6,
         "hash": 6,
-        "vector": 3,
-        "hybrid": 3,
-        "router": 3
+        "vector": 4,
+        "hybrid": 4,
+        "router": 4
       },
       "page_ranks": {
         "bm25": 6,
         "hash": 6,
-        "vector": 3,
-        "hybrid": 3,
-        "router": 3
+        "vector": 4,
+        "hybrid": 4,
+        "router": 4
       }
     },
     {
@@ -1137,14 +1137,14 @@
       "ranks": {
         "bm25": 1,
         "hash": null,
-        "vector": 2,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": null,
-        "vector": 2,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       }
@@ -1185,22 +1185,22 @@
       "question": "HybridSN 在 Salinas Scene、30% 训练比例下的 OA 是多少？",
       "gold_answer": "100",
       "gold_page": 3,
-      "gold_quote": "HybridSN 100 ± 0.0 100 ± 0.0 100 ± 0.0",
+      "gold_quote": "HybridSN 99.75 ± 0.1 99.71 ± 0.1 99.63 ± 0.2 99.98 ± 0.0 99.98 ± 0.0 99.97 ± 0.0 100 ± 0.0 100 ± 0.0 100 ± 0.0",
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 3,
         "hash": 1,
-        "vector": 3,
+        "vector": 2,
         "hybrid": 3,
-        "router": 3
+        "router": 2
       },
       "page_ranks": {
         "bm25": 3,
         "hash": 1,
-        "vector": 5,
-        "hybrid": 4,
-        "router": 5
+        "vector": 3,
+        "hybrid": 5,
+        "router": 3
       }
     },
     {
@@ -1212,22 +1212,22 @@
       "question": "HybridSN 在 Salinas Scene、30% 训练比例下的 AA 是多少？",
       "gold_answer": "100",
       "gold_page": 3,
-      "gold_quote": "HybridSN 100 ± 0.0 100 ± 0.0 100 ± 0.0",
+      "gold_quote": "HybridSN 99.75 ± 0.1 99.71 ± 0.1 99.63 ± 0.2 99.98 ± 0.0 99.98 ± 0.0 99.97 ± 0.0 100 ± 0.0 100 ± 0.0 100 ± 0.0",
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 3,
         "hash": 1,
-        "vector": 3,
+        "vector": 2,
         "hybrid": 3,
-        "router": 3
+        "router": 2
       },
       "page_ranks": {
         "bm25": 3,
         "hash": 2,
-        "vector": 5,
-        "hybrid": 4,
-        "router": 5
+        "vector": 3,
+        "hybrid": 5,
+        "router": 3
       }
     },
     {
@@ -1239,22 +1239,22 @@
       "question": "HybridSN 在 Salinas Scene、30% 训练比例下的 Kappa 是多少？",
       "gold_answer": "100",
       "gold_page": 3,
-      "gold_quote": "HybridSN 100 ± 0.0 100 ± 0.0 100 ± 0.0",
+      "gold_quote": "HybridSN 99.75 ± 0.1 99.71 ± 0.1 99.63 ± 0.2 99.98 ± 0.0 99.98 ± 0.0 99.97 ± 0.0 100 ± 0.0 100 ± 0.0 100 ± 0.0",
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
         "hash": 1,
-        "vector": 3,
-        "hybrid": 3,
-        "router": 3
+        "vector": 2,
+        "hybrid": 2,
+        "router": 2
       },
       "page_ranks": {
         "bm25": 2,
         "hash": 1,
-        "vector": 5,
-        "hybrid": 4,
-        "router": 5
+        "vector": 3,
+        "hybrid": 5,
+        "router": 3
       }
     },
     {
@@ -1293,21 +1293,21 @@
       "question": "SSRN 的作者是谁？",
       "gold_answer": "Zilong Zhong, Jonathan Li, Zhiming Luo, Michael Chapman",
       "gold_page": 1,
-      "gold_quote": "Zilong Zhong, Student Member, IEEE, Jonathan Li, Senior Member, IEEE, Zhiming Luo, and Michael Chapman",
+      "gold_quote": "Zilong Zhong, Student Member, IEEE, Jonathan Li , Senior Member, IEEE, Zhiming Luo, and Michael Chapman",
       "must_cite": false,
       "source_type": "local_pdf",
       "ranks": {
         "bm25": null,
         "hash": null,
-        "vector": null,
-        "hybrid": null,
+        "vector": 1,
+        "hybrid": 1,
         "router": null
       },
       "page_ranks": {
         "bm25": null,
         "hash": null,
-        "vector": null,
-        "hybrid": null,
+        "vector": 1,
+        "hybrid": 1,
         "router": null
       }
     },
@@ -1326,15 +1326,15 @@
       "ranks": {
         "bm25": null,
         "hash": 1,
-        "vector": null,
-        "hybrid": null,
+        "vector": 1,
+        "hybrid": 1,
         "router": null
       },
       "page_ranks": {
         "bm25": null,
         "hash": 1,
-        "vector": null,
-        "hybrid": null,
+        "vector": 1,
+        "hybrid": 1,
         "router": null
       }
     },
@@ -1354,15 +1354,15 @@
         "bm25": 4,
         "hash": 10,
         "vector": 1,
-        "hybrid": 5,
-        "router": 5
+        "hybrid": 1,
+        "router": 1
       },
       "page_ranks": {
         "bm25": 4,
         "hash": 10,
         "vector": 1,
-        "hybrid": 5,
-        "router": 5
+        "hybrid": 1,
+        "router": 1
       }
     },
     {
@@ -1380,16 +1380,16 @@
       "ranks": {
         "bm25": null,
         "hash": null,
-        "vector": 1,
-        "hybrid": 4,
-        "router": 4
+        "vector": 2,
+        "hybrid": 10,
+        "router": 10
       },
       "page_ranks": {
         "bm25": null,
         "hash": null,
-        "vector": 1,
-        "hybrid": 4,
-        "router": 4
+        "vector": 2,
+        "hybrid": 10,
+        "router": 10
       }
     },
     {
@@ -1401,22 +1401,22 @@
       "question": "SSRN 在 KSC 数据集的 OA 是多少？",
       "gold_answer": "99.61",
       "gold_page": 8,
-      "gold_quote": "For example, in the KSC data set, SSRN (99.61%) delivered a roughly 2.5% increase of mean overall classification accuracy compared with CNN (97.08%).",
+      "gold_quote": "SSRN (99.61%) delivered a roughly 2.5% increase",
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 15,
         "hash": 9,
-        "vector": 18,
-        "hybrid": 20,
-        "router": 18
+        "vector": 17,
+        "hybrid": 18,
+        "router": 17
       },
       "page_ranks": {
         "bm25": 15,
         "hash": 9,
-        "vector": 18,
-        "hybrid": 20,
-        "router": 18
+        "vector": 17,
+        "hybrid": 18,
+        "router": 17
       }
     },
     {
@@ -1434,16 +1434,16 @@
       "ranks": {
         "bm25": 7,
         "hash": null,
-        "vector": 3,
-        "hybrid": 1,
-        "router": 1
+        "vector": 1,
+        "hybrid": 2,
+        "router": 2
       },
       "page_ranks": {
         "bm25": 7,
         "hash": null,
-        "vector": 3,
-        "hybrid": 1,
-        "router": 1
+        "vector": 1,
+        "hybrid": 2,
+        "router": 2
       }
     },
     {
@@ -1461,14 +1461,14 @@
       "ranks": {
         "bm25": 1,
         "hash": 2,
-        "vector": 2,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": 2,
-        "vector": 2,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       }
@@ -1488,14 +1488,14 @@
       "ranks": {
         "bm25": 1,
         "hash": 3,
-        "vector": null,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": 3,
-        "vector": null,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       }
@@ -1509,7 +1509,7 @@
       "question": "WFCG 在 University of Pavia 使用的训练比例是多少？",
       "gold_answer": "0.1%",
       "gold_page": 7,
-      "gold_quote": "For the University of Pavia dataset and the WHU-Hi-HongHu dataset, because they have more labels, 0.1% the labels are selected as the training set and the validation set.",
+      "gold_quote": "0.1% the labels are selected as the training set an d the validation set",
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
@@ -1522,9 +1522,9 @@
       "page_ranks": {
         "bm25": 13,
         "hash": 7,
-        "vector": 2,
-        "hybrid": 3,
-        "router": 2
+        "vector": 3,
+        "hybrid": 7,
+        "router": 3
       }
     },
     {
@@ -1542,16 +1542,16 @@
       "ranks": {
         "bm25": 2,
         "hash": 8,
-        "vector": 5,
-        "hybrid": 2,
-        "router": 2
+        "vector": 9,
+        "hybrid": 3,
+        "router": 3
       },
       "page_ranks": {
         "bm25": 2,
         "hash": 8,
-        "vector": 5,
-        "hybrid": 2,
-        "router": 2
+        "vector": 9,
+        "hybrid": 3,
+        "router": 3
       }
     },
     {
@@ -1569,16 +1569,16 @@
       "ranks": {
         "bm25": 1,
         "hash": 1,
-        "vector": 6,
-        "hybrid": 2,
-        "router": 2
+        "vector": 3,
+        "hybrid": 1,
+        "router": 1
       },
       "page_ranks": {
         "bm25": 1,
         "hash": 1,
-        "vector": 6,
-        "hybrid": 2,
-        "router": 2
+        "vector": 3,
+        "hybrid": 1,
+        "router": 1
       }
     },
     {
@@ -1596,14 +1596,14 @@
       "ranks": {
         "bm25": 2,
         "hash": 17,
-        "vector": 3,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       },
       "page_ranks": {
         "bm25": 2,
         "hash": 17,
-        "vector": 3,
+        "vector": 1,
         "hybrid": 1,
         "router": 1
       }
@@ -1623,15 +1623,15 @@
       "ranks": {
         "bm25": 2,
         "hash": null,
-        "vector": null,
-        "hybrid": 2,
+        "vector": 1,
+        "hybrid": 1,
         "router": 2
       },
       "page_ranks": {
         "bm25": 2,
         "hash": null,
-        "vector": null,
-        "hybrid": 2,
+        "vector": 1,
+        "hybrid": 1,
         "router": 2
       }
     },
@@ -1644,22 +1644,22 @@
       "question": "WFCG 在 WHU-Hi-HongHu 上使用的训练比例范围是多少？",
       "gold_answer": "0.1%–0.6%",
       "gold_page": 10,
-      "gold_quote": "the ratios of training samples are both set from 0.1% to 0.6% per class for the University of Pavia dataset and the WHU-Hi-HongHu dataset",
+      "gold_quote": "0.1% to 0.6% per class",
       "must_cite": true,
       "source_type": "local_pdf",
       "ranks": {
         "bm25": 2,
         "hash": 11,
-        "vector": 5,
+        "vector": 1,
         "hybrid": 2,
-        "router": 5
+        "router": 1
       },
       "page_ranks": {
         "bm25": 2,
         "hash": 11,
-        "vector": 5,
+        "vector": 1,
         "hybrid": 2,
-        "router": 5
+        "router": 1
       }
     }
   ],

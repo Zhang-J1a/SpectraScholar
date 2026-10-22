@@ -100,27 +100,47 @@ Invoke-RestMethod http://127.0.0.1:11434/api/tags
 DeepSeek 只提供 chat，不提供 embedding，不能用它代替。  
 但可以用任何 OpenAI-compatible embedding 服务，或本地 Ollama/fastembed。
 
-## 当前真实结果（Ollama nomic-embed-text，768 维）
+## 当前真实结果（Ollama bge-m3，1024 维，50 题）
 
 ```text
 Answer-level Recall@5:
 BM25          68.0%
 hash          60.0%
-Ollama vector 70.0%
-hybrid        72.0%
-router        78.0%
+bge-m3 vector 78.0%
+bge-m3 hybrid 80.0%
+router        70.0%
 
 严格 page-level Recall@5:
 BM25          62.0%
 hash          52.0%
-Ollama vector 64.0%
-hybrid        70.0%
-router        76.0%
+bge-m3 vector 72.0%
+bge-m3 hybrid 72.0%
+router        62.0%
 ```
 
-路由：metadata → BM25，metric/condition → Ollama vector，其余 hybrid。  
-结论：**50 题扩样后，路由 Answer-level 78.0%，比 hash 60.0% 高 18 点；page-level 76.0%**；仍不能宣称语义检索已解决。  
-当前评测 50 题、3 篇论文；仍需更大评测集和更强的多语言模型。
+nomic-embed-text 对照（同一 50 题）：
+
+```text
+Answer-level: vector 70.0% / hybrid 72.0% / router 78.0%
+Page-level:   vector 64.0% / hybrid 70.0% / router 76.0%
+```
+
+结论：
+
+- **bge-m3 的最佳模式是 hybrid：Answer-level 80.0%，Page-level 72.0%**；
+- bge-m3 的 answer-level 比 nomic 高 8 点，但 page-level 比 nomic router 低 4 点；
+- bge-m3 下 router 退化到 70.0%/62.0%，说明 router 是给 nomic 调的，**bge 不推荐 auto/router**；
+- 仍不能宣称语义检索已解决；50 题、3 篇论文仍小。
+
+本机 bge-m3 使用 workspace 独立 Ollama 实例：
+
+```text
+OLLAMA_BASE_URL=http://127.0.0.1:11435
+OLLAMA_EMBEDDING_MODEL=bge-m3
+scripts/start_ollama_workspace.ps1
+```
+
+模型文件在 `workspace/ollama_models`，未写入 `D:\Ollama\Models`。
 
 ## 有 Ollama/Key 后要补的记录
 
@@ -131,4 +151,4 @@ router        76.0%
 - 是否真的提升 page-level/answer-level；
 - 失败样本。
 
-不要把“router 78.0%”写成“语义检索已解决”。
+不要把“bge-m3 hybrid 80.0%”写成“语义检索已解决”。
