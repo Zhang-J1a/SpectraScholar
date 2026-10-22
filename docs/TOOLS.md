@@ -77,6 +77,18 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/v1/tools/arxiv_search" -Body $
 - 工具失败/超时只写提示，不伪造结果，也不阻塞本地 PDF 流程；
 - 当前选择是请求方显式指定，不是 LLM 自主决定。
 
+## 自主 Tool Calling 循环（V2.2）
+
+另有 `POST /api/v1/tools/agent_loop`：
+
+- LLM planner 在 `arxiv_search` / `local_search` 中选择；
+- 最多 5 步，失败不无限重试；
+- 每步记录 observation；
+- 到上限强制收尾。
+
+真实 DeepSeek planner 已用 `local_search` 跑通；详见 [`AGENT_LOOP.md`](AGENT_LOOP.md)。  
+当前仍不是无限自主 Agent，也没有长期记忆。
+
 ## 真实调用记录
 
 2026-10-21 真实调用：

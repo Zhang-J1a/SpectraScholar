@@ -160,7 +160,7 @@
 | HybridSN Exploring 3-D–2-D CNN Feature Hierarchy for Hyperspectral Image Classification.pdf | HybridSN | table | Salinas Scene | AA | 99.98 | 10% | 25x25 | verified_quote | 否 | - | 没有其他论文在完全相同的条件下报告该指标，无法排名 |
 | spectral-spatial_residual_networks_for_hyperspectral_image_classification_a_3d_deep_learning_framework_0.pdf | SSRN | text | 未注明 | OA | 99.61% | 未注明 | 未注明 | verified_quote | 否 | - | 指标未关联到具体数据集；缺少训练样本比例；缺少输入补丁尺寸 |
 | spectral-spatial_residual_networks_for_hyperspectral_image_classification_a_3d_deep_learning_framework_0.pdf | CNN | text | 未注明 | OA | 97.08% | 未注明 | 未注明 | verified_quote | 否 | - | 指标未关联到具体数据集；缺少训练样本比例；缺少输入补丁尺寸 |
-| Weighted_Feature_Fusion_of_Convolutional_Neural_Network_and_Graph_Attention_Network_for_Hyperspectral_Image_Classification.pdf | WFCG | text | 未注明 | OA | 90.86% | 未注明 | 未注明 | verified_quote | 否 | - | 指标未关联到具体数据集；缺少训练样本比例；缺少输入补丁尺寸 |
+| Weighted_Feature_Fusion_of_Convolutional_Neural_Network_and_Graph_Attention_Network_for_Hyperspectral_Image_Classification.pdf | WFCG | text | 未注明 | OA | 90.85% | 未注明 | 未注明 | verified_quote | 否 | - | 指标未关联到具体数据集；缺少训练样本比例；缺少输入补丁尺寸 |
 
 ### 不可比项与风险提示
 
@@ -319,4 +319,4 @@
 | graph:superpixel | 4 | verified_quote | [[doc:dfc0c118-efcf-438d-9232-2c72d2a6feff p.4 "we adopt Simple Linear Iterative Clustering (SLIC) [42] to group pixels into perceptually meaningful superpixels."]] |
 | condition | 7 | verified_quote | [[doc:dfc0c118-efcf-438d-9232-2c72d2a6feff p.7 "For the University of Pavia dataset and the WHU-Hi-HongHu dataset, because they have more labels, 0.1% the labels are selected as the training set an d the validation set."]] |
 | condition | 7 | verified_quote | [[doc:dfc0c118-efcf-438d-9232-2c72d2a6feff p.7 "For the University of Pavia dataset and the WHU-Hi-HongHu dataset, because they have more labels, 0.1% the labels are selected as the training set an d the validation set."]] |
-| metric:OA=90.86% | 8 | verified_quote | [[doc:dfc0c118-efcf-438d-9232-2c72d2a6feff p.8 "the OA of the proposed WFCG still achieved 90.86%"]] |
+| metric:OA=90.85% | 8 | verified_quote | [[doc:dfc0c118-efcf-438d-9232-2c72d2a6feff p.8 "the OA of the proposed WFCG still achieved 90.85%"]] |

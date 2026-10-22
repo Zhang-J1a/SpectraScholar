@@ -1,8 +1,9 @@
 {
-  "generated_at": "2026-10-22T05:35:14+00:00",
+  "generated_at": "2026-10-22T05:38:45+00:00",
   "corpus": "real_papers_retrieval",
   "questions": 30,
   "chunks": 250,
+  "embedding_backend": "hash-512",
   "page_counts": {
     "hybridsn": 5,
     "ssrn": 12,

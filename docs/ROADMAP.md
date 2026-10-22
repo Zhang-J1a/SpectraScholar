@@ -14,6 +14,7 @@
 | P2 | 混合 RAG（BM25+向量+RRF） | ✅ 代码 + 合成夹具评测；⚠️ 语义质量未验证 |
 | P3 | 工作流 + 工程化 + Web | ✅ 完成；Docker 本机验证；⚠️ 第二台机器/浏览器截图未验证 |
 | V2.1 Tool Calling | arXiv 搜索工具：年份/主题过滤、DOI 去重、分页、重试 | ✅ 端点 + 真实调用 + workflow 显式接入；⚠️ 非 LLM 自主选择 |
+| V2.2 自主 Tool Loop | 有界 planner 选择 arXiv/local_search，最多 5 步 | ✅ 真实 DeepSeek + 假客户端测试；⚠️ 无长期记忆/人工审批 |
 | V2 真实评测 | 10 个真实任务、真实论文字段/Recall/成本 | ⚠️ 部分：10 本地 + 10 网页 + 3 篇论文；尚无 30–50 题集 |
 | 生产化 | 队列、多租户、pgvector、审计 | ⚠️ SQLite worker 完成；多租户/pgvector 未开始 |
 
@@ -90,7 +91,7 @@
 - [x] 幂等键
 - [x] 统一错误/Trace/限流/安全头
 - [x] 可选 API Key
-- [x] 90 tests / 86% coverage / ruff
+- [x] 93 tests / 85% coverage / ruff
 - [x] Dockerfile + compose + healthcheck
 - [x] 本机 `docker compose build/up`、api healthy、worker completed
 - [ ] 另一台机器部署

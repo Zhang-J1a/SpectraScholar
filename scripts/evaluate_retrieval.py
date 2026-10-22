@@ -23,12 +23,21 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 if "--ocr" in sys.argv:
     os.environ["OCR_ENABLED"] = "1"
+EMBEDDING_BACKEND = "hash"
+if "--embedding" in sys.argv:
+    position = sys.argv.index("--embedding")
+    if position + 1 < len(sys.argv):
+        EMBEDDING_BACKEND = sys.argv[position + 1].lower()
+for argument in sys.argv:
+    if argument.startswith("--embedding="):
+        EMBEDDING_BACKEND = argument.split("=", 1)[1].lower()
+os.environ["EMBEDDING_BACKEND"] = EMBEDDING_BACKEND
 
 from spectrascholar.evidence import read_pdf_pages  # noqa: E402
 from spectrascholar.extraction.ocr import augment_pages_with_ocr  # noqa: E402
 from spectrascholar.rag.bm25 import BM25, tokenize  # noqa: E402
 from spectrascholar.rag.chunking import chunk_page  # noqa: E402
-from spectrascholar.rag.embeddings import HashEmbedder  # noqa: E402
+from spectrascholar.rag.embeddings import EmbeddingError, get_embedder  # noqa: E402
 from spectrascholar.rag.table_meta import table_boost  # noqa: E402
 from spectrascholar.settings import settings  # noqa: E402
 
@@ -55,7 +64,7 @@ def _rank(
     chunks: list,
     bm25: BM25,
     vectors: list[list[float]],
-    embedder: HashEmbedder,
+    embedder,
     page_texts: dict[tuple[str, int], str],
     limit: int = 20,
 ) -> list[int]:
@@ -164,8 +173,12 @@ def run() -> dict:
     payload = json.loads((ROOT / "eval" / "research_eval.json").read_text(encoding="utf-8"))
     chunks, page_counts = _load_chunks()
     bm25 = BM25([tokenize(chunk.text) for chunk in chunks])
-    embedder = HashEmbedder()
-    vectors = asyncio.run(embedder.embed([chunk.text for chunk in chunks]))
+    embedder = get_embedder(EMBEDDING_BACKEND)
+    try:
+        vectors = asyncio.run(embedder.embed([chunk.text for chunk in chunks]))
+    except EmbeddingError as exc:
+        print(f"REAL_EMBEDDING_BLOCKED: {exc.code}: {exc}")
+        raise SystemExit(2) from exc
     page_chunks: dict[tuple[str, int], list[str]] = defaultdict(list)
     for chunk in chunks:
         page_chunks[(chunk.document_id, chunk.page)].append(chunk.text)
@@ -207,6 +220,7 @@ def run() -> dict:
         "corpus": payload["corpus"],
         "questions": len(rows),
         "chunks": len(chunks),
+        "embedding_backend": embedder.name,
         "page_counts": page_counts,
         "summary": summary,
         "page_summary": page_summary,

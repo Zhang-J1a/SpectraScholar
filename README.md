@@ -7,7 +7,7 @@
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.150-009688?logo=fastapi&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-87%20passed-2ea44f)
-![Coverage](https://img.shields.io/badge/coverage-86%25-2ea44f)
+![Coverage](https://img.shields.io/badge/coverage-85%25-2ea44f)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Upstream](https://img.shields.io/badge/upstream-GPT%20Researcher%20Apache--2.0-orange)
 
@@ -35,7 +35,7 @@ SpectraScholar 把这三件事做成了显式契约：
 
 | 能力 | 状态 | 证据 |
 |---|---|---|
-| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 90 个 pytest |
+| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 93 个 pytest |
 | Demo 调研任务（不调用搜索/LLM） | ✅ 已实现 | 报告中明确“不是调研结果” |
 | GPT Researcher Adapter | ✅ 代码完成，API 签名按 **0.16.1** 源码核对 | Mock 集成测试 + 真实本地任务 |
 | GPT Researcher 真实本地 PDF 调研（DeepSeek） | ✅ **10/10 真实任务完成** | `backend=gptr`、`is_demo=false`、报告均值 14.7k 字符、p50 24.0s / p95 33.5s、上游 costs 合计 $0.663 |
@@ -50,10 +50,11 @@ SpectraScholar 把这三件事做成了显式契约：
 | Claim-level 引用核验 | ✅ 已实现 | 逐句映射 supported/page-only/external/no-citation；见 `citations.py` |
 | 可靠任务队列 | ✅ 完成（SQLite worker） | 跨进程 queued→completed；`scripts/run_worker.py` |
 | Tool Calling（arXiv） | ✅ 端点 + 真实调用 + workflow 显式接入 | 年份/主题过滤、DOI 去重、分页、重试、超时；见 [`docs/TOOLS.md`](docs/TOOLS.md) |
+| 自主 Tool Calling 循环（V2.2） | ✅ 有界 planner + 2 工具 | 真实 DeepSeek planner 调用 local_search；最多 5 步；见 [`docs/AGENT_LOOP.md`](docs/AGENT_LOOP.md) |
 | 多论文对比、可比性分组、Markdown 导出 | ✅ 已实现 | OA 条件一致时正确排名；Kappa 单篇不排名 |
 | 引用核验（页码/原文/外部链接/缺引用结论/claim-level） | ✅ 已实现 | 单测 + 报告自动附加核验节；不验证语义蕴含 |
 | 混合 RAG（BM25 + 向量 + RRF + 词法重排） | ✅ 已实现 | 合成夹具 Recall@1/3 = 1.0（仅流水线验证） |
-| hash 嵌入的语义质量 | ❌ **不能宣称** | hash 是词法哈希，不是语义模型；需切换 OpenAI embedding 后重测 |
+| hash 嵌入的语义质量 | ❌ **不能宣称** | hash 是词法哈希，不是语义模型；真实 embedding 入口已实现但缺 `OPENAI_API_KEY`，本次 blocked |
 | 真实论文测试集（HybridSN/SSRN/WFCG） | ✅ 3 篇本地 PDF 已评测 | 见 `eval/real_papers.labels.json`；GCN-HSI 仍未下载 |
 | Docker 镜像构建/启动 | ✅ **本机已验证** | Docker 29.9.2 + Compose v5.6.0；api healthy；worker completed；第二台机器未验证 |
 | 网页视觉截图 | ⚠️ 未生成 | Chrome 被 Windows 沙箱阻断（命名管道权限） |
@@ -420,6 +421,7 @@ docker compose build
 | GET | `/api/v1/research/{id}.md` | 下载报告 |
 | POST | `/api/v1/research/{id}/retry` | 重试失败任务 |
 | GET | `/api/v1/tools/arxiv_search` | arXiv 工具：年份/主题过滤、DOI 去重、分页 |
+| POST | `/api/v1/tools/agent_loop` | 有界自主 Tool Calling：planner 选择 arXiv/local search |
 | POST | `/api/v1/documents` | 上传 PDF |
 | GET | `/api/v1/documents` | 文献列表 |
 | GET | `/api/v1/documents/{id}/pages/{n}` | 查看页文本 |
@@ -482,9 +484,9 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 
 实际结果：
 
-- **90 passed**（pytest）
+- **93 passed**（pytest）
 - **ruff：All checks passed**
-- **coverage：86%**（4137 statements，577 missed）
+- **coverage：85%**（4295 statements，637 missed）
 - 三份合成夹具（两篇正文 + 一张带线 OA/AA/Kappa 表格）：
   - 抽取字段命中 **20/20**
   - 原文证据接受 **23/23**
@@ -505,7 +507,7 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 
 > V1 验收状态：[`docs/V1_ACCEPTANCE.md`](docs/V1_ACCEPTANCE.md)（V1.1/1.2/1.4/1.5 完成；V1.3 仍有 OCR 误读；V1.6 本机 Docker 通过、第二台机器未验证）。
 >
-> ⚠️ 上述检索/抽取分数来自**合成夹具 + hash 词法嵌入**，只证明流水线连通，不代表真实论文或语义检索质量。三种检索模式在 hash 词法嵌入下并列 1.0，**不能**据此宣称混合检索提升了语义效果；需要真实 embedding 与真实论文重测。真实论文抽取结果见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)，真实检索/RAG 仍未评测；完整方法与限制见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。
+> ⚠️ 检索评测现在有 30 题真实论文集：Answer-level Recall@5 为 BM25 36.7%、hash 46.7%、hybrid 40.0%；严格 page-level 为 33.3%/30.0%/30.0%。hash 仍是词法哈希，不能宣称语义提升；真实 OpenAI embedding 入口已实现，但本机缺 `OPENAI_API_KEY`，本次 blocked。真实论文抽取结果见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)，检索结果见 [`docs/retrieval_runs.md`](docs/retrieval_runs.md)，方法与限制见 [`docs/EVALUATION.md`](docs/EVALUATION.md)。
 
 测试覆盖的关键失败路径：
 
@@ -537,7 +539,7 @@ SpectraScholar-Starter/
 │   ├── workflow.py             # 7 节点本地文献工作流
 │   └── domains.py              # 可替换领域模板
 ├── web/index.html              # 单页中文 Web UI（无构建步骤）
-├── tests/                      # 90 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
+├── tests/                      # 93 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
 ├── scripts/                    # 评测、GPT Researcher API 检查/真实冒烟
 ├── eval/                       # 3 篇真实论文标注 + 清单（PDF 未提交）
 ├── docs/                       # 架构、开发日志、评测、面试、贡献说明
@@ -604,6 +606,8 @@ SpectraScholar-Starter/
 - [评测方法与真实结果](docs/EVALUATION.md)
 - [V1 验收记录与阻塞项](docs/V1_ACCEPTANCE.md)
 - [Tool Calling：arXiv 搜索](docs/TOOLS.md)
+- [有界自主 Tool Calling 循环](docs/AGENT_LOOP.md)
+- [真实 Embedding / RAG 检索评测](docs/EMBEDDING_EVAL.md)
 - [3 篇真实论文结构化对照样例](docs/real_paper_comparison.md)
 - [个人贡献边界](docs/PERSONAL_CONTRIBUTION.md)
 - [面试讲解与 3～5 个学习点](docs/INTERVIEW_GUIDE.md)
