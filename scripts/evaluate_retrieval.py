@@ -2,7 +2,7 @@
 
 Modes are deliberately simple and inspectable:
 * BM25 over page chunks;
-* hash-vector cosine over the same chunks;
+* embedding-vector cosine over the same chunks;
 * hybrid RRF of both rankings.
 
 Gold is a document/page.  This measures retrieval/page hit, not answer quality.
@@ -46,7 +46,7 @@ PAPER_FILES = {
     "ssrn": "spectral-spatial_residual_networks_for_hyperspectral_image_classification_a_3d_deep_learning_framework_0.pdf",
     "wfcg": "Weighted_Feature_Fusion_of_Convolutional_Neural_Network_and_Graph_Attention_Network_for_Hyperspectral_Image_Classification.pdf",
 }
-MODES = ("bm25", "hash", "hybrid")
+MODES = ("bm25", "vector", "hybrid")
 
 
 def _cosine(left: list[float], right: list[float]) -> float:
@@ -73,19 +73,19 @@ def _rank(
         return _table_rerank(ranked, query, chunks, page_texts)
     query_vector = asyncio.run(embedder.embed([query]))[0]
     vector_scores = [_cosine(query_vector, vector) for vector in vectors]
-    if mode == "hash":
+    if mode == "vector":
         ranked = sorted(
             range(len(chunks)), key=lambda index: vector_scores[index], reverse=True
         )[:limit]
         return _table_rerank(ranked, query, chunks, page_texts)
     bm25_rank = [index for index, _ in bm25.top_k(query, limit)]
-    hash_rank = sorted(
+    vector_rank = sorted(
         range(len(chunks)), key=lambda index: vector_scores[index], reverse=True
     )[:limit]
     fused: dict[int, float] = defaultdict(float)
     for rank, index in enumerate(bm25_rank, 1):
         fused[index] += 1.0 / (60 + rank)
-    for rank, index in enumerate(hash_rank, 1):
+    for rank, index in enumerate(vector_rank, 1):
         fused[index] += 1.0 / (60 + rank)
     ranked = [index for index, _ in sorted(fused.items(), key=lambda item: item[1], reverse=True)]
     return _table_rerank(ranked, query, chunks, page_texts)
@@ -226,7 +226,7 @@ def run() -> dict:
         "page_summary": page_summary,
         "by_category": by_category,
         "items": rows,
-        "note": "Answer hit = same document and (gold page or gold answer string in chunk); page hit is stricter. Table-page metadata rerank is applied. Hash vectors are lexical hashing, not semantic embeddings.",
+        "note": "Answer hit = same document and (gold page or gold answer string in chunk); page hit is stricter. Table-page metadata rerank is applied. Vector mode uses the configured embedding backend; hash is a separate baseline.",
     }
 
 
@@ -239,7 +239,7 @@ def write_markdown(result: dict) -> str:
         f"- chunk 数：{result['chunks']}",
         "- Answer hit：同一文档，且 gold page 或 gold answer 出现在 chunk；比只命中 gold page 宽。",
         "- Page hit：必须命中人工标注的 gold page；更严格。",
-        "- `hash` 是词法哈希，不是语义 embedding。",
+        f"- `vector` 使用 {result.get('embedding_backend', 'configured')}；hash 是另一条词法基线。",
         "",
         "## Answer-level 总览",
         "",
