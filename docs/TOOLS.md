@@ -49,6 +49,34 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/v1/tools/arxiv_search" -Body $
 - API 用 `asyncio.to_thread` + 硬超时，避免阻塞事件循环；
 - 离线测试注入假客户端，不访问网络。
 
+## 接入工作流
+
+创建 workflow 时显式请求工具：
+
+```json
+{
+  "topic": "hyperspectral graph neural network",
+  "document_ids": ["<doc-1>", "<doc-2>"],
+  "tools": ["arxiv_search"],
+  "arxiv_year_from": 2020,
+  "arxiv_year_to": 2026,
+  "arxiv_max_results": 5
+}
+```
+
+`plan` 节点会调用工具，记录：
+
+- `tool_calls[]`：参数、状态、返回数、错误；
+- `arxiv_results[]`：标题/年份/DOI/URL；
+- 报告中的“外部工具调用（arXiv）”小节。
+
+边界：
+
+- 工具结果**不进入** `PaperExtraction` 的本地证据链；
+- 不参与可比组/排名；
+- 工具失败/超时只写提示，不伪造结果，也不阻塞本地 PDF 流程；
+- 当前选择是请求方显式指定，不是 LLM 自主决定。
+
 ## 真实调用记录
 
 2026-10-21 真实调用：
@@ -71,9 +99,24 @@ duplicates_filtered: 0
 2502.16289 2025 MOB-GCN: A Novel Multiscale Object-Based Graph Neural Network for Hyperspectral Image Classification
 ```
 
+## 工作流接入验证
+
+2026-10-22 用两篇本地 PDF + `tools=["arxiv_search"]` 真实运行：
+
+```text
+workflow status: completed
+tool_calls: arxiv_search status=failed error=timeout
+report: 包含“外部工具调用（arXiv）”，工具失败未阻塞本地流程
+```
+
+这说明失败路径和证据隔离生效；成功路径由离线假客户端测试覆盖。  
+真实网络恢复后应再跑一次完整成功路径，不能把本次超时写成“工具成功”。
+
 ## 限制
 
-- 该工具目前是 **可调用端点**，还没有接入 7 节点工作流的“规划”节点做自主工具选择；
+- 该工具已接入 7 节点工作流的 `plan` 节点：`WorkflowRequest.tools=["arxiv_search"]` 时调用；
+- 这是**显式工具选择**，不是 LLM 在运行时自主决定；`tools` 为空时完全保留原本地 PDF 流程；
+- 工具失败/超时会记入 `tool_calls` 和报告提示，但不会伪造文献，也不会让本地工作流失败；
 - arXiv 的排序/字段语法会变化，`effective_query` 必须保留以便复盘；
 - 结果相关性仍要人工判断，`task_topic_match` 只是词面匹配，不是语义相关性；
 - 真实网络不可达时返回 503/504，不伪造空结果为成功。

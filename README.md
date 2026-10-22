@@ -6,7 +6,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.150-009688?logo=fastapi&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-68%20passed-2ea44f)
+![Tests](https://img.shields.io/badge/tests-84%20passed-2ea44f)
 ![Coverage](https://img.shields.io/badge/coverage-86%25-2ea44f)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Upstream](https://img.shields.io/badge/upstream-GPT%20Researcher%20Apache--2.0-orange)
@@ -35,7 +35,7 @@ SpectraScholar 把这三件事做成了显式契约：
 
 | 能力 | 状态 | 证据 |
 |---|---|---|
-| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 81 个 pytest |
+| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 84 个 pytest |
 | Demo 调研任务（不调用搜索/LLM） | ✅ 已实现 | 报告中明确“不是调研结果” |
 | GPT Researcher Adapter | ✅ 代码完成，API 签名按 **0.16.1** 源码核对 | Mock 集成测试 + 真实本地任务 |
 | GPT Researcher 真实本地 PDF 调研（DeepSeek） | ✅ **10/10 真实任务完成** | `backend=gptr`、`is_demo=false`、报告均值 14.7k 字符、p50 24.0s / p95 33.5s、上游 costs 合计 $0.663 |
@@ -44,10 +44,10 @@ SpectraScholar 把这三件事做成了显式契约：
 | PDF 表格结构解析（OA/AA/Kappa 行列） | ✅ 已实现 | pdfplumber + 带线表格夹具；无表格时自动降级 |
 | LLM 结构化抽取 + 逐字证据拒绝 | ✅ 代码 + 真实 DeepSeek 调用 | 夹具 12/12 候选通过逐字核验；幻觉候选仍由单测覆盖 |
 | 真实 LLM 抽取的字段关联 | ⚠️ 部分 | OA/Kappa 可抽取，但数据集/方法关联仍缺失，不能直接排名 |
-| 真实论文抽取评测（3 篇） | ✅ **已完成小样本** | LLM：title/year/venue/method 3/3、datasets 9/9、指标数值 18/24、指标→数据集绑定 **17/24** |
-| 真实论文上的条件化指标 | ⚠️ **部分完成** | 条件 4/8；指标→比例/patch 绑定 6/24；OCR 已真实运行，但仍不能直接排名 |
+| 真实论文抽取评测（3 篇） | ✅ **已完成小样本** | LLM：title/year/venue/method 3/3、datasets 9/9、指标数值 21/24、指标→数据集绑定 **21/24** |
+| 真实论文上的条件化指标 | ⚠️ **部分完成** | 条件 5/8；指标→比例/patch 绑定 9/24；OCR 已真实运行，但仍不能直接排名 |
 | 可靠任务队列 | ✅ 完成（SQLite worker） | 跨进程 queued→completed；`scripts/run_worker.py` |
-| Tool Calling（arXiv） | ✅ 端点 + 真实调用 | 年份/主题过滤、DOI 去重、分页、重试、超时；见 [`docs/TOOLS.md`](docs/TOOLS.md) |
+| Tool Calling（arXiv） | ✅ 端点 + 真实调用 + workflow 显式接入 | 年份/主题过滤、DOI 去重、分页、重试、超时；见 [`docs/TOOLS.md`](docs/TOOLS.md) |
 | 多论文对比、可比性分组、Markdown 导出 | ✅ 已实现 | OA 条件一致时正确排名；Kappa 单篇不排名 |
 | 引用核验（页码/原文/外部链接/缺引用结论） | ✅ 已实现 | 单测 + 报告自动附加核验节 |
 | 混合 RAG（BM25 + 向量 + RRF + 词法重排） | ✅ 已实现 | 合成夹具 Recall@1/3 = 1.0（仅流水线验证） |
@@ -428,7 +428,7 @@ docker compose build
 | POST | `/api/v1/kb/search` | 混合检索 |
 | POST | `/api/v1/kb/answer` | 带引用回答/拒答 |
 | POST | `/api/v1/evidence/verify` | 单条页码/原文核验 |
-| POST | `/api/v1/workflows` | 提交本地文献工作流 |
+| POST | `/api/v1/workflows` | 提交本地文献工作流；`tools=["arxiv_search"]` 时在 `plan` 节点调用工具 |
 | GET | `/api/v1/workflows/{id}` | 节点状态与报告 |
 
 请求样例：
@@ -480,9 +480,9 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 
 实际结果：
 
-- **81 passed**（pytest）
+- **84 passed**（pytest）
 - **ruff：All checks passed**
-- **coverage：86%**（3939 statements，552 missed）
+- **coverage：86%**（3992 statements，568 missed）
 - 三份合成夹具（两篇正文 + 一张带线 OA/AA/Kappa 表格）：
   - 抽取字段命中 **20/20**
   - 原文证据接受 **23/23**
@@ -495,7 +495,7 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 - **引用审计真实结果**：10 个本地任务共 301 条引用标记，页级通过 0 条，本地 PDF 文件链接 255 条（未页级核验），外部链接 46 条，缺引用数值结论 88 条；报告正确标注这些边界，没有把“有链接”当成“已核验”。
 - **真实 Tavily 网页任务**：`scripts/evaluate_web_research.py` 跑 **10/10 completed**，`source=web`、`backend=gptr`、`is_demo=false`；报告均值 20,180 字符，p50 36.9s、p95 42.7s，62 个来源，上游 costs 合计 $1.078。
 - **网页引用审计真实结果**：443 条外部链接均标记为未联网核验，页级通过 0 条，31 条数值结论缺引用。当前沙箱需 `ALLOW_PRIVATE_URLS=true` 放行代理地址，不能把这次结果当成通用网络环境下的生产稳定性结论；完整结果见 [`docs/web_research_runs.md`](docs/web_research_runs.md)。
-- **真实论文抽取（3 篇）**：LLM 的 title/year/venue/主方法 **3/3**、datasets **9/9**、指标数值 **18/24**、实验条件 **4/8**；文本表格 + Tesseract OCR 转置表解析把指标→数据集从 **0/24 提升到 17/24**，条件化绑定 **6/24**。证据接受 222/230（96.5%）。仍不能直接排名。详见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)。
+- **真实论文抽取（3 篇）**：LLM 的 title/year/venue/主方法 **3/3**、datasets **9/9**、指标数值 **21/24**、实验条件 **5/8**；文本表格 + Tesseract OCR 转置表解析把指标→数据集从 **0/24 提升到 21/24**，条件化绑定 **9/24**。证据接受 271/277（97.8%）。仍不能直接排名。详见 [`docs/real_paper_runs.md`](docs/real_paper_runs.md)。
 - **V1 结构化对照**：3 篇真实论文生成 46,987 字符报告，82 个 `[[doc:... p.N "quote"]]` 页级引用；`comparable_groups=0` 时不强行排名。见 [`docs/real_paper_comparison.md`](docs/real_paper_comparison.md) 和 [`docs/V1_ACCEPTANCE.md`](docs/V1_ACCEPTANCE.md)。
 - **真实 DeepSeek LLM 抽取**：夹具 12/12 候选通过逐字核验（OA 98.4%、Kappa 0.977）；但数据集/方法关联缺失，仍不可直接排名。
 - **真实 DeepSeek RAG 回答**：返回 3 条 page-only 引用；`grounded=false`，因为回答未提供逐句引用/原文片段，审计保持严格。
@@ -534,7 +534,7 @@ SpectraScholar-Starter/
 │   ├── workflow.py             # 7 节点本地文献工作流
 │   └── domains.py              # 可替换领域模板
 ├── web/index.html              # 单页中文 Web UI（无构建步骤）
-├── tests/                      # 81 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
+├── tests/                      # 84 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
 ├── scripts/                    # 评测、GPT Researcher API 检查/真实冒烟
 ├── eval/                       # 3 篇真实论文标注 + 清单（PDF 未提交）
 ├── docs/                       # 架构、开发日志、评测、面试、贡献说明
@@ -576,7 +576,7 @@ SpectraScholar-Starter/
 下一步按优先级：
 
 1. 在第二台机器上完成 Compose 构建与启动验证（本机已通过）；
-2. 继续修正 SSRN/WFCG 的 OCR 列错位/表题缺失，把指标→数据集绑定从 17/24 继续提升；
+2. 继续修正 SSRN/WFCG 的 OCR 列错位/表题缺失，把指标→数据集绑定从 21/24 继续提升；
 3. 用 OpenAI embedding 对比 hash 基线，报告 Recall@K / MRR / 引用精确率；
 4. 多机场景再引入 Redis/RQ，增加取消与预算；
 5. 30–50 题评测集；如有需要，再用 LangGraph 替换自建工作流。

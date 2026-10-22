@@ -8,12 +8,12 @@
 |---|---|---|
 | V0 | 参考骨架：FastAPI/SQLite/上传/极简 UI/5 测试 | ✅ 已导入并保留 |
 | P0 | 真实 Agent 适配、状态机、日志、超时重试 | ✅ 代码 + Mock + 10/10 本地 PDF + 10/10 Tavily 网页任务；⚠️ 网页依赖代理放行 |
-| P1-A | 结构化论文抽取 | ✅ 规则/LLM + 真实 3 篇论文评测；⚠️ 指标→数据集绑定 17/24，OCR 仍有误读 |
+| P1-A | 结构化论文抽取 | ✅ 规则/LLM + 真实 3 篇论文评测；⚠️ 指标→数据集绑定 21/24，OCR 仍有误读 |
 | P1-B | 多论文对比/可比性/Markdown | ✅ 完成并有测试 |
 | P1-C | 可信引用校验 | ✅ 完成并有测试 |
 | P2 | 混合 RAG（BM25+向量+RRF） | ✅ 代码 + 合成夹具评测；⚠️ 语义质量未验证 |
 | P3 | 工作流 + 工程化 + Web | ✅ 完成；Docker 本机验证；⚠️ 第二台机器/浏览器截图未验证 |
-| V2.1 Tool Calling | arXiv 搜索工具：年份/主题过滤、DOI 去重、分页、重试 | ✅ 端点 + 真实调用；⚠️ 尚未接入自主循环 |
+| V2.1 Tool Calling | arXiv 搜索工具：年份/主题过滤、DOI 去重、分页、重试 | ✅ 端点 + 真实调用 + workflow 显式接入；⚠️ 非 LLM 自主选择 |
 | V2 真实评测 | 10 个真实任务、真实论文字段/Recall/成本 | ⚠️ 部分：10 本地 + 10 网页 + 3 篇论文；尚无 30–50 题集 |
 | 生产化 | 队列、多租户、pgvector、审计 | ⚠️ SQLite worker 完成；多租户/pgvector 未开始 |
 
@@ -89,7 +89,7 @@
 - [x] 幂等键
 - [x] 统一错误/Trace/限流/安全头
 - [x] 可选 API Key
-- [x] 81 tests / 86% coverage / ruff
+- [x] 84 tests / 86% coverage / ruff
 - [x] Dockerfile + compose + healthcheck
 - [x] 本机 `docker compose build/up`、api healthy、worker completed
 - [ ] 另一台机器部署
