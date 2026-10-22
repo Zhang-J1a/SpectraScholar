@@ -375,6 +375,26 @@ class UnsupportedClaim(BaseModel):
     reason: str
 
 
+class ClaimCheck(BaseModel):
+    """One report sentence and the best citation evidence found for it."""
+
+    sentence: str
+    citation: str | None = None
+    kind: Literal["local_pdf", "external_url", "none"] = "none"
+    status: Literal[
+        "supported_quote",
+        "page_only",
+        "external_unchecked",
+        "no_citation",
+        "citation_failed",
+    ] = "no_citation"
+    document_id: str | None = None
+    filename: str | None = None
+    page: int | None = None
+    quote: str | None = None
+    reason: str = ""
+
+
 class CitationAudit(BaseModel):
     total: int = 0
     verified_local: int = 0
@@ -383,6 +403,12 @@ class CitationAudit(BaseModel):
     external_unchecked: int = 0
     local_file_unverified: int = 0
     unsupported_claims: list[UnsupportedClaim] = Field(default_factory=list)
+    claims: list[ClaimCheck] = Field(default_factory=list)
+    claims_supported: int = 0
+    claims_page_only: int = 0
+    claims_external_unchecked: int = 0
+    claims_no_citation: int = 0
+    claims_failed: int = 0
     checks: list[CitationCheck] = Field(default_factory=list)
     checked_at: str = ""
     scope_note: str = (

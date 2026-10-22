@@ -16,7 +16,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 
 from .evidence import make_evidence_ref, normalized
-from .schemas import CitationAudit, CitationCheck, UnsupportedClaim
+from .schemas import CitationAudit, CitationCheck, ClaimCheck, UnsupportedClaim
 
 LOCAL_RE = re.compile(
     r"\[\[\s*doc:([A-Za-z0-9_-]+)\s+p\.?\s*(\d+)(?:\s+\"([^\"]{1,1200})\")?\s*\]\]",
@@ -42,6 +42,121 @@ METRIC_CLAIM_RE = re.compile(
     re.IGNORECASE,
 )
 NUMBER_RE = re.compile(r"\d+(?:\.\d+)?\s*%?")
+CLAIM_SIGNAL_RE = re.compile(
+    r"(?:\d|\bOA\b|\bAA\b|\bKappa\b|accuracy|outperform|better|worse|"
+    r"state-of-the-art|SOTA|superior|improve|reduce|because|therefore|"
+    r"优于|低于|高于|提升|下降|达到|表明|因此|因为|最好|最差|相比)",
+    re.IGNORECASE,
+)
+
+
+def _claim_from_local(
+    sentence: str,
+    match: re.Match[str],
+    resolver: Resolver,
+) -> ClaimCheck:
+    document_id, page_raw, quote = match.group(1), match.group(2), match.group(3)
+    page = int(page_raw)
+    document, pages = resolver(document_id)
+    if document is None:
+        return ClaimCheck(
+            sentence=sentence[:500],
+            citation=match.group(0),
+            kind="local_pdf",
+            status="citation_failed",
+            document_id=document_id,
+            page=page,
+            quote=quote,
+            reason="引用的文档不存在",
+        )
+    filename = document.get("filename")
+    if pages is None or not 1 <= page <= len(pages):
+        return ClaimCheck(
+            sentence=sentence[:500],
+            citation=match.group(0),
+            kind="local_pdf",
+            status="citation_failed",
+            document_id=document_id,
+            filename=filename,
+            page=page,
+            quote=quote,
+            reason="页码不存在或 PDF 无法读取",
+        )
+    if not quote:
+        return ClaimCheck(
+            sentence=sentence[:500],
+            citation=match.group(0),
+            kind="local_pdf",
+            status="page_only",
+            document_id=document_id,
+            filename=filename,
+            page=page,
+            reason="只有页码，没有原文片段；不能证明句子被该页支持",
+        )
+    evidence = make_evidence_ref(document_id, pages, page, quote)
+    if evidence.accepted:
+        status = "supported_quote"
+        reason = "引文在指定页逐字存在"
+    else:
+        status = "citation_failed"
+        reason = evidence.note or "引文未在指定页找到"
+    return ClaimCheck(
+        sentence=sentence[:500],
+        citation=match.group(0),
+        kind="local_pdf",
+        status=status,
+        document_id=document_id,
+        filename=filename,
+        page=page,
+        quote=quote,
+        reason=reason,
+    )
+
+
+def audit_claims(report: str, resolver: Resolver, *, limit: int = 100) -> list[ClaimCheck]:
+    """Return one citation status per substantive report sentence.
+
+    This is deterministic claim-to-citation mapping, not semantic entailment:
+    a verified quote means the quoted text exists; it does not prove the
+    sentence's interpretation is correct.
+    """
+    claims: list[ClaimCheck] = []
+    for sentence in _iter_sentences(report):
+        clean = sentence.strip()
+        if len(clean) < 20 or not CLAIM_SIGNAL_RE.search(clean):
+            continue
+        local = list(LOCAL_RE.finditer(clean))
+        if local:
+            candidates = [_claim_from_local(clean, match, resolver) for match in local]
+            rank = {
+                "supported_quote": 4,
+                "page_only": 3,
+                "citation_failed": 2,
+                "external_unchecked": 1,
+                "no_citation": 0,
+            }
+            claim = max(candidates, key=lambda item: rank[item.status])
+        else:
+            external = EXTERNAL_LINK_RE.search(clean)
+            if external:
+                claim = ClaimCheck(
+                    sentence=clean[:500],
+                    citation=external.group(0),
+                    kind="external_url",
+                    status="external_unchecked",
+                    reason="外部链接未联网核验；不能证明句子被来源支持",
+                )
+            else:
+                claim = ClaimCheck(
+                    sentence=clean[:500],
+                    kind="none",
+                    status="no_citation",
+                    reason="包含事实/数值/比较信号，但同一句没有本地引用或外部链接",
+                )
+        claims.append(claim)
+        if len(claims) >= limit:
+            break
+    return claims
 
 
 def _sanitize_for_claim(sentence: str) -> str:
@@ -238,6 +353,7 @@ def audit_report(
         if check.kind == "local_pdf" and check.status not in {"verified_quote", "verified_page_only"}
     )
     unsupported = [] if skip_claims else find_unsupported_claims(report)
+    claims = [] if skip_claims else audit_claims(report, resolver)
 
     return CitationAudit(
         total=len(checks),
@@ -247,10 +363,18 @@ def audit_report(
         external_unchecked=external,
         local_file_unverified=local_file_unverified,
         unsupported_claims=unsupported,
+        claims=claims,
+        claims_supported=sum(1 for claim in claims if claim.status == "supported_quote"),
+        claims_page_only=sum(1 for claim in claims if claim.status == "page_only"),
+        claims_external_unchecked=sum(
+            1 for claim in claims if claim.status == "external_unchecked"
+        ),
+        claims_no_citation=sum(1 for claim in claims if claim.status == "no_citation"),
+        claims_failed=sum(1 for claim in claims if claim.status == "citation_failed"),
         checks=checks,
         checked_at=datetime.now(UTC).isoformat(timespec="seconds"),
         scope_note=(
-            "本报告只核验引文是否存在于指定 PDF 页码，并检查数值性结论是否有引用；"
+            "本报告只核验引文是否存在于指定 PDF 页码，并做 claim-to-citation 映射；"
             "不验证事实语义、论文质量或实验可比性。外部 URL 未联网核验；"
             "相对 PDF 文件名链接缺少页码/文档 ID，只能标记为未做页级核验。"
         ),
@@ -267,6 +391,9 @@ def render_audit_markdown(audit: CitationAudit) -> str:
         f"- 外部链接：{audit.external_unchecked} 条（未联网核验）。",
         f"- 本地 PDF 文件链接：{audit.local_file_unverified} 条（无页码/文档 ID，未做页级核验）。",
         f"- 缺少引用的数值性结论：{len(audit.unsupported_claims)} 条。",
+        f"- Claim-level：逐字支持 {audit.claims_supported} 条；仅页码 {audit.claims_page_only} 条；"
+        f"外部未核验 {audit.claims_external_unchecked} 条；无引用 {audit.claims_no_citation} 条；"
+        f"引用失败 {audit.claims_failed} 条。",
         "",
     ]
     failed = [
@@ -285,6 +412,13 @@ def render_audit_markdown(audit: CitationAudit) -> str:
         for claim in audit.unsupported_claims[:10]:
             lines.append(f"- {claim.sentence}")
         lines.append("")
+    if audit.claims:
+        weak = [claim for claim in audit.claims if claim.status != "supported_quote"]
+        if weak:
+            lines += ["### Claim-level 未逐字支持的句子（最多 10 条）", ""]
+            for claim in weak[:10]:
+                lines.append(f"- `{claim.status}` {claim.sentence}")
+            lines.append("")
     lines += [
         "> 核验边界：原文出现 ≠ 事实正确 ≠ 实验可比。页码与片段匹配只证明引用可追溯，"
         "不代表语义验证；外部链接未联网核验。",
