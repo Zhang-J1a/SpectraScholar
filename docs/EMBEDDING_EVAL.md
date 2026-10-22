@@ -24,7 +24,8 @@ $env:EMBEDDING_MODEL="BAAI/bge-m3"
 | 硅基流动 | `https://api.siliconflow.cn/v1` | `BAAI/bge-m3` | OpenAI-compatible |
 | Jina | `https://api.jina.ai/v1` | `jina-embeddings-v3` | 需确认账户/额度 |
 | DashScope | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `text-embedding-v3` | 阿里云兼容模式 |
-| Ollama | `http://localhost:11434/v1` | `nomic-embed-text` | Key 可填 `ollama`；本地 |
+| Ollama（原生） | `http://127.0.0.1:11434` | `nomic-embed-text` | `EMBEDDING_BACKEND=ollama`，无需 Key |
+| Ollama（兼容层） | `http://localhost:11434/v1` | `nomic-embed-text` | `EMBEDDING_BACKEND=openai`，Key 填 `ollama` |
 | LM Studio | `http://localhost:1234/v1` | 本地模型 | Key 任意占位 |
 | vLLM / llama.cpp | 自定义 `/v1` | 本地 embedding 模型 | OpenAI-compatible |
 
@@ -39,12 +40,60 @@ Ollama nomic-embed-text
 
 不建议在 4 GB 上跑 `bge-m3` + 完整 GPTR 同时运行。
 
+## Ollama 安装与配置
+
+当前机器**未安装 Ollama**（`ollama`、11434 端口均不存在）。
+
+1. 下载 Windows 安装包：
+   <https://ollama.com/download>
+2. 安装到 `D:\Ollama`（如果安装器支持 `/DIR=D:\Ollama`；否则默认 C 盘）。
+3. 模型目录放 D 盘（管理员 PowerShell，设置后重开终端）：
+
+```powershell
+setx OLLAMA_MODELS "D:\OllamaModels"
+```
+
+4. 启动：
+
+```powershell
+ollama serve
+```
+
+5. 拉取轻量 embedding 模型：
+
+```powershell
+ollama pull nomic-embed-text
+```
+
+6. `.env`：
+
+```dotenv
+EMBEDDING_BACKEND=ollama
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+OLLAMA_TIMEOUT_SECONDS=120
+```
+
+7. 验证：
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:11434/api/tags
+.\.venv\Scripts\python.exe scripts\evaluate_retrieval.py --ocr --embedding ollama
+```
+
+注意：
+
+- `nomic-embed-text` 约 274 MB，4 GB 内存可尝试；不要同时跑完整 GPTR + OCR；
+- 原生 backend 调用 `/api/embeddings`，不依赖 Ollama 的 `/v1` 兼容层；
+- 没有 Ollama 时返回 `ollama_unavailable`，不会回退成 hash 冒充真实 embedding。
+
 ## 当前状态
 
-本机 `.env` **没有 `EMBEDDING_API_KEY`，也没有 `OPENAI_API_KEY`**，所以真实 embedding 没有运行：
+本机没有 `EMBEDDING_API_KEY`/`OPENAI_API_KEY`，也**未安装 Ollama**，所以真实 embedding 没有运行：
 
 ```text
-REAL_EMBEDDING_BLOCKED: missing_api_key
+--embedding openai → REAL_EMBEDDING_BLOCKED: missing_api_key
+--embedding ollama → REAL_EMBEDDING_BLOCKED: ollama_unavailable
 ```
 
 这不是代码失败，而是没有真实 embedding 凭据。  

@@ -35,7 +35,7 @@ SpectraScholar 把这三件事做成了显式契约：
 
 | 能力 | 状态 | 证据 |
 |---|---|---|
-| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 100 个 pytest |
+| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 101 个 pytest |
 | Demo 调研任务（不调用搜索/LLM） | ✅ 已实现 | 报告中明确“不是调研结果” |
 | GPT Researcher Adapter | ✅ 代码完成，API 签名按 **0.16.1** 源码核对 | Mock 集成测试 + 真实本地任务 |
 | GPT Researcher 真实本地 PDF 调研（DeepSeek） | ✅ **10/10 真实任务完成** | `backend=gptr`、`is_demo=false`、报告均值 14.7k 字符、p50 24.0s / p95 33.5s、上游 costs 合计 $0.663 |
@@ -179,7 +179,8 @@ PDF → 页级 chunk（保留页码/偏移） → embedding + BM25
 
 - 第一版只用 **内存索引 + JSON 持久化**，不引入 FAISS/Milvus/Chroma/pgvector 四套系统；
 - `EMBEDDING_BACKEND=hash` 离线可跑，但明确标注“非语义”；
-- `EMBEDDING_BACKEND=openai` 使用真实 embedding；
+- `EMBEDDING_BACKEND=openai` 使用 OpenAI-compatible embedding；
+- `EMBEDDING_BACKEND=ollama` 使用本地 Ollama 原生 `/api/embeddings`；
 - 空知识库或低重合时拒答；
 - 回答中每个片段带页级引用；LLM 回答没有可核验引用时自动降级为抽取式；
 - 删除文献时同步删除索引；
@@ -461,9 +462,11 @@ docker compose build
 |---|---|---|
 | `RESEARCH_BACKEND` | `demo` | `demo` / `gptr` |
 | `EXTRACTOR_BACKEND` | `heuristic` | `heuristic` / `llm` |
-| `EMBEDDING_BACKEND` | `hash` | `hash`（非语义）/ `openai`（OpenAI-compatible） |
+| `EMBEDDING_BACKEND` | `hash` | `hash`（非语义）/ `openai` / `ollama` |
 | `EMBEDDING_API_KEY` | 空 | embedding 专用 Key；与聊天 Key 解耦 |
-| `EMBEDDING_BASE_URL` | 空 | 例如硅基流动/Jina/Ollama/vLLM 的 `/v1` |
+| `EMBEDDING_BASE_URL` | 空 | OpenAI-compatible `/v1` 地址 |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Ollama 原生地址 |
+| `OLLAMA_EMBEDDING_MODEL` | `nomic-embed-text` | 4 GB 推荐的小模型 |
 | `ANSWER_BACKEND` | `extractive` | `extractive` / `llm` |
 | `RERANK_BACKEND` | `lexical` | 目前仅实现词法重排 |
 | `OPENAI_API_KEY` | 空 | OpenAI 兼容聊天/embedding 密钥 |
@@ -491,9 +494,9 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 
 实际结果：
 
-- **100 passed**（pytest）
+- **101 passed**（pytest）
 - **ruff：All checks passed**
-- **coverage：85%**（4381 statements，654 missed）
+- **coverage：85%**（4434 statements，671 missed）
 - 三份合成夹具（两篇正文 + 一张带线 OA/AA/Kappa 表格）：
   - 抽取字段命中 **20/20**
   - 原文证据接受 **23/23**
@@ -546,7 +549,7 @@ SpectraScholar-Starter/
 │   ├── workflow.py             # 7 节点本地文献工作流
 │   └── domains.py              # 可替换领域模板
 ├── web/index.html              # 单页中文 Web UI（无构建步骤）
-├── tests/                      # 100 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
+├── tests/                      # 101 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
 ├── scripts/                    # 评测、GPT Researcher API 检查/真实冒烟
 ├── eval/                       # 3 篇真实论文标注 + 清单（PDF 未提交）
 ├── docs/                       # 架构、开发日志、评测、面试、贡献说明
