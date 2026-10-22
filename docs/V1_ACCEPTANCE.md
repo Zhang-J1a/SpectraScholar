@@ -15,7 +15,7 @@
 | 2. PDF 按页 page/document ID | ✅ 完成 | 页级证据、引用审计、`[[doc:id p.N "quote"]]` |
 | 3. 表格解析 + 缺失字段 null/原因 | ⚠️ 部分 | 文本表 + Tesseract OCR 后绑定 21/24；OCR 仍有误读/列错位，未达到完整正确 |
 | 4. 引用逐条映射 + citation_verified/unsupported | ✅ 结构化报告完成 | 3 篇真实论文对照，82 个页级引用、91 个页码；无可比组时 0 排名 |
-| 5. 长任务可靠队列 | ✅ 完成 | SQLite queue + 独立 worker；跨进程验收 queued→completed |
+| 5. 长任务可靠队列 | ✅ 完成 | SQLite queue + 独立 worker；跨进程验收 queued→completed；queued 立即取消、running 协作取消、条件写入、时间/成本预算 |
 | 6. Docker Compose 另一台电脑验证 | ⚠️ 本机通过，跨机器未验证 | Docker 29.9.2 + Compose v5.6.0；`compose build`、`up -d`、api healthy、worker completed 一次 Demo；第二台机器未验证 |
 
 ## V1 验收报告

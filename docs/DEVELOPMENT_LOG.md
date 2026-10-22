@@ -113,7 +113,7 @@ py -3.12 -m venv .venv
 
 **修复**：自定义 `_ClosingConnection(sqlite3.Connection)`，在 `__exit__` 中先 `super().__exit__` 再 `close()`，并作为 `factory` 传入 `sqlite3.connect`。
 
-**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 93 个）。
+**验证**：当时 56 个测试连续运行，工作区每个用例可重建（后续扩展到 98 个）。
 
 #### Bug 3：PDF 文件句柄影响删除
 
@@ -348,7 +348,7 @@ chrome --headless=new --screenshot=... http://127.0.0.1:8010/
 
 ```text
 .............................................................            [100%]
-93 passed, 1 warning in 12.34s
+98 passed, 1 warning in 12.34s
 ```
 
 ### 8.2 Lint
@@ -368,7 +368,7 @@ All checks passed!
 ```
 
 ```text
-TOTAL  4295 statements  637 missed  85%
+TOTAL  4377 statements  657 missed  85%
 ```
 
 ### 8.4 合成夹具评测
@@ -522,8 +522,8 @@ Retrieval [hybrid]: Recall@1=1.0 Recall@3=1.0 MRR=1.0 median=2ms
 ### 10.6 本轮真实结果
 
 ```text
-pytest -q                         → 93 passed
-pytest --cov                      → 85% (4295 / 637)
+pytest -q                         → 98 passed
+pytest --cov                      → 85% (4377 / 657)
 ruff check                        → All checks passed
 Extraction field accuracy         → 20/20
 Evidence acceptance               → 23/23
@@ -690,6 +690,23 @@ arxiv_max_results
 这是**显式工具调用**，不是 LLM 自主选择。
 
 2026-10-22 真实 workflow 验证（两篇本地 PDF）：workflow 完成，`arxiv_search` 因网络超时写入 `status=failed`，报告仍生成；离线假客户端覆盖成功路径。
+
+### 10.16 取消 / 预算 / 队列可靠性
+
+新增：
+
+- `POST /api/v1/research/{job_id}/cancel`：
+  - queued：立即改 jobs + job_queue 为 cancelled；
+  - running：设置 `cancel_requested=1`，worker 在阶段边界协作取消；
+  - 已完成/失败/已取消返回 409。
+- `ResearchRequest.max_elapsed_seconds`：总时间预算，且受 `RESEARCH_TIMEOUT_SECONDS` 上限约束；
+- `ResearchRequest.max_cost_usd`：上游返回 `costs` 后检查，超预算标记 `budget_exceeded`，不保存成功报告；
+- `job_queue.mark_done` 不覆盖 cancelled；
+- `finish_job` 不用 late worker 结果覆盖 cancelled；
+- `mark_job_running` 不把 cancelled 改回 running；
+- worker 在领取后、执行后都检查取消标记。
+
+这是**协作式取消**：已进入不可中断的上游网络调用时，只能在阶段边界停止；不声称硬杀进程。
 
 ### 10.15a 自主 Tool Calling 循环（V2.2）
 

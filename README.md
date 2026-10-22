@@ -35,7 +35,7 @@ SpectraScholar 把这三件事做成了显式契约：
 
 | 能力 | 状态 | 证据 |
 |---|---|---|
-| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 93 个 pytest |
+| FastAPI 服务、网页、PDF 上传、任务历史、Docker 配置 | ✅ 已实现并本地运行 | HTTP 冒烟 + 98 个 pytest |
 | Demo 调研任务（不调用搜索/LLM） | ✅ 已实现 | 报告中明确“不是调研结果” |
 | GPT Researcher Adapter | ✅ 代码完成，API 签名按 **0.16.1** 源码核对 | Mock 集成测试 + 真实本地任务 |
 | GPT Researcher 真实本地 PDF 调研（DeepSeek） | ✅ **10/10 真实任务完成** | `backend=gptr`、`is_demo=false`、报告均值 14.7k 字符、p50 24.0s / p95 33.5s、上游 costs 合计 $0.663 |
@@ -420,6 +420,7 @@ docker compose build
 | GET | `/api/v1/research/{id}/events` | 执行日志 |
 | GET | `/api/v1/research/{id}.md` | 下载报告 |
 | POST | `/api/v1/research/{id}/retry` | 重试失败任务 |
+| POST | `/api/v1/research/{id}/cancel` | 取消 queued/running 任务（running 为协作式） |
 | GET | `/api/v1/tools/arxiv_search` | arXiv 工具：年份/主题过滤、DOI 去重、分页 |
 | POST | `/api/v1/tools/agent_loop` | 有界自主 Tool Calling：planner 选择 arXiv/local search |
 | POST | `/api/v1/documents` | 上传 PDF |
@@ -442,9 +443,13 @@ docker compose build
   "topic": "比较高光谱图分类中的动态图方法和静态图方法",
   "source": "web",
   "domain": "hyperspectral",
-  "language": "zh"
+  "language": "zh",
+  "max_elapsed_seconds": 600,
+  "max_cost_usd": 0.50
 }
 ```
+
+`max_elapsed_seconds` 是总时间预算（实际还会被 `RESEARCH_TIMEOUT_SECONDS` 上限约束）；`max_cost_usd` 在上游返回成本后检查，超过则标记 `budget_exceeded`，不保存为成功报告。
 
 ---
 
@@ -484,9 +489,9 @@ python scripts/evaluate_real_papers.py  # 3 篇真实 PDF；heuristic + DeepSeek
 
 实际结果：
 
-- **93 passed**（pytest）
+- **98 passed**（pytest）
 - **ruff：All checks passed**
-- **coverage：85%**（4295 statements，637 missed）
+- **coverage：85%**（4377 statements，657 missed）
 - 三份合成夹具（两篇正文 + 一张带线 OA/AA/Kappa 表格）：
   - 抽取字段命中 **20/20**
   - 原文证据接受 **23/23**
@@ -539,7 +544,7 @@ SpectraScholar-Starter/
 │   ├── workflow.py             # 7 节点本地文献工作流
 │   └── domains.py              # 可替换领域模板
 ├── web/index.html              # 单页中文 Web UI（无构建步骤）
-├── tests/                      # 93 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
+├── tests/                      # 98 个离线测试 + PDF/表格工厂 + Mock GPT Researcher
 ├── scripts/                    # 评测、GPT Researcher API 检查/真实冒烟
 ├── eval/                       # 3 篇真实论文标注 + 清单（PDF 未提交）
 ├── docs/                       # 架构、开发日志、评测、面试、贡献说明
@@ -565,7 +570,7 @@ SpectraScholar-Starter/
 **尚未做 / 公网部署前必须补：**
 
 - 多租户与用户级数据隔离（当前是单用户）；
-- 多机 Redis/RQ 队列、取消/预算控制（当前 SQLite worker 仅单机可靠）；
+- 多机 Redis/RQ 队列（当前 SQLite worker 仅单机可靠；取消/时间预算已完成，running 取消为协作式）；
 - 恶意 PDF/病毒扫描、OCR、复杂跨页表/多级表头解析；
 - 真实 API 的 token 成本、429、长任务稳定性压测；
 - HTTPS、反向代理、备份、数据库迁移到 PostgreSQL；
@@ -583,7 +588,7 @@ SpectraScholar-Starter/
 1. 在第二台机器上完成 Compose 构建与启动验证（本机已通过）；
 2. 继续修正 SSRN/WFCG 的 OCR 列错位/表题缺失，把指标→数据集绑定从 21/24 继续提升；
 3. 用 OpenAI embedding 对比 hash 基线，报告 Recall@K / MRR / 引用精确率；
-4. 多机场景再引入 Redis/RQ，增加取消与预算；
+4. 多机场景再引入 Redis/RQ；单机取消/时间预算已实现；
 5. 30–50 题评测集；如有需要，再用 LangGraph 替换自建工作流。
 
 详见 [`docs/ROADMAP.md`](docs/ROADMAP.md)。
